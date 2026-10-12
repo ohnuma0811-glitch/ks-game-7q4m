@@ -1,10 +1,11 @@
-import { parseLevel, tileAt, setTile, TILE, QUESTION, USED, LAVA, GATE, EMPTY } from './level.js?v=c632a7d';
-import { createBoss, updateBoss, hitBoss, canStomp, HURT_TICKS } from './boss.js?v=c632a7d';
-import { Player, spawnPoint } from './player.js?v=c632a7d';
-import { cameraX } from './camera.js?v=c632a7d';
-import { createEnemy, updateEnemy } from './enemies.js?v=c632a7d';
-import { createCoin, popCoin, popItem, updateItem, itemBox, collectible } from './items.js?v=c632a7d';
-import { getDifficulty } from './difficulty.js?v=c632a7d';
+import { parseLevel, tileAt, setTile, TILE, QUESTION, USED, LAVA, GATE, EMPTY } from './level.js?v=abf9352';
+import { moveAndCollide } from './physics.js?v=abf9352';
+import { createBoss, updateBoss, hitBoss, canStomp, HURT_TICKS } from './boss.js?v=abf9352';
+import { Player, spawnPoint } from './player.js?v=abf9352';
+import { cameraX } from './camera.js?v=abf9352';
+import { createEnemy, updateEnemy } from './enemies.js?v=abf9352';
+import { createCoin, popCoin, popItem, updateItem, itemBox, collectible } from './items.js?v=abf9352';
+import { getDifficulty } from './difficulty.js?v=abf9352';
 
 export const LIVES = 3;
 export const START_TIME = 200;
@@ -29,6 +30,8 @@ export const STOMP_BOUNCE_HOLD = -4.6;
 export const RESULT_LOCK = 60;
 // 取った点数を浮かべて見せる時間（更新数）と、1更新で浮かぶ量
 export const POPUP_TICKS = 40;
+// ゴールで旗竿をすべり降りる速さ（ドット/更新）
+const SLIDE_SPEED = 2;
 const POPUP_RISE = 0.5;
 
 export function overlap(a, b) {
@@ -87,6 +90,9 @@ export class Game {
         this.boss = createBoss(e.tx, e.ty, this.diff);
       } else if (e.ch === 'F' || e.ch === '|') {
         this.goalX = Math.min(this.goalX, e.tx * TILE + 7);
+        // 旗の布が降りる長さ（旗の行から竿の一番下の行まで）
+        if (e.ch === 'F') this.flagRow = e.ty;
+        else this.poleBottom = Math.max(this.poleBottom || 0, e.ty);
       } else {
         const enemy = createEnemy(e.ch, e.tx, e.ty, this.diff);
         if (enemy) this.enemies.push(enemy);
@@ -116,6 +122,10 @@ export class Game {
     this.updatePopups();
     if (this.state === 'dying') {
       this.updateDying();
+      return;
+    }
+    if (this.state === 'clear' && !this.goalDone) {
+      this.updateGoal();
       return;
     }
     if (this.state !== 'playing') {
@@ -338,12 +348,36 @@ export class Game {
 
   // 結果を見せ終わって、やり直しを受け付けてよいか
   canRestart() {
+    if (this.state === 'clear' && !this.goalDone) return false;
     return (this.state === 'clear' || this.state === 'gameover') && this.resultTicks >= RESULT_LOCK;
+  }
+
+  // ゴールの演出: キャラが竿をすべり降り、旗の布も下まで降りる
+  updateGoal() {
+    const p = this.player;
+    if (!p.onGround) {
+      p.vx = 0;
+      p.vy = SLIDE_SPEED;
+      p.onGround = moveAndCollide(p, this.level).onGround;
+      p.anim = p.onGround ? 'stand' : 'jump';
+    }
+    const flagMax = Math.max(0, ((this.poleBottom || 0) - (this.flagRow || 0)) * TILE - TILE / 2);
+    this.flagDrop = Math.min(flagMax, this.flagDrop + SLIDE_SPEED);
+    if (p.onGround && this.flagDrop >= flagMax) this.goalDone = true;
   }
 
   clear() {
     this.state = 'clear';
     this.events.push('clear');
+    // 竿にくっついて、すべり降りる準備
+    const p = this.player;
+    p.x = this.goalX - p.w;
+    p.vx = 0;
+    p.vy = 0;
+    p.facing = 1;
+    p.onGround = false;
+    this.flagDrop = 0;
+    this.goalDone = false;
     this.score += this.time * TIME_BONUS + this.lives * LIFE_BONUS;
   }
 }

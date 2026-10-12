@@ -212,13 +212,18 @@ export const SONGS = {
       { wave: 'triangle', gain: 0.3, notes: 'C3:4 A2:4 F2:4 G2:4 C3:16' },
     ],
   },
-  // ゲームオーバー
+  // ゲームオーバー: 「ちゃらりーん、鼻から牛乳」（バッハ「トッカータとフーガ ニ短調」BWV565 の出だし。
+  // 300年前の曲で著作権は切れている。ユーザーの依頼で使用。ほかの曲と同じピコピコ音にそろえる）
   gameover: {
-    bpm: 110,
+    bpm: 84,
     loop: false,
     tracks: [
-      { wave: 'square', gain: 0.16, notes: 'E5:4 D5:4 C5:4 A4:6 B4:2 G4:4 F4:4 E4:8 R:8' },
-      { wave: 'triangle', gain: 0.3, notes: 'A2:12 F2:8 G2:8 E2:8 A2:8' },
+      {
+        wave: 'square',
+        gain: 0.17,
+        notes: 'A5:1 G5:1 A5:6 G5:1 F5:1 E5:1 D5:1 C#5:4 D5:8 R:4 A4:1 G4:1 A4:6 E4:2 F4:2 C#4:4 D4:12',
+      },
+      { wave: 'triangle', gain: 0.3, notes: 'D3:8 A2:6 D2:14 D3:8 A2:6 D2:14' },
     ],
   },
 };

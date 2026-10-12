@@ -1,12 +1,13 @@
-import { TILE } from './level.js?v=c632a7d';
-import { moveAndCollide } from './physics.js?v=c632a7d';
+import { TILE } from './level.js?v=abf9352';
+import { moveAndCollide } from './physics.js?v=abf9352';
 
 // ステージ4のボス（トゲの甲羅の大きな亀）
 // 歩く（プレイヤーの方へ）→ 甲羅に入る（その場で止まる）をくり返す。踏まれるとひるんで離れ、また歩き出す。
 // 歩いている間に上から踏めば1回。甲羅の間はトゲがあって踏めない。5回で倒れる
 export const BOSS_HP = 5;
 export const BOSS_W = 28;
-export const BOSS_H = 26;
+// 歩くときは2本足で立っているので背が高い（甲羅の間は SHELL_H）
+export const BOSS_H = 30;
 export const BOSS_WALK = 0.45;
 export const WALK_TICKS = 150;
 export const SHELL_TICKS = 110;

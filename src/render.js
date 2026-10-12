@@ -1,8 +1,8 @@
-import { TILE } from './game/level.js?v=c632a7d';
-import { cameraY } from './game/camera.js?v=c632a7d';
-import { BACKDROPS, BACKDROP_SPRITES, layerPositions } from './data/backdrop.js?v=c632a7d';
-import { getTheme } from './data/themes.js?v=c632a7d';
-import { BOSS_HP } from './game/boss.js?v=c632a7d';
+import { TILE } from './game/level.js?v=abf9352';
+import { cameraY } from './game/camera.js?v=abf9352';
+import { BACKDROPS, BACKDROP_SPRITES, layerPositions } from './data/backdrop.js?v=abf9352';
+import { getTheme } from './data/themes.js?v=abf9352';
+import { BOSS_HP } from './game/boss.js?v=abf9352';
 
 const TILE_KEYS = [null, 'G', 'B', 'Q', 'U', 'C', 'L', 'X'];
 
@@ -48,6 +48,8 @@ export function renderGame(ctx, game, gfx, viewW, viewH, tick, { hud = true, pla
   for (const e of level.entities) {
     if (e.ch === 'F' || e.ch === '|') {
       ctx.drawImage(gfx.sprites[e.ch === 'F' ? 'flag' : 'pole'], sx(e.tx * TILE), sy(e.ty * TILE));
+      // 旗の布（ゴールすると下へ降りる）
+      if (e.ch === 'F') ctx.drawImage(gfx.sprites.cloth, sx(e.tx * TILE), sy(e.ty * TILE + (game.flagDrop || 0)));
     }
   }
   for (const cp of game.checkpoints) {
@@ -76,14 +78,14 @@ export function renderGame(ctx, game, gfx, viewW, viewH, tick, { hud = true, pla
     const f = gfx.boss[key];
     // 甲羅に入る前はぶるぶるふるえる。甲羅の間は当たり判定が低いので、絵を上へずらす
     const shake = b.warning && Math.floor(tick / 2) % 2 ? 1 : 0;
-    const oy = b.state === 'shell' ? 13 : 6;
+    const oy = b.state === 'shell' ? 13 : 2;
     ctx.drawImage(b.dir < 0 ? f.right : f.left, sx(b.x - 2 + shake), sy(b.y - oy));
   }
 
-  // プレイヤー（スター中と無敵中は点滅。スターの残り3秒は速く点滅）
+  // プレイヤー（スター中は点滅。スターの残り3秒は速く点滅）
+  // （ボスを踏んだあとの無敵は点滅させない）
   let blink = 0;
   if (player.star > 0) blink = player.star < 180 ? 2 : 4;
-  else if (player.invuln > 0) blink = 3;
   if (showPlayer && !(blink && Math.floor(tick / blink) % 2)) {
     const frame = gfx.avatars[game.avatar][player.spriteName()];
     ctx.drawImage(player.facing < 0 ? frame.left : frame.right, sx(player.x - 2), sy(player.y - 2));
