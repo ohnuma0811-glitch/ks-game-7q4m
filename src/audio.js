@@ -1,4 +1,4 @@
-import { SONGS, SFX, parseTrack } from './music.js?v=5c4c7fb';
+import { SONGS, SFX, parseTrack } from './music.js?v=d3bd601';
 
 // Web Audio で BGM と効果音を鳴らす（ブラウザ専用）
 // BGM は少し先まで音を予約しておく（先読みスケジューラ）。重い端末でも途切れにくい
@@ -44,7 +44,7 @@ export class Sound {
       this.sfxBus.connect(this.master);
       this.noise = this.makeNoise();
     }
-    if (this.ctx.state === 'suspended') this.ctx.resume();
+    this.resume();
   }
 
   makeNoise() {
@@ -102,7 +102,7 @@ export class Sound {
       song,
       bus,
       sixteenth: 60 / song.bpm / 4,
-      tracks: song.tracks.map((t, i) => ({ ...t, notes: this.parsed[name][i], idx: 0, time: start, done: false })),
+      tracks: song.tracks.map((t, i) => ({ ...t, notes: this.parsed[name][i], idx: 0, time: start, pos: 0, done: false })),
     };
     this.schedule();
     this.timer = setInterval(() => this.schedule(), TICK_MS);
@@ -113,15 +113,22 @@ export class Sound {
     if (!s) return;
     const now = this.ctx.currentTime;
     const until = now + LOOKAHEAD;
+    // 重い処理やタブの切り替えで遅れたときは、まとめて鳴らさずに今から続ける。
+    // パートどうしの間隔がずれないよう、全部のパートを同じだけ進める
+    const live = s.tracks.filter((tr) => !tr.done);
+    const earliest = Math.min(...live.map((tr) => tr.time));
+    if (live.length && earliest < now - 0.05) {
+      const shift = now - earliest;
+      for (const tr of live) tr.time += shift;
+    }
     for (const tr of s.tracks) {
-      // タブが裏に回って遅れたときは、まとめて鳴らさずに今から続ける
-      if (tr.time < now - 0.05) tr.time = now;
       while (!tr.done && tr.time < until) {
         const n = tr.notes[tr.idx];
         const dur = n.len * s.sixteenth;
         if (n.noise) this.tone(s.bus, 'noise', 0, 0, tr.time, NOISE_DUR, tr.gain);
         else if (n.freq) this.tone(s.bus, tr.wave, n.freq, 0, tr.time, dur * 0.9, tr.gain);
         tr.time += dur;
+        tr.pos += n.len;
         tr.idx++;
         if (tr.idx >= tr.notes.length) {
           if (s.song.loop) tr.idx = 0;
@@ -141,10 +148,11 @@ export class Sound {
   }
 
   suspend() {
-    if (this.ctx && this.ctx.state === 'running') this.ctx.suspend();
+    if (this.ctx && this.ctx.state === 'running') this.ctx.suspend().catch(() => {});
   }
 
+  // iPhone は電話・アプリの切り替えのあと 'interrupted' になることがあるので、running 以外なら再開する
   resume() {
-    if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+    if (this.ctx && this.ctx.state !== 'running' && this.ctx.state !== 'closed') this.ctx.resume().catch(() => {});
   }
 }

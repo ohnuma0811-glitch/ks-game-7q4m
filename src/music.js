@@ -158,8 +158,8 @@ export const SONGS = {
     bpm: 160,
     loop: false,
     tracks: [
-      { wave: 'square', gain: 0.18, notes: 'G4:2 C5:2 E5:2 G5:2 C6:4 R:2 G5:2 C6:16' },
-      { wave: 'triangle', gain: 0.3, notes: 'C3:2 E3:2 G3:2 C4:2 E4:4 R:4 C3:16' },
+      { wave: 'square', gain: 0.18, notes: 'C5:2 D5:2 E5:2 C5:2 F5:2 A5:2 G5:4 E5:2 C6:14' },
+      { wave: 'triangle', gain: 0.3, notes: 'C3:4 A2:4 F2:4 G2:4 C3:16' },
     ],
   },
   // ゲームオーバー
@@ -167,8 +167,8 @@ export const SONGS = {
     bpm: 110,
     loop: false,
     tracks: [
-      { wave: 'square', gain: 0.16, notes: 'C5:4 G4:4 E4:4 A4:3 B4:3 A4:2 G#4:4 Bb4:4 G#4:4 G4:2 F4:2 G4:8' },
-      { wave: 'triangle', gain: 0.3, notes: 'C3:12 F2:8 E2:8 Bb2:8 C3:8' },
+      { wave: 'square', gain: 0.16, notes: 'E5:4 D5:4 C5:4 A4:6 B4:2 G4:4 F4:4 E4:8 R:8' },
+      { wave: 'triangle', gain: 0.3, notes: 'A2:12 F2:8 G2:8 E2:8 A2:8' },
     ],
   },
 };
@@ -176,7 +176,7 @@ export const SONGS = {
 // 効果音: steps を順に鳴らす。freq から to へ音の高さを動かす。dur は秒
 export const SFX = {
   jump: { wave: 'square', steps: [{ freq: 260, to: 620, dur: 0.12, gain: 0.18 }] },
-  coin: { wave: 'square', steps: [{ freq: 988, dur: 0.06, gain: 0.18 }, { freq: 1319, dur: 0.22, gain: 0.18 }] },
+  coin: { wave: 'square', steps: [{ freq: 1175, dur: 0.05, gain: 0.18 }, { freq: 1568, dur: 0.2, gain: 0.18 }] },
   bump: { wave: 'triangle', steps: [{ freq: 160, to: 90, dur: 0.09, gain: 0.4 }] },
   item: { wave: 'square', steps: [{ freq: 392, dur: 0.06, gain: 0.15 }, { freq: 523, dur: 0.06, gain: 0.15 }, { freq: 659, dur: 0.06, gain: 0.15 }, { freq: 784, dur: 0.1, gain: 0.15 }] },
   stomp: { wave: 'square', steps: [{ freq: 520, to: 140, dur: 0.1, gain: 0.2 }] },

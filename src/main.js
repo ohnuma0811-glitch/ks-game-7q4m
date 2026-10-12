@@ -1,15 +1,16 @@
-import { computeViewport, isPortrait } from './screen.js?v=5c4c7fb';
-import { startLoop } from './loop.js?v=5c4c7fb';
-import { Input, attachInput, computeButtonLayout } from './input.js?v=5c4c7fb';
-import { buildGraphics } from './gfx.js?v=5c4c7fb';
-import { Game } from './game/game.js?v=5c4c7fb';
-import { renderGame } from './render.js?v=5c4c7fb';
-import { STAGES, STAGE_MUSIC } from './data/stages.js?v=5c4c7fb';
-import { Flow } from './flow.js?v=5c4c7fb';
-import { createUI } from './ui.js?v=5c4c7fb';
-import { loadNames, saveNames } from './names.js?v=5c4c7fb';
-import { loadRanking, saveRanking, storageWorks } from './ranking.js?v=5c4c7fb';
-import { Sound } from './audio.js?v=5c4c7fb';
+import { computeViewport, isPortrait } from './screen.js?v=d3bd601';
+import { startLoop } from './loop.js?v=d3bd601';
+import { Input, attachInput, computeButtonLayout } from './input.js?v=d3bd601';
+import { buildGraphics } from './gfx.js?v=d3bd601';
+import { Game } from './game/game.js?v=d3bd601';
+import { renderGame } from './render.js?v=d3bd601';
+import { STAGES, STAGE_MUSIC } from './data/stages.js?v=d3bd601';
+import { Flow } from './flow.js?v=d3bd601';
+import { createUI } from './ui.js?v=d3bd601';
+import { loadNames, saveNames } from './names.js?v=d3bd601';
+import { loadRanking, saveRanking, storageWorks } from './ranking.js?v=d3bd601';
+import { Sound } from './audio.js?v=d3bd601';
+import { musicFor } from './musicstate.js?v=d3bd601';
 
 // 「STAGE 1」を見せる時間（更新数）
 const INTRO_TICKS = 90;
@@ -85,11 +86,15 @@ function afterAction(act) {
 
 // 今の状態に合う BGM にする（メニューでは止める。ミス・クリア・結果の間はジングルのまま）
 function updateMusic() {
-  if (flow.screen === 'play' && game && game.state === 'playing') {
-    sound.playMusic(game.player.star > 0 ? 'star' : STAGE_MUSIC[flow.stageIndex] || 'grass');
-  } else if (flow.screen !== 'play' && flow.screen !== 'result') {
-    sound.playMusic(null);
-  }
+  const want = musicFor({
+    screen: flow.screen,
+    gameState: game ? game.state : null,
+    star: game ? game.player.star : 0,
+    stageIndex: flow.stageIndex,
+    stageMusic: STAGE_MUSIC,
+    current: sound.current,
+  });
+  if (want !== undefined) sound.playMusic(want);
 }
 
 // ゲームで起きたことに合わせて効果音・ジングルを鳴らす
