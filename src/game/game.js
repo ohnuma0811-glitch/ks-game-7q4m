@@ -1,9 +1,9 @@
-import { parseLevel, tileAt, setTile, TILE, QUESTION, USED } from './level.js?v=2812ac1';
-import { Player, spawnPoint } from './player.js?v=2812ac1';
-import { cameraX } from './camera.js?v=2812ac1';
-import { createEnemy, updateEnemy } from './enemies.js?v=2812ac1';
-import { createCoin, popCoin, popItem, updateItem, itemBox, collectible } from './items.js?v=2812ac1';
-import { getDifficulty } from './difficulty.js?v=2812ac1';
+import { parseLevel, tileAt, setTile, TILE, QUESTION, USED } from './level.js?v=0fcb32f';
+import { Player, spawnPoint } from './player.js?v=0fcb32f';
+import { cameraX } from './camera.js?v=0fcb32f';
+import { createEnemy, updateEnemy } from './enemies.js?v=0fcb32f';
+import { createCoin, popCoin, popItem, updateItem, itemBox, collectible } from './items.js?v=0fcb32f';
+import { getDifficulty } from './difficulty.js?v=0fcb32f';
 
 export const LIVES = 3;
 export const START_TIME = 200;
@@ -28,14 +28,15 @@ export function overlap(a, b) {
 }
 
 export class Game {
-  constructor(levelLines, { avatar = 'kyugo', difficulty = 'normal' } = {}) {
+  constructor(levelLines, { avatar = 'kyugo', difficulty = 'normal', name = '', lives = LIVES, score = 0, coins = 0 } = {}) {
     this.lines = levelLines;
     this.avatar = avatar;
+    this.name = name;
     this.difficulty = difficulty;
     this.diff = getDifficulty(difficulty);
-    this.lives = LIVES;
-    this.coins = 0;
-    this.score = 0;
+    this.lives = lives;
+    this.coins = coins;
+    this.score = score;
     this.checkpoint = null;
     this.passed = new Set();
     // 取ったコインと使った？ブロックは、出直しても戻らない（何度もミスして稼げないように）

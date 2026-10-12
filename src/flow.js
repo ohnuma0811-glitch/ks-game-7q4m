@@ -1,0 +1,110 @@
+// 画面の流れ（タイトル → 名前 → キャラ → むずかしさ → ステージ → 結果）。DOM に依存しない
+export const MAX_NAME = 8;
+export const AVATAR_IDS = ['kyugo', 'soki'];
+export const DIFFICULTY_IDS = ['easy', 'normal', 'hard'];
+export const START_LIVES = 3;
+
+const BACK = { name: 'title', avatar: 'name', difficulty: 'avatar' };
+
+export class Flow {
+  constructor(stageCount) {
+    this.stageCount = stageCount;
+    this.screen = 'title';
+    this.name = '';
+    this.avatar = 'kyugo';
+    this.difficulty = 'normal';
+    this.stageIndex = 0;
+    this.carry = { lives: START_LIVES, score: 0, coins: 0 };
+    this.result = null;
+    this.paused = false;
+  }
+
+  start() {
+    if (this.screen !== 'title') return;
+    this.name = '';
+    this.screen = 'name';
+  }
+
+  typeLetter(ch) {
+    if (this.screen !== 'name') return;
+    const c = String(ch).toUpperCase();
+    if (!/^[A-Z]$/.test(c) || this.name.length >= MAX_NAME) return;
+    this.name += c;
+  }
+
+  deleteLetter() {
+    if (this.screen === 'name') this.name = this.name.slice(0, -1);
+  }
+
+  canConfirmName() {
+    return this.name.length > 0;
+  }
+
+  confirmName() {
+    if (this.screen !== 'name' || !this.canConfirmName()) return;
+    this.screen = 'avatar';
+  }
+
+  back() {
+    if (BACK[this.screen]) this.screen = BACK[this.screen];
+  }
+
+  chooseAvatar(id) {
+    if (this.screen !== 'avatar' || !AVATAR_IDS.includes(id)) return;
+    this.avatar = id;
+    this.screen = 'difficulty';
+  }
+
+  chooseDifficulty(id) {
+    if (this.screen !== 'difficulty' || !DIFFICULTY_IDS.includes(id)) return;
+    this.difficulty = id;
+    this.stageIndex = 0;
+    this.carry = { lives: START_LIVES, score: 0, coins: 0 };
+    this.result = null;
+    this.screen = 'intro';
+  }
+
+  beginStage() {
+    if (this.screen !== 'intro') return;
+    this.screen = 'play';
+    this.paused = false;
+  }
+
+  stageCleared({ lives, score, coins }) {
+    if (this.screen !== 'play') return;
+    this.carry = { lives, score, coins };
+    if (this.stageIndex + 1 < this.stageCount) {
+      this.stageIndex++;
+      this.screen = 'intro';
+    } else {
+      this.result = { type: 'clear', score, coins };
+      this.screen = 'result';
+    }
+  }
+
+  gameOver({ score, coins }) {
+    if (this.screen !== 'play') return;
+    this.result = { type: 'gameover', score, coins };
+    this.screen = 'result';
+  }
+
+  pause() {
+    if (this.screen === 'play') this.paused = true;
+  }
+
+  resume() {
+    this.paused = false;
+  }
+
+  quitToTitle() {
+    this.screen = 'title';
+    this.paused = false;
+    this.result = null;
+  }
+
+  finish() {
+    if (this.screen !== 'result') return;
+    this.screen = 'title';
+    this.result = null;
+  }
+}

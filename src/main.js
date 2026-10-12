@@ -1,16 +1,23 @@
-import { computeViewport, isPortrait } from './screen.js?v=2812ac1';
-import { startLoop } from './loop.js?v=2812ac1';
-import { Input, attachInput, computeButtonLayout } from './input.js?v=2812ac1';
-import { buildGraphics } from './gfx.js?v=2812ac1';
-import { Game } from './game/game.js?v=2812ac1';
-import { renderGame } from './render.js?v=2812ac1';
-import { STAGE_1 } from './data/stages.js?v=2812ac1';
+import { computeViewport, isPortrait } from './screen.js?v=0fcb32f';
+import { startLoop } from './loop.js?v=0fcb32f';
+import { Input, attachInput, computeButtonLayout } from './input.js?v=0fcb32f';
+import { buildGraphics } from './gfx.js?v=0fcb32f';
+import { Game } from './game/game.js?v=0fcb32f';
+import { renderGame } from './render.js?v=0fcb32f';
+import { STAGES } from './data/stages.js?v=0fcb32f';
+import { Flow } from './flow.js?v=0fcb32f';
+import { createUI } from './ui.js?v=0fcb32f';
+
+// 「STAGE 1」を見せる時間（更新数）
+const INTRO_TICKS = 90;
 
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 const rotateEl = document.getElementById('rotate');
 const touchLayer = document.getElementById('touch-layer');
 const probe = document.getElementById('safe-probe');
+const pauseEl = document.getElementById('btn-pause');
+const menuEl = document.getElementById('menu');
 const btnEls = {
   left: document.getElementById('btn-left'),
   right: document.getElementById('btn-right'),
@@ -21,15 +28,35 @@ const input = new Input();
 let view = computeViewport(window.innerWidth, window.innerHeight);
 let layout = computeButtonLayout(window.innerWidth, window.innerHeight);
 
-// 選択画面（M4）までの仮: ?c=soki でキャラ、?d=easy|normal|hard で難易度
-const params = new URLSearchParams(location.search);
-const options = {
-  avatar: params.get('c') === 'soki' ? 'soki' : 'kyugo',
-  difficulty: ['easy', 'normal', 'hard'].includes(params.get('d')) ? params.get('d') : 'normal',
-};
 const gfx = buildGraphics();
-let game = new Game(STAGE_1, options);
+const flow = new Flow(STAGES.length);
+// メニューの後ろに見せるステージ1の景色
+const backdrop = new Game(STAGES[0]);
+let game = null;
 let tick = 0;
+let introTicks = 0;
+let lastScreen = flow.screen;
+
+const ui = createUI({ root: menuEl, flow, gfx, onAction: afterAction });
+
+// 画面が変わったあとの片付け（ボタンの表示切り替え、メニューの作り直し）
+function afterAction() {
+  if (flow.screen !== lastScreen) {
+    if (flow.screen === 'intro') introTicks = 0;
+    if (flow.screen === 'title') game = null;
+    lastScreen = flow.screen;
+  }
+  const playing = flow.screen === 'play' && !flow.paused;
+  for (const b of Object.values(btnEls)) b.classList.toggle('hidden', !playing);
+  pauseEl.classList.toggle('show', playing);
+  if (!playing) input.clear();
+  ui.render();
+}
+
+function pause() {
+  flow.pause();
+  afterAction();
+}
 
 function readSafeArea() {
   const s = getComputedStyle(probe);
@@ -58,7 +85,9 @@ function resize() {
   canvas.style.left = `${view.offsetX}px`;
   canvas.style.top = `${view.offsetY}px`;
   ctx.imageSmoothingEnabled = false;
-  rotateEl.classList.toggle('show', isPortrait(w, h));
+  const portrait = isPortrait(w, h);
+  rotateEl.classList.toggle('show', portrait);
+  if (portrait) pause();
   layout = computeButtonLayout(w, h, readSafeArea());
   placeButton(btnEls.left, layout.left);
   placeButton(btnEls.right, layout.right);
@@ -69,12 +98,26 @@ function resize() {
 function update() {
   input.tick();
   tick++;
-  // クリア・ゲームオーバーのあとは、ジャンプで最初から（M4 で画面遷移に置き換える）
-  if (game.canRestart() && input.jumpPressed) {
-    game = new Game(STAGE_1, options);
-    return;
+  if (flow.screen === 'intro') {
+    introTicks++;
+    if (introTicks >= INTRO_TICKS) {
+      game = new Game(STAGES[flow.stageIndex], {
+        avatar: flow.avatar,
+        difficulty: flow.difficulty,
+        name: flow.name,
+        ...flow.carry,
+      });
+      flow.beginStage();
+    }
+  } else if (flow.screen === 'play' && !flow.paused) {
+    game.update(input, view.width);
+    // クリア・ゲームオーバーの表示を見せ終わったら次へ
+    if (game.canRestart()) {
+      if (game.state === 'clear') flow.stageCleared(game);
+      else flow.gameOver(game);
+    }
   }
-  game.update(input, view.width);
+  if (flow.screen !== lastScreen) afterAction();
 }
 
 let fps = 0;
@@ -92,7 +135,11 @@ function countFps() {
 }
 
 function render() {
-  renderGame(ctx, game, gfx, view.width, view.height, tick);
+  if (game && (flow.screen === 'play' || flow.screen === 'result')) {
+    renderGame(ctx, game, gfx, view.width, view.height, tick);
+  } else {
+    renderGame(ctx, backdrop, gfx, view.width, view.height, tick, { hud: false, player: false });
+  }
   ctx.font = '8px monospace';
   ctx.textAlign = 'right';
   ctx.textBaseline = 'top';
@@ -103,12 +150,33 @@ function render() {
   btnEls.jump.classList.toggle('active', input.jump);
 }
 
+// 名前は PC のキーボードでも入れられる。プレイ中は Esc / P で一時停止
+window.addEventListener('keydown', (e) => {
+  if (flow.screen === 'name') {
+    if (/^Key[A-Z]$/.test(e.code)) flow.typeLetter(e.code.slice(3));
+    else if (e.code === 'Backspace') flow.deleteLetter();
+    else if (e.code === 'Enter') flow.confirmName();
+    else return;
+    e.preventDefault();
+    afterAction();
+  } else if (flow.screen === 'play' && (e.code === 'Escape' || e.code === 'KeyP')) {
+    if (flow.paused) flow.resume();
+    else flow.pause();
+    afterAction();
+  }
+});
+pauseEl.addEventListener('click', pause);
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) pause();
+});
+
 attachInput(input, touchLayer, () => layout);
 window.addEventListener('resize', resize);
 window.addEventListener('orientationchange', resize);
 document.addEventListener('gesturestart', (e) => e.preventDefault());
 
 resize();
+afterAction();
 startLoop({
   update,
   render() { countFps(); render(); },

@@ -1,5 +1,5 @@
-import { TILE, isSolid } from './level.js?v=2812ac1';
-import { moveAndCollide } from './physics.js?v=2812ac1';
+import { TILE, isSolid } from './level.js?v=0fcb32f';
+import { moveAndCollide } from './physics.js?v=0fcb32f';
 
 // 敵の文字と種類
 const KIND = { w: 'walker', W: 'walker', x: 'walker', j: 'jumper', J: 'jumper', y: 'jumper', S: 'spike' };
@@ -11,6 +11,8 @@ export const SPIKE_SPEED = 0.4;
 export const HOP_V = -3.6;
 export const HOP_VX = 0.9;
 export const HOP_INTERVAL = 50;
+// 跳んでから着地するまでの更新数（-HOP_V / GRAVITY の2倍）
+const HOP_AIR_TICKS = Math.ceil((2 * -HOP_V) / GRAVITY);
 
 export function createEnemy(ch, tx, ty, diff) {
   if (!diff.enemyChars.includes(ch)) return null;
@@ -71,6 +73,10 @@ export function updateEnemy(e, level, player) {
       e.dir = player.x < e.x ? -1 : 1;
       e.vy = HOP_V;
       e.vx = e.dir * HOP_VX * e.speed;
+      // 着地する所に地面がなければ、その場で跳ねる（自分から穴に落ちない）
+      const landX = e.x + e.w / 2 + e.vx * HOP_AIR_TICKS;
+      const below = Math.floor((e.y + e.h + 1) / TILE);
+      if (!isSolid(level, Math.floor(landX / TILE), below)) e.vx = 0;
     }
   }
 

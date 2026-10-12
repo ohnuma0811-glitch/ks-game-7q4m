@@ -1,10 +1,10 @@
-import { TILE } from './game/level.js?v=2812ac1';
-import { cameraY } from './game/camera.js?v=2812ac1';
+import { TILE } from './game/level.js?v=0fcb32f';
+import { cameraY } from './game/camera.js?v=0fcb32f';
 
 const TILE_KEYS = [null, 'G', 'B', 'Q', 'U'];
 const SKY = '#5c94fc';
 
-export function renderGame(ctx, game, gfx, viewW, viewH, tick) {
+export function renderGame(ctx, game, gfx, viewW, viewH, tick, { hud = true, player: showPlayer = true } = {}) {
   const { level, camX, player } = game;
   const camY = cameraY(level.height * TILE, viewH);
   const sx = (x) => Math.round(x - camX);
@@ -51,7 +51,7 @@ export function renderGame(ctx, game, gfx, viewW, viewH, tick) {
   let blink = 0;
   if (player.star > 0) blink = player.star < 180 ? 2 : 4;
   else if (player.invuln > 0) blink = 3;
-  if (!(blink && Math.floor(tick / blink) % 2)) {
+  if (showPlayer && !(blink && Math.floor(tick / blink) % 2)) {
     const frame = gfx.avatars[game.avatar][player.spriteName()];
     ctx.drawImage(player.facing < 0 ? frame.left : frame.right, sx(player.x - 2), sy(player.y - 2));
   }
@@ -61,9 +61,11 @@ export function renderGame(ctx, game, gfx, viewW, viewH, tick) {
   ctx.textBaseline = 'bottom';
   for (const pop of game.popups) text(ctx, pop.text, sx(pop.x), sy(pop.y), 'center');
 
-  drawHud(ctx, game, viewW);
-  if (game.state === 'clear') drawBanner(ctx, viewW, viewH, 'STAGE CLEAR!');
-  if (game.state === 'gameover') drawBanner(ctx, viewW, viewH, 'GAME OVER');
+  if (hud) {
+    drawHud(ctx, game, viewW);
+    if (game.state === 'clear') drawBanner(ctx, viewW, viewH, 'STAGE CLEAR!');
+    if (game.state === 'gameover') drawBanner(ctx, viewW, viewH, 'GAME OVER');
+  }
 }
 
 function text(ctx, s, x, y, align = 'left') {
@@ -78,7 +80,7 @@ function drawHud(ctx, game, viewW) {
   ctx.font = '8px monospace';
   ctx.textBaseline = 'top';
   const cols = [
-    `${game.avatar.toUpperCase()} x${game.lives}`,
+    `${(game.name || game.avatar).toUpperCase()} x${game.lives}`,
     `COIN ${String(game.coins).padStart(2, '0')}`,
     String(game.score).padStart(6, '0'),
     `TIME ${String(game.time).padStart(3, '0')}`,
@@ -93,7 +95,5 @@ function drawBanner(ctx, viewW, viewH, title) {
   ctx.fillRect(0, viewH / 2 - 22, viewW, 44);
   ctx.font = '16px monospace';
   ctx.textBaseline = 'middle';
-  text(ctx, title, viewW / 2, viewH / 2 - 6, 'center');
-  ctx.font = '8px monospace';
-  text(ctx, 'PRESS JUMP', viewW / 2, viewH / 2 + 12, 'center');
+  text(ctx, title, viewW / 2, viewH / 2, 'center');
 }
