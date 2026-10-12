@@ -1,5 +1,5 @@
-import { addName, removeName } from './names.js?v=2d85724';
-import { emptyRanking, insertScore, formatDate } from './ranking.js?v=2d85724';
+import { addName, removeName } from './names.js?v=c6eb4c8';
+import { emptyRanking, insertScore, formatDate } from './ranking.js?v=c6eb4c8';
 
 // 画面の流れ（タイトル → だれが遊ぶ／名前 → キャラ → むずかしさ → ステージ → 結果）。DOM に依存しない
 export const MAX_NAME = 8;
@@ -23,6 +23,7 @@ export class Flow {
     this.savedNames = savedNames;
     this.onSavedNamesChange = onSavedNamesChange;
     this.deleting = null;
+    this.pickedName = false;
     // ランキング（難易度ごと）と、変わったときに保存する関数
     this.ranking = ranking;
     this.onRankingChange = onRankingChange;
@@ -54,6 +55,8 @@ export class Flow {
     if (this.screen !== 'pick' || this.deleting || !this.savedNames.includes(name)) return;
     this.name = name;
     this.remember(name);
+    // キャラ選択のもどるで「だれが あそぶ？」に戻れるように覚えておく
+    this.pickedName = true;
     this.screen = 'avatar';
   }
 
@@ -101,6 +104,7 @@ export class Flow {
   confirmName() {
     if (this.screen !== 'name' || !this.canConfirmName()) return;
     this.remember(this.name);
+    this.pickedName = false;
     this.screen = 'avatar';
   }
 
@@ -110,6 +114,7 @@ export class Flow {
       this.confirmingReset = false;
     }
     if (this.screen === 'name') this.screen = this.savedNames.length ? 'pick' : 'title';
+    else if (this.screen === 'avatar' && this.pickedName) this.screen = 'pick';
     else if (BACK[this.screen]) this.screen = BACK[this.screen];
   }
 

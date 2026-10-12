@@ -242,7 +242,8 @@ html, body {
   grid-template-rows: repeat(5, auto);
   grid-auto-flow: column;
   gap: 0.8vh 3vw;
-  font: bold clamp(12px, 4.4vh, 24px) monospace;
+  /* iPad（4:3）でもはみ出さないよう、横幅でも上限をかける */
+  font: bold clamp(12px, min(4.4vh, 1.9vw), 24px) monospace;
 }
 #menu .rank-row {
   display: grid;
