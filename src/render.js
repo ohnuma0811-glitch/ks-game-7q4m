@@ -1,12 +1,14 @@
 import { TILE } from './game/level.js';
 import { cameraY } from './game/camera.js';
 
-const TILE_KEYS = [null, 'G', 'B'];
+const TILE_KEYS = [null, 'G', 'B', 'Q', 'U'];
 const SKY = '#5c94fc';
 
-export function renderGame(ctx, game, gfx, viewW, viewH) {
+export function renderGame(ctx, game, gfx, viewW, viewH, tick) {
   const { level, camX, player } = game;
   const camY = cameraY(level.height * TILE, viewH);
+  const sx = (x) => Math.round(x - camX);
+  const sy = (y) => Math.round(y - camY);
   ctx.fillStyle = SKY;
   ctx.fillRect(0, 0, viewW, viewH);
 
@@ -15,12 +17,78 @@ export function renderGame(ctx, game, gfx, viewW, viewH) {
   const tx1 = Math.min(level.width - 1, Math.floor((camX + viewW - 1) / TILE));
   for (let ty = 0; ty < level.height; ty++) {
     for (let tx = tx0; tx <= tx1; tx++) {
-      const code = level.tiles[ty * level.width + tx];
-      if (code) ctx.drawImage(gfx.tiles[TILE_KEYS[code]], tx * TILE - camX, ty * TILE - camY);
+      const img = gfx.tiles[TILE_KEYS[level.tiles[ty * level.width + tx]]];
+      if (img) ctx.drawImage(img, tx * TILE - camX, ty * TILE - camY);
     }
   }
 
-  const frame = gfx.avatars[game.avatar][player.spriteName()];
-  const img = player.facing < 0 ? frame.left : frame.right;
-  ctx.drawImage(img, Math.round(player.x - 2 - camX), Math.round(player.y - 2 - camY));
+  // ゴールとチェックポイント
+  for (const e of level.entities) {
+    if (e.ch === 'F' || e.ch === '|') {
+      ctx.drawImage(gfx.sprites[e.ch === 'F' ? 'flag' : 'pole'], sx(e.tx * TILE), sy(e.ty * TILE));
+    }
+  }
+  for (const cp of game.checkpoints) {
+    if (cp.enabled) ctx.drawImage(gfx.sprites[cp.passed ? 'checkOn' : 'check'], sx(cp.tx * TILE), sy(cp.ty * TILE));
+  }
+
+  // アイテム
+  for (const it of game.items) {
+    const img = gfx.sprites[it.kind === 'popcoin' ? 'coin' : it.kind];
+    ctx.drawImage(img, sx(it.x), sy(it.y));
+  }
+
+  // 敵（歩く敵は足踏み、ほかは向いている方を見る）
+  for (const e of game.enemies) {
+    if (e.removed || !e.active) continue;
+    const flat = e.squash > 0 && e.kind !== 'spike';
+    const f = gfx.enemies[flat ? `${e.kind}Flat` : e.kind];
+    const img = e.kind === 'walker' ? (Math.floor(tick / 12) % 2 ? f.left : f.right) : (e.dir > 0 ? f.right : f.left);
+    ctx.drawImage(img, sx(e.x - 1), sy(e.y - 1));
+  }
+
+  // プレイヤー（スター中と無敵中は点滅。スターの残り3秒は速く点滅）
+  let blink = 0;
+  if (player.star > 0) blink = player.star < 180 ? 2 : 4;
+  else if (player.invuln > 0) blink = 3;
+  if (!(blink && Math.floor(tick / blink) % 2)) {
+    const frame = gfx.avatars[game.avatar][player.spriteName()];
+    ctx.drawImage(player.facing < 0 ? frame.left : frame.right, sx(player.x - 2), sy(player.y - 2));
+  }
+
+  drawHud(ctx, game, viewW);
+  if (game.state === 'clear') drawBanner(ctx, viewW, viewH, 'STAGE CLEAR!');
+  if (game.state === 'gameover') drawBanner(ctx, viewW, viewH, 'GAME OVER');
+}
+
+function text(ctx, s, x, y, align = 'left') {
+  ctx.textAlign = align;
+  ctx.fillStyle = '#000';
+  ctx.fillText(s, x + 1, y + 1);
+  ctx.fillStyle = '#fff';
+  ctx.fillText(s, x, y);
+}
+
+function drawHud(ctx, game, viewW) {
+  ctx.font = '8px monospace';
+  ctx.textBaseline = 'top';
+  const cols = [
+    `${game.avatar.toUpperCase()} x${game.lives}`,
+    `COIN ${String(game.coins).padStart(2, '0')}`,
+    String(game.score).padStart(6, '0'),
+    `TIME ${String(game.time).padStart(3, '0')}`,
+  ];
+  const step = (viewW - 8) / cols.length;
+  cols.forEach((s, i) => text(ctx, s, 4 + i * step, 3));
+  text(ctx, game.diff.label, 4, 13);
+}
+
+function drawBanner(ctx, viewW, viewH, title) {
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+  ctx.fillRect(0, viewH / 2 - 22, viewW, 44);
+  ctx.font = '16px monospace';
+  ctx.textBaseline = 'middle';
+  text(ctx, title, viewW / 2, viewH / 2 - 6, 'center');
+  ctx.font = '8px monospace';
+  text(ctx, 'PRESS JUMP', viewW / 2, viewH / 2 + 12, 'center');
 }

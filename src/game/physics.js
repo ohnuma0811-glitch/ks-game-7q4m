@@ -4,7 +4,7 @@ import { TILE, isSolid } from './level.js';
 const EPS = 0.001;
 
 export function moveAndCollide(body, level) {
-  const r = { onGround: false, hitCeiling: false, hitWall: false };
+  const r = { onGround: false, hitCeiling: false, hitWall: false, ceil: null };
 
   // 横に動かして押し戻す
   body.x += body.vx;
@@ -32,18 +32,26 @@ export function moveAndCollide(body, level) {
     const ty = body.vy > 0
       ? Math.floor((body.y + body.h - EPS) / TILE)
       : Math.floor(body.y / TILE);
+    let hitTx = -1;
     for (let tx = left; tx <= right; tx++) {
       if (isSolid(level, tx, ty)) {
-        if (body.vy > 0) {
-          body.y = ty * TILE - body.h;
-          r.onGround = true;
-        } else {
-          body.y = (ty + 1) * TILE;
-          r.hitCeiling = true;
-        }
-        body.vy = 0;
+        hitTx = tx;
         break;
       }
+    }
+    if (hitTx >= 0) {
+      if (body.vy > 0) {
+        body.y = ty * TILE - body.h;
+        r.onGround = true;
+      } else {
+        // 2つにまたがるときは体の中心の上のブロックを叩く
+        const cx = Math.floor((body.x + body.w / 2) / TILE);
+        if (isSolid(level, cx, ty)) hitTx = cx;
+        body.y = (ty + 1) * TILE;
+        r.hitCeiling = true;
+        r.ceil = { tx: hitTx, ty };
+      }
+      body.vy = 0;
     }
   }
   return r;

@@ -1,4 +1,5 @@
 import { AVATARS, TILES, TILE_PALETTE, parseSprite } from './data/sprites.js';
+import { ENEMIES, ITEMS, BLOCKS } from './data/objects.js';
 
 // ドット絵を小さな Canvas に描いておき、毎フレーム drawImage で使い回す
 function toCanvas(sprite, flip) {
@@ -16,18 +17,30 @@ function toCanvas(sprite, flip) {
   return c;
 }
 
+const both = (s) => ({ right: toCanvas(s, false), left: toCanvas(s, true) });
+
 export function buildGraphics() {
   const avatars = {};
   for (const [name, a] of Object.entries(AVATARS)) {
     avatars[name] = {};
     for (const [frame, rows] of Object.entries(a.frames)) {
-      const s = parseSprite(rows, a.palette);
-      avatars[name][frame] = { right: toCanvas(s, false), left: toCanvas(s, true) };
+      avatars[name][frame] = both(parseSprite(rows, a.palette));
     }
   }
   const tiles = {};
   for (const [key, rows] of Object.entries(TILES)) {
     tiles[key] = toCanvas(parseSprite(rows, TILE_PALETTE), false);
   }
-  return { avatars, tiles };
+  for (const [key, s] of Object.entries(BLOCKS)) {
+    tiles[key] = toCanvas(parseSprite(s.rows, s.palette), false);
+  }
+  const enemies = {};
+  for (const [key, s] of Object.entries(ENEMIES)) {
+    enemies[key] = both(parseSprite(s.rows, s.palette));
+  }
+  const sprites = {};
+  for (const [key, s] of Object.entries(ITEMS)) {
+    sprites[key] = toCanvas(parseSprite(s.rows, s.palette), false);
+  }
+  return { avatars, tiles, enemies, sprites };
 }

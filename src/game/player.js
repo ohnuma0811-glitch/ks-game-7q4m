@@ -27,6 +27,7 @@ export class Player {
   constructor(x, y) {
     this.x = x;
     this.y = y;
+    this.prevY = y;
     this.w = W;
     this.h = H;
     this.vx = 0;
@@ -40,9 +41,14 @@ export class Player {
     this.coyote = 0;
     this.jumpBuffer = 0;
     this.walkDist = 0;
+    // スターと無敵（ミス救済後）の残り更新数
+    this.star = 0;
+    this.invuln = 0;
+    this.lastHit = { onGround: false, hitCeiling: false, hitWall: false, ceil: null };
   }
 
   update(input, level) {
+    this.prevY = this.y;
     const dir = (input.right ? 1 : 0) - (input.left ? 1 : 0);
 
     // 横の動き: 同じ向きに押し続けると少しずつ速くなる
@@ -79,6 +85,7 @@ export class Player {
     this.vy = Math.min(this.vy + g, MAX_FALL);
 
     const r = moveAndCollide(this, level);
+    this.lastHit = r;
     this.onGround = r.onGround;
     if (this.jumpBuffer > 0) this.jumpBuffer--;
     if (!this.onGround && this.coyote > 0) this.coyote--;
@@ -95,6 +102,8 @@ export class Player {
     }
 
     if (this.y > level.height * TILE + 32) this.fell = true;
+    if (this.star > 0) this.star--;
+    if (this.invuln > 0) this.invuln--;
   }
 
   spriteName() {

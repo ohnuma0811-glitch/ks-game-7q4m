@@ -4,7 +4,7 @@ import { Input, attachInput, computeButtonLayout } from './input.js';
 import { buildGraphics } from './gfx.js';
 import { Game } from './game/game.js';
 import { renderGame } from './render.js';
-import { TEST_STAGE } from './data/stages.js';
+import { STAGE_1 } from './data/stages.js';
 
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
@@ -21,10 +21,15 @@ const input = new Input();
 let view = computeViewport(window.innerWidth, window.innerHeight);
 let layout = computeButtonLayout(window.innerWidth, window.innerHeight);
 
-// キャラ選択画面（M4）までの仮: ?c=soki で Soki
-const avatar = new URLSearchParams(location.search).get('c') === 'soki' ? 'soki' : 'kyugo';
+// 選択画面（M4）までの仮: ?c=soki でキャラ、?d=easy|normal|hard で難易度
+const params = new URLSearchParams(location.search);
+const options = {
+  avatar: params.get('c') === 'soki' ? 'soki' : 'kyugo',
+  difficulty: ['easy', 'normal', 'hard'].includes(params.get('d')) ? params.get('d') : 'normal',
+};
 const gfx = buildGraphics();
-const game = new Game(TEST_STAGE, avatar);
+let game = new Game(STAGE_1, options);
+let tick = 0;
 
 function readSafeArea() {
   const s = getComputedStyle(probe);
@@ -63,6 +68,12 @@ function resize() {
 
 function update() {
   input.tick();
+  tick++;
+  // クリア・ゲームオーバーのあとは、ジャンプで最初から（M4 で画面遷移に置き換える）
+  if ((game.state === 'clear' || game.state === 'gameover') && input.jumpPressed) {
+    game = new Game(STAGE_1, options);
+    return;
+  }
   game.update(input, view.width);
 }
 
@@ -81,10 +92,12 @@ function countFps() {
 }
 
 function render() {
-  renderGame(ctx, game, gfx, view.width, view.height);
-  ctx.fillStyle = '#fff';
+  renderGame(ctx, game, gfx, view.width, view.height, tick);
   ctx.font = '8px monospace';
-  ctx.fillText(`${view.width}x${view.height} x${view.scale.toFixed(2)} ${fps}fps`, 4, 10);
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'top';
+  ctx.fillStyle = '#fff';
+  ctx.fillText(`${fps}fps`, view.width - 4, 13);
   btnEls.left.classList.toggle('active', input.left);
   btnEls.right.classList.toggle('active', input.right);
   btnEls.jump.classList.toggle('active', input.jump);
