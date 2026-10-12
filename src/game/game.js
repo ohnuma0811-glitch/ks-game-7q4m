@@ -19,6 +19,9 @@ export const STOMP_BOUNCE = -3.2;
 export const STOMP_BOUNCE_HOLD = -4.6;
 // クリア・ゲームオーバーの結果を見せる時間（この間はやり直しを受け付けない）
 export const RESULT_LOCK = 60;
+// 取った点数を浮かべて見せる時間（更新数）と、1更新で浮かぶ量
+export const POPUP_TICKS = 40;
+const POPUP_RISE = 0.5;
 
 export function overlap(a, b) {
   return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
@@ -39,6 +42,7 @@ export class Game {
     this.takenCoins = new Set();
     this.usedBlocks = new Set();
     this.resultTicks = 0;
+    this.popups = [];
     this.camX = 0;
     this.loadStage();
     this.respawn();
@@ -90,6 +94,7 @@ export class Game {
   }
 
   update(input, viewW) {
+    this.updatePopups();
     if (this.state === 'dying') {
       this.updateDying();
       return;
@@ -138,16 +143,31 @@ export class Game {
     this.usedBlocks.add(ty * this.level.width + tx);
     const kind = this.level.contents.get(ty * this.level.width + tx) || 'coin';
     if (kind === 'coin') {
-      this.addCoin();
+      this.addCoin(tx * TILE + TILE / 2, ty * TILE - TILE / 2);
       this.items.push(popCoin(tx, ty));
     } else {
       this.items.push(popItem(kind, tx, ty));
     }
   }
 
-  addCoin() {
+  addCoin(x, y) {
     this.coins++;
     this.score += COIN_SCORE;
+    this.addPopup(COIN_SCORE, x, y);
+  }
+
+  // 取った点数を、その場所に小さく浮かべる（x は中心）
+  addPopup(points, x, y) {
+    this.popups.push({ text: String(points), x, y, life: POPUP_TICKS });
+  }
+
+  updatePopups() {
+    if (this.popups.length === 0) return;
+    for (const pop of this.popups) {
+      pop.y -= POPUP_RISE;
+      pop.life--;
+    }
+    this.popups = this.popups.filter((pop) => pop.life > 0);
   }
 
   updateItems() {
@@ -158,11 +178,15 @@ export class Game {
       if (!collectible(it) || !overlap(p, itemBox(it))) continue;
       it.taken = true;
       if (it.kind === 'coin') {
-        this.addCoin();
+        this.addCoin(it.x + TILE / 2, it.y);
         this.takenCoins.add(`${it.x / TILE},${it.y / TILE}`);
       } else if (it.kind === 'drink') {
-        if (this.lives >= LIVES) this.score += DRINK_BONUS;
-        else this.lives++;
+        if (this.lives >= LIVES) {
+          this.score += DRINK_BONUS;
+          this.addPopup(DRINK_BONUS, it.x + TILE / 2, it.y);
+        } else {
+          this.lives++;
+        }
       } else if (it.kind === 'star') {
         p.star = STAR_TICKS;
       }
@@ -188,12 +212,14 @@ export class Game {
         e.dead = true;
         e.vy = -3;
         this.score += ENEMY_SCORE;
+        this.addPopup(ENEMY_SCORE, e.x + e.w / 2, e.y);
         continue;
       }
       if (e.stompable && falling && p.prevY + p.h <= e.y + 6) {
         e.squash = 30;
         stomped = true;
         this.score += ENEMY_SCORE;
+        this.addPopup(ENEMY_SCORE, e.x + e.w / 2, e.y);
         continue;
       }
       if (p.invuln > 0) continue;

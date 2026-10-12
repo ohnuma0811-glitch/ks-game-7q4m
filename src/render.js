@@ -56,6 +56,11 @@ export function renderGame(ctx, game, gfx, viewW, viewH, tick) {
     ctx.drawImage(player.facing < 0 ? frame.left : frame.right, sx(player.x - 2), sy(player.y - 2));
   }
 
+  // 取った点数（白い小さな数字）
+  ctx.font = '8px monospace';
+  ctx.textBaseline = 'bottom';
+  for (const pop of game.popups) text(ctx, pop.text, sx(pop.x), sy(pop.y), 'center');
+
   drawHud(ctx, game, viewW);
   if (game.state === 'clear') drawBanner(ctx, viewW, viewH, 'STAGE CLEAR!');
   if (game.state === 'gameover') drawBanner(ctx, viewW, viewH, 'GAME OVER');
