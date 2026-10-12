@@ -1,5 +1,6 @@
-import { AVATARS, TILES, TILE_PALETTE, parseSprite } from './data/sprites.js?v=d96f255';
-import { ENEMIES, ITEMS, BLOCKS } from './data/objects.js?v=d96f255';
+import { AVATARS, TILES, TILE_PALETTE, parseSprite } from './data/sprites.js?v=6cb8b58';
+import { ENEMIES, ITEMS, BLOCKS } from './data/objects.js?v=6cb8b58';
+import { BACKDROP_SPRITES } from './data/backdrop.js?v=6cb8b58';
 
 // ドット絵を小さな Canvas に描いておき、毎フレーム drawImage で使い回す
 function toCanvas(sprite, flip) {
@@ -42,5 +43,9 @@ export function buildGraphics() {
   for (const [key, s] of Object.entries(ITEMS)) {
     sprites[key] = toCanvas(parseSprite(s.rows, s.palette), false);
   }
-  return { avatars, tiles, enemies, sprites };
+  const backdrop = {};
+  for (const [key, s] of Object.entries(BACKDROP_SPRITES)) {
+    backdrop[key] = toCanvas(parseSprite(s.rows, s.palette), false);
+  }
+  return { avatars, tiles, enemies, sprites, backdrop };
 }

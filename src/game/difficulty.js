@@ -2,19 +2,19 @@
 // M3 実機確認で調整: かんたん＝以前のふつう、ふつう＝敵2倍、むずかしい＝敵2倍で速く
 export const DIFFICULTIES = {
   easy: {
-    label: 'EASY',
+    label: 'LEVEL 1',
     enemySpeed: 1,
     checkpoints: ['H'],
     enemyChars: ['w', 'j', 'S'],
   },
   normal: {
-    label: 'NORMAL',
+    label: 'LEVEL 2',
     enemySpeed: 1,
     checkpoints: ['H'],
     enemyChars: ['w', 'W', 'j', 'J', 'S'],
   },
   hard: {
-    label: 'HARD',
+    label: 'LEVEL 3',
     enemySpeed: 1.6,
     checkpoints: [],
     enemyChars: ['w', 'W', 'x', 'j', 'J', 'y', 'S'],

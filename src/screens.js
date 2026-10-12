@@ -1,10 +1,11 @@
-import { MAX_NAME, DIFFICULTY_IDS } from './flow.js?v=d96f255';
+import { MAX_NAME, DIFFICULTY_IDS } from './flow.js?v=6cb8b58';
 
 // 画面ごとの見出しとボタン（DOM に依存しない。ui.js が HTML にする）
 export const GAME_TITLE = 'KyugoとSokiの大冒険';
 // 名前入力は、パソコンのキーボードと同じ並び
 export const KEY_ROWS = ['QWERTYUIOP', 'ASDFGHJKL', 'ZXCVBNM'];
-const DIFFICULTY_LABELS = { easy: 'かんたん', normal: 'ふつう', hard: 'むずかしい' };
+// 難易度は Level 1〜3 で表す（中の名前は easy / normal / hard のまま）
+const DIFFICULTY_LABELS = { easy: 'Level 1', normal: 'Level 2', hard: 'Level 3' };
 
 export function screenModel(flow) {
   switch (flow.screen) {

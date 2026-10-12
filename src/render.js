@@ -1,5 +1,6 @@
-import { TILE } from './game/level.js?v=d96f255';
-import { cameraY } from './game/camera.js?v=d96f255';
+import { TILE } from './game/level.js?v=6cb8b58';
+import { cameraY } from './game/camera.js?v=6cb8b58';
+import { LAYERS, layerPositions } from './data/backdrop.js?v=6cb8b58';
 
 const TILE_KEYS = [null, 'G', 'B', 'Q', 'U'];
 const SKY = '#5c94fc';
@@ -11,6 +12,12 @@ export function renderGame(ctx, game, gfx, viewW, viewH, tick, { hud = true, pla
   const sy = (y) => Math.round(y - camY);
   ctx.fillStyle = SKY;
   ctx.fillRect(0, 0, viewW, viewH);
+
+  // 背景の雲と山（地面より遅く動く）
+  for (const layer of LAYERS) {
+    const img = gfx.backdrop[layer.sprite];
+    for (const p of layerPositions(layer, camX, viewW, img.width)) ctx.drawImage(img, p.x, p.y - camY);
+  }
 
   // 画面に入っている列だけ描く
   const tx0 = Math.max(0, Math.floor(camX / TILE));
