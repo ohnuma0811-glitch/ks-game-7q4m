@@ -1,5 +1,5 @@
-import { TILE } from './game/level.js?v=0fcb32f';
-import { cameraY } from './game/camera.js?v=0fcb32f';
+import { TILE } from './game/level.js?v=a21c0b8';
+import { cameraY } from './game/camera.js?v=a21c0b8';
 
 const TILE_KEYS = [null, 'G', 'B', 'Q', 'U'];
 const SKY = '#5c94fc';

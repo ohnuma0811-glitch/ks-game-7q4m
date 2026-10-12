@@ -1,12 +1,12 @@
-import { computeViewport, isPortrait } from './screen.js?v=0fcb32f';
-import { startLoop } from './loop.js?v=0fcb32f';
-import { Input, attachInput, computeButtonLayout } from './input.js?v=0fcb32f';
-import { buildGraphics } from './gfx.js?v=0fcb32f';
-import { Game } from './game/game.js?v=0fcb32f';
-import { renderGame } from './render.js?v=0fcb32f';
-import { STAGES } from './data/stages.js?v=0fcb32f';
-import { Flow } from './flow.js?v=0fcb32f';
-import { createUI } from './ui.js?v=0fcb32f';
+import { computeViewport, isPortrait } from './screen.js?v=a21c0b8';
+import { startLoop } from './loop.js?v=a21c0b8';
+import { Input, attachInput, computeButtonLayout } from './input.js?v=a21c0b8';
+import { buildGraphics } from './gfx.js?v=a21c0b8';
+import { Game } from './game/game.js?v=a21c0b8';
+import { renderGame } from './render.js?v=a21c0b8';
+import { STAGES } from './data/stages.js?v=a21c0b8';
+import { Flow } from './flow.js?v=a21c0b8';
+import { createUI } from './ui.js?v=a21c0b8';
 
 // 「STAGE 1」を見せる時間（更新数）
 const INTRO_TICKS = 90;
@@ -36,6 +36,7 @@ let game = null;
 let tick = 0;
 let introTicks = 0;
 let lastScreen = flow.screen;
+let lastPaused = flow.paused;
 
 const ui = createUI({ root: menuEl, flow, gfx, onAction: afterAction });
 
@@ -46,6 +47,7 @@ function afterAction() {
     if (flow.screen === 'title') game = null;
     lastScreen = flow.screen;
   }
+  lastPaused = flow.paused;
   const playing = flow.screen === 'play' && !flow.paused;
   for (const b of Object.values(btnEls)) b.classList.toggle('hidden', !playing);
   pauseEl.classList.toggle('show', playing);
@@ -98,6 +100,8 @@ function resize() {
 function update() {
   input.tick();
   tick++;
+  // 縦向きの間は進めない（「STAGE 1」の間なら、ポーズした状態で始まる）
+  if (rotateEl.classList.contains('show') && (flow.screen === 'intro' || flow.screen === 'play')) flow.pause();
   if (flow.screen === 'intro') {
     introTicks++;
     if (introTicks >= INTRO_TICKS) {
@@ -117,7 +121,7 @@ function update() {
       else flow.gameOver(game);
     }
   }
-  if (flow.screen !== lastScreen) afterAction();
+  if (flow.screen !== lastScreen || flow.paused !== lastPaused) afterAction();
 }
 
 let fps = 0;

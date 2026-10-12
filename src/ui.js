@@ -1,8 +1,12 @@
-import { screenModel, dispatch } from './screens.js?v=0fcb32f';
+import { screenModel, dispatch } from './screens.js?v=a21c0b8';
 
 // screenModel を HTML のメニューにする。ボタンを押すと flow を進めて onAction を呼ぶ
+// guard つきのメニューは、出てからこの時間はボタンを押せない（ゲーム中の連打で押されないように）
+const GUARD_MS = 500;
+
 export function createUI({ root, flow, gfx, onAction }) {
   let lastKey = '';
+  let guardTimer = 0;
 
   function button(b) {
     const el = document.createElement('button');
@@ -62,6 +66,14 @@ export function createUI({ root, flow, gfx, onAction }) {
       panel.append(row);
     }
     root.append(panel);
+    clearTimeout(guardTimer);
+    if (m.guard) {
+      const buttons = [...root.querySelectorAll('button:not(:disabled)')];
+      for (const b of buttons) b.disabled = true;
+      guardTimer = setTimeout(() => {
+        for (const b of buttons) b.disabled = false;
+      }, GUARD_MS);
+    }
   }
 
   return { render };

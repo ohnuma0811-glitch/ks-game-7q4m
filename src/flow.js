@@ -17,6 +17,8 @@ export class Flow {
     this.carry = { lives: START_LIVES, score: 0, coins: 0 };
     this.result = null;
     this.paused = false;
+    // 「STAGE 1」の間に頼まれた一時停止（縦向きにしたときなど）
+    this.pausePending = false;
   }
 
   start() {
@@ -67,7 +69,8 @@ export class Flow {
   beginStage() {
     if (this.screen !== 'intro') return;
     this.screen = 'play';
-    this.paused = false;
+    this.paused = this.pausePending;
+    this.pausePending = false;
   }
 
   stageCleared({ lives, score, coins }) {
@@ -90,6 +93,7 @@ export class Flow {
 
   pause() {
     if (this.screen === 'play') this.paused = true;
+    else if (this.screen === 'intro') this.pausePending = true;
   }
 
   resume() {
@@ -99,6 +103,7 @@ export class Flow {
   quitToTitle() {
     this.screen = 'title';
     this.paused = false;
+    this.pausePending = false;
     this.result = null;
   }
 

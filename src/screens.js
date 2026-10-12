@@ -1,4 +1,4 @@
-import { MAX_NAME, DIFFICULTY_IDS } from './flow.js?v=0fcb32f';
+import { MAX_NAME, DIFFICULTY_IDS } from './flow.js?v=a21c0b8';
 
 // 画面ごとの見出しとボタン（DOM に依存しない。ui.js が HTML にする）
 export const GAME_TITLE = 'KYUGO & SOKI';
@@ -49,6 +49,7 @@ export function screenModel(flow) {
       return {
         id: 'pause',
         heading: 'ポーズ',
+        guard: true,
         buttons: [
           { label: 'つづける', act: 'resume', primary: true },
           { label: 'タイトルへ', act: 'quitToTitle' },
@@ -58,6 +59,7 @@ export function screenModel(flow) {
       const r = flow.result;
       return {
         id: 'result',
+        guard: true,
         heading: r.type === 'clear' ? 'ALL CLEAR!' : 'GAME OVER',
         text: `SCORE ${r.score}  COIN ${r.coins}`,
         buttons: [{ label: 'タイトルへ', act: 'finish', primary: true }],
