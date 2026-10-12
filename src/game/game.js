@@ -9,12 +9,15 @@ export const LIVES = 3;
 export const START_TIME = 200;
 export const STAR_TICKS = 900;
 export const DEATH_TICKS = 90;
-export const RESCUE_INVULN = 60;
+// かんたんの歩く敵が、立っているプレイヤーを通り過ぎる時間（約87更新）より長く
+export const RESCUE_INVULN = 120;
 export const COIN_SCORE = 100;
 export const DRINK_BONUS = 1000;
 export const TIME_BONUS = 10;
 export const STOMP_BOUNCE = -3.2;
 export const STOMP_BOUNCE_HOLD = -4.6;
+// クリア・ゲームオーバーの結果を見せる時間（この間はやり直しを受け付けない）
+export const RESULT_LOCK = 60;
 
 export function overlap(a, b) {
   return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
@@ -31,6 +34,10 @@ export class Game {
     this.score = 0;
     this.checkpoint = null;
     this.passed = new Set();
+    // 取ったコインと使った？ブロックは、出直しても戻らない（何度もミスして稼げないように）
+    this.takenCoins = new Set();
+    this.usedBlocks = new Set();
+    this.resultTicks = 0;
     this.camX = 0;
     this.loadStage();
     this.respawn();
@@ -39,13 +46,14 @@ export class Game {
   // ステージを読み込み直す（ミスのたびに敵・アイテム・ブロックが元に戻る）
   loadStage() {
     this.level = parseLevel(this.lines);
+    for (const i of this.usedBlocks) this.level.tiles[i] = USED;
     this.enemies = [];
     this.items = [];
     this.checkpoints = [];
     this.goalX = Infinity;
     for (const e of this.level.entities) {
       if (e.ch === 'c') {
-        this.items.push(createCoin(e.tx, e.ty));
+        if (!this.takenCoins.has(`${e.tx},${e.ty}`)) this.items.push(createCoin(e.tx, e.ty));
       } else if (e.ch === 'h' || e.ch === 'H') {
         this.checkpoints.push({
           ch: e.ch,
@@ -86,7 +94,10 @@ export class Game {
       this.updateDying();
       return;
     }
-    if (this.state !== 'playing') return;
+    if (this.state !== 'playing') {
+      this.resultTicks++;
+      return;
+    }
 
     const p = this.player;
     p.update(input, this.level);
@@ -149,6 +160,7 @@ export class Game {
   hitBlock(tx, ty) {
     if (tileAt(this.level, tx, ty) !== QUESTION) return;
     setTile(this.level, tx, ty, USED);
+    this.usedBlocks.add(ty * this.level.width + tx);
     const kind = this.level.contents.get(ty * this.level.width + tx) || 'coin';
     if (kind === 'coin') {
       this.addCoin();
@@ -172,6 +184,7 @@ export class Game {
       it.taken = true;
       if (it.kind === 'coin') {
         this.addCoin();
+        this.takenCoins.add(`${it.x / TILE},${it.y / TILE}`);
       } else if (it.kind === 'drink') {
         if (this.lives >= LIVES) this.score += DRINK_BONUS;
         else this.lives++;
@@ -184,6 +197,9 @@ export class Game {
 
   updateEnemies(input, viewW) {
     const p = this.player;
+    // 2匹同時に踏んでも両方倒せるよう、落下中かどうかは最初に決めて、跳ね返りは最後に1回
+    const falling = p.vy > 0;
+    let stomped = false;
     for (const e of this.enemies) {
       if (e.removed) continue;
       // 画面の右端から1タイル以内に入ったら動き出す
@@ -198,15 +214,16 @@ export class Game {
         e.vy = -3;
         continue;
       }
-      if (e.stompable && p.vy > 0 && p.prevY + p.h <= e.y + 6) {
+      if (e.stompable && falling && p.prevY + p.h <= e.y + 6) {
         e.squash = 30;
-        p.vy = input.jump ? STOMP_BOUNCE_HOLD : STOMP_BOUNCE;
+        stomped = true;
         continue;
       }
       if (p.invuln > 0) continue;
       this.miss();
       return;
     }
+    if (stomped) p.vy = input.jump ? STOMP_BOUNCE_HOLD : STOMP_BOUNCE;
   }
 
   updateCheckpoints() {
@@ -228,6 +245,11 @@ export class Game {
       this.time = 0;
       this.miss();
     }
+  }
+
+  // 結果を見せ終わって、やり直しを受け付けてよいか
+  canRestart() {
+    return (this.state === 'clear' || this.state === 'gameover') && this.resultTicks >= RESULT_LOCK;
   }
 
   clear() {

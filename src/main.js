@@ -70,7 +70,7 @@ function update() {
   input.tick();
   tick++;
   // クリア・ゲームオーバーのあとは、ジャンプで最初から（M4 で画面遷移に置き換える）
-  if ((game.state === 'clear' || game.state === 'gameover') && input.jumpPressed) {
+  if (game.canRestart() && input.jumpPressed) {
     game = new Game(STAGE_1, options);
     return;
   }
