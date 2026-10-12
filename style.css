@@ -123,14 +123,26 @@ html, body {
   padding: 2px 12px;
   border-radius: 8px;
 }
-#menu .letters {
-  display: grid;
-  grid-template-columns: repeat(9, auto);
+/* キーボードと同じ並び。段ごとに少しずつ右へずらす */
+#menu .keyboard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 1vh;
 }
-#menu .letters button {
-  min-width: clamp(34px, 10vh, 60px);
-  min-height: clamp(34px, 10vh, 60px);
+#menu .key-row {
+  display: flex;
+  gap: 1vh;
+}
+#menu .key-row:nth-child(2) {
+  margin-left: 4vh;
+}
+#menu .key-row:nth-child(3) {
+  margin-left: 10vh;
+}
+#menu .key-row button {
+  min-width: clamp(36px, 11vh, 64px);
+  min-height: clamp(36px, 11vh, 64px);
   padding: 0;
   font-size: clamp(16px, 5.5vh, 26px);
 }

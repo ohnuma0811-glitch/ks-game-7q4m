@@ -1,9 +1,9 @@
-import { parseLevel, tileAt, setTile, TILE, QUESTION, USED } from './level.js?v=b55e073';
-import { Player, spawnPoint } from './player.js?v=b55e073';
-import { cameraX } from './camera.js?v=b55e073';
-import { createEnemy, updateEnemy } from './enemies.js?v=b55e073';
-import { createCoin, popCoin, popItem, updateItem, itemBox, collectible } from './items.js?v=b55e073';
-import { getDifficulty } from './difficulty.js?v=b55e073';
+import { parseLevel, tileAt, setTile, TILE, QUESTION, USED } from './level.js?v=bd0bd2d';
+import { Player, spawnPoint } from './player.js?v=bd0bd2d';
+import { cameraX } from './camera.js?v=bd0bd2d';
+import { createEnemy, updateEnemy } from './enemies.js?v=bd0bd2d';
+import { createCoin, popCoin, popItem, updateItem, itemBox, collectible } from './items.js?v=bd0bd2d';
+import { getDifficulty } from './difficulty.js?v=bd0bd2d';
 
 export const LIVES = 3;
 export const START_TIME = 200;
@@ -15,6 +15,8 @@ export const DRINK_BONUS = 1000;
 export const TIME_BONUS = 10;
 // 敵を倒したとき（踏む・スター）
 export const ENEMY_SCORE = 200;
+// ステージをクリアしたときの、残りライフ1つあたりの点数
+export const LIFE_BONUS = 1000;
 export const STOMP_BOUNCE = -3.2;
 export const STOMP_BOUNCE_HOLD = -4.6;
 // クリア・ゲームオーバーの結果を見せる時間（この間はやり直しを受け付けない）
@@ -258,6 +260,6 @@ export class Game {
 
   clear() {
     this.state = 'clear';
-    this.score += this.time * TIME_BONUS;
+    this.score += this.time * TIME_BONUS + this.lives * LIFE_BONUS;
   }
 }

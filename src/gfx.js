@@ -1,5 +1,5 @@
-import { AVATARS, TILES, TILE_PALETTE, parseSprite } from './data/sprites.js?v=b55e073';
-import { ENEMIES, ITEMS, BLOCKS } from './data/objects.js?v=b55e073';
+import { AVATARS, TILES, TILE_PALETTE, parseSprite } from './data/sprites.js?v=bd0bd2d';
+import { ENEMIES, ITEMS, BLOCKS } from './data/objects.js?v=bd0bd2d';
 
 // ドット絵を小さな Canvas に描いておき、毎フレーム drawImage で使い回す
 function toCanvas(sprite, flip) {

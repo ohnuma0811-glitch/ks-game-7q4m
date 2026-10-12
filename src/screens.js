@@ -1,8 +1,9 @@
-import { MAX_NAME, DIFFICULTY_IDS } from './flow.js?v=b55e073';
+import { MAX_NAME, DIFFICULTY_IDS } from './flow.js?v=bd0bd2d';
 
 // 画面ごとの見出しとボタン（DOM に依存しない。ui.js が HTML にする）
 export const GAME_TITLE = 'KyugoとSokiの大冒険';
-export const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+// 名前入力は、パソコンのキーボードと同じ並び
+export const KEY_ROWS = ['QWERTYUIOP', 'ASDFGHJKL', 'ZXCVBNM'];
 const DIFFICULTY_LABELS = { easy: 'かんたん', normal: 'ふつう', hard: 'むずかしい' };
 
 export function screenModel(flow) {
@@ -16,7 +17,7 @@ export function screenModel(flow) {
         id: 'name',
         heading: 'なまえを いれてね',
         nameBox: flow.name.padEnd(MAX_NAME, '_'),
-        letters: LETTERS.map((ch) => ({ label: ch, act: 'typeLetter', arg: ch, disabled: full })),
+        keyRows: KEY_ROWS.map((row) => row.split('').map((ch) => ({ label: ch, act: 'typeLetter', arg: ch, disabled: full }))),
         buttons: [
           { label: 'けす', act: 'deleteLetter', disabled: flow.name.length === 0 },
           { label: 'OK', act: 'confirmName', primary: true, disabled: !flow.canConfirmName() },
