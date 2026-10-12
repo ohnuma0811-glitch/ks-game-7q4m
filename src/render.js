@@ -1,6 +1,6 @@
-import { TILE } from './game/level.js?v=6cb8b58';
-import { cameraY } from './game/camera.js?v=6cb8b58';
-import { LAYERS, layerPositions } from './data/backdrop.js?v=6cb8b58';
+import { TILE } from './game/level.js?v=af73966';
+import { cameraY } from './game/camera.js?v=af73966';
+import { LAYERS, layerPositions } from './data/backdrop.js?v=af73966';
 
 const TILE_KEYS = [null, 'G', 'B', 'Q', 'U'];
 const SKY = '#5c94fc';

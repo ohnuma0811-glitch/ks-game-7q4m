@@ -1,8 +1,10 @@
-import { screenModel, dispatch } from './screens.js?v=6cb8b58';
+import { screenModel, dispatch } from './screens.js?v=af73966';
 
 // screenModel を HTML のメニューにする。ボタンを押すと flow を進めて onAction を呼ぶ
 // guard つきのメニューは、出てからこの時間はボタンを押せない（ゲーム中の連打で押されないように）
 const GUARD_MS = 500;
+// 長押しボタン（ランキングのリセット）を押し続ける時間
+const LONG_PRESS_MS = 3000;
 
 export function createUI({ root, flow, gfx, onAction }) {
   let lastKey = '';
@@ -13,7 +15,28 @@ export function createUI({ root, flow, gfx, onAction }) {
     el.type = 'button';
     el.textContent = b.label;
     if (b.primary) el.className = 'primary';
+    if (b.selected) el.classList.add('selected');
     if (b.disabled) el.disabled = true;
+    if (b.longPress) {
+      // 押し続けたときだけ動く（子どもが間違えて押しても何も起きない）
+      el.classList.add('long');
+      let timer = 0;
+      const cancel = () => {
+        clearTimeout(timer);
+        el.classList.remove('holding');
+      };
+      el.addEventListener('pointerdown', () => {
+        el.classList.add('holding');
+        timer = setTimeout(() => {
+          cancel();
+          dispatch(flow, b.act, b.arg);
+          onAction();
+        }, LONG_PRESS_MS);
+      });
+      for (const type of ['pointerup', 'pointerleave', 'pointercancel']) el.addEventListener(type, cancel);
+      el.addEventListener('contextmenu', (e) => e.preventDefault());
+      return el;
+    }
     el.addEventListener('click', () => {
       dispatch(flow, b.act, b.arg);
       onAction();
@@ -55,6 +78,24 @@ export function createUI({ root, flow, gfx, onAction }) {
     const panel = el('div', 'panel');
     panel.append(el('h1', '', m.heading));
     if (m.text) panel.append(el('p', '', m.text));
+    if (m.rankText) panel.append(el('p', 'rank-in', m.rankText));
+    if (m.tabs) {
+      const tabs = el('div', 'tabs');
+      for (const t of m.tabs) tabs.append(button(t));
+      panel.append(tabs);
+    }
+    if (m.notice) panel.append(el('p', 'notice', m.notice));
+    if (m.empty) panel.append(el('p', 'empty', m.empty));
+    if (m.rows && m.rows.length) {
+      // 5件ずつ2列。順位・顔・名前・日付・スコア
+      const list = el('ol', 'rank-list');
+      for (const r of m.rows) {
+        const li = el('li', r.highlight ? 'rank-row highlight' : 'rank-row');
+        li.append(el('span', 'rank', String(r.rank)), sprite(r.avatar, 'right', 'face'), el('span', 'name', r.name), el('span', 'date', r.date), el('span', 'score', String(r.score)));
+        list.append(li);
+      }
+      panel.append(list);
+    }
     if (m.nameBox !== undefined) panel.append(el('div', 'name-box', m.nameBox));
     if (m.savedNames) {
       const list = el('div', 'saved-names');

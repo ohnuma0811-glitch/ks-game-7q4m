@@ -1,4 +1,4 @@
-import { MAX_NAME, DIFFICULTY_IDS } from './flow.js?v=6cb8b58';
+import { MAX_NAME, DIFFICULTY_IDS } from './flow.js?v=af73966';
 
 // 画面ごとの見出しとボタン（DOM に依存しない。ui.js が HTML にする）
 export const GAME_TITLE = 'KyugoとSokiの大冒険';
@@ -11,7 +11,7 @@ export function screenModel(flow) {
   switch (flow.screen) {
     case 'title':
       // 2人のゲームだとわかるよう、左に Kyugo・右に Soki を大きく出す
-      return { id: 'title', heading: GAME_TITLE, heroes: ['kyugo', 'soki'], buttons: [{ label: 'スタート', act: 'start', primary: true }] };
+      return { id: 'title', heading: GAME_TITLE, heroes: ['kyugo', 'soki'], buttons: [{ label: 'スタート', act: 'start', primary: true }, { label: 'ランキング', act: 'openRanking' }] };
     case 'pick':
       if (flow.deleting) {
         return {
@@ -86,17 +86,54 @@ export function screenModel(flow) {
         guard: true,
         heading: r.type === 'clear' ? 'ALL CLEAR!' : 'GAME OVER',
         text: `SCORE ${r.score}  COIN ${r.coins}`,
-        buttons: [{ label: 'タイトルへ', act: 'finish', primary: true }],
+        rankText: r.rank > 0 ? `ランクイン！ ${r.rank}い` : undefined,
+        buttons: [
+          { label: 'ランキング', act: 'openResultRanking' },
+          { label: 'タイトルへ', act: 'finish', primary: true },
+        ],
       };
     }
+    case 'ranking':
+      return rankingModel(flow);
     default:
       return null;
   }
 }
 
+function rankingModel(flow) {
+  if (flow.confirmingReset) {
+    return {
+      id: 'confirmReset',
+      heading: 'ランキングを ぜんぶ けしますか？',
+      buttons: [
+        { label: 'けす', act: 'confirmReset', primary: true },
+        { label: 'やめる', act: 'cancelReset' },
+      ],
+    };
+  }
+  const level = flow.rankingLevel;
+  const hl = flow.highlight && flow.highlight.level === level ? flow.highlight.rank : 0;
+  const rows = flow.ranking[level].map((e, i) => ({
+    rank: i + 1, name: e.name, avatar: e.avatar, date: e.date, score: e.score, highlight: i + 1 === hl,
+  }));
+  const buttons = [{ label: 'もどる', act: 'back' }];
+  // リセットは大人向け。3秒押し続けたときだけ
+  if (flow.rankingAvailable) buttons.push({ label: 'リセット（ながおし）', act: 'askReset', longPress: true });
+  return {
+    id: 'ranking',
+    heading: 'ランキング',
+    tabs: DIFFICULTY_IDS.map((d) => ({ label: DIFFICULTY_LABELS[d], act: 'showRanking', arg: d, selected: d === level })),
+    rows,
+    empty: rows.length === 0 ? 'まだ きろくが ありません' : undefined,
+    notice: flow.rankingAvailable ? undefined : 'この端末では きろくできません',
+    buttons,
+  };
+}
+
 const ACTIONS = new Set([
   'start', 'typeLetter', 'deleteLetter', 'confirmName', 'back',
   'pickName', 'newName', 'askDelete', 'confirmDelete', 'cancelDelete',
+  'openRanking', 'openResultRanking', 'showRanking', 'askReset', 'confirmReset', 'cancelReset',
   'chooseAvatar', 'chooseDifficulty', 'resume', 'quitToTitle', 'finish',
 ]);
 

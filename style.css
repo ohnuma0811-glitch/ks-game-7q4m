@@ -221,3 +221,61 @@ html, body {
   background: #555;
   padding: 0;
 }
+/* ランキング */
+#menu .tabs {
+  display: flex;
+  gap: 1.5vw;
+}
+#menu .tabs button {
+  min-height: clamp(32px, 9vh, 56px);
+  min-width: clamp(70px, 14vw, 160px);
+}
+#menu .tabs button.selected {
+  background: #e0442e;
+}
+#menu .rank-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  grid-template-rows: repeat(5, auto);
+  grid-auto-flow: column;
+  gap: 0.8vh 3vw;
+  font: bold clamp(12px, 4.4vh, 24px) monospace;
+}
+#menu .rank-row {
+  display: grid;
+  grid-template-columns: 2em 1.2em 5.5em 6em 4.5em;
+  align-items: center;
+  gap: 0.4em;
+  padding: 1px 8px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.72);
+}
+#menu .rank-row.highlight {
+  background: #e0442e;
+}
+#menu .rank-row .rank,
+#menu .rank-row .score {
+  text-align: right;
+}
+#menu .rank-row canvas {
+  height: 1.3em;
+  width: auto;
+  image-rendering: pixelated;
+}
+#menu .rank-in {
+  color: #ffd84a;
+  font-weight: bold;
+}
+#menu .notice,
+#menu .empty {
+  font-size: clamp(14px, 5vh, 24px);
+}
+#menu button.long {
+  background: #555;
+}
+#menu button.long.holding {
+  outline: 4px solid #ffd84a;
+}

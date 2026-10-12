@@ -1,13 +1,14 @@
-import { computeViewport, isPortrait } from './screen.js?v=6cb8b58';
-import { startLoop } from './loop.js?v=6cb8b58';
-import { Input, attachInput, computeButtonLayout } from './input.js?v=6cb8b58';
-import { buildGraphics } from './gfx.js?v=6cb8b58';
-import { Game } from './game/game.js?v=6cb8b58';
-import { renderGame } from './render.js?v=6cb8b58';
-import { STAGES } from './data/stages.js?v=6cb8b58';
-import { Flow } from './flow.js?v=6cb8b58';
-import { createUI } from './ui.js?v=6cb8b58';
-import { loadNames, saveNames } from './names.js?v=6cb8b58';
+import { computeViewport, isPortrait } from './screen.js?v=af73966';
+import { startLoop } from './loop.js?v=af73966';
+import { Input, attachInput, computeButtonLayout } from './input.js?v=af73966';
+import { buildGraphics } from './gfx.js?v=af73966';
+import { Game } from './game/game.js?v=af73966';
+import { renderGame } from './render.js?v=af73966';
+import { STAGES } from './data/stages.js?v=af73966';
+import { Flow } from './flow.js?v=af73966';
+import { createUI } from './ui.js?v=af73966';
+import { loadNames, saveNames } from './names.js?v=af73966';
+import { loadRanking, saveRanking, storageWorks } from './ranking.js?v=af73966';
 
 // 「STAGE 1」を見せる時間（更新数）
 const INTRO_TICKS = 90;
@@ -42,6 +43,10 @@ const storage = getStorage();
 const flow = new Flow(STAGES.length, {
   savedNames: loadNames(storage),
   onSavedNamesChange: (list) => saveNames(storage, list),
+  // ランキングも端末に記録する（保存できない端末では記録しない）
+  ranking: loadRanking(storage),
+  onRankingChange: (r) => saveRanking(storage, r),
+  rankingAvailable: storageWorks(storage),
 });
 // メニューの後ろに見せるステージ1の景色
 const backdrop = new Game(STAGES[0]);

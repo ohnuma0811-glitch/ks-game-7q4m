@@ -1,4 +1,5 @@
-import { addName, removeName } from './names.js?v=6cb8b58';
+import { addName, removeName } from './names.js?v=af73966';
+import { emptyRanking, insertScore, formatDate } from './ranking.js?v=af73966';
 
 // 画面の流れ（タイトル → だれが遊ぶ／名前 → キャラ → むずかしさ → ステージ → 結果）。DOM に依存しない
 export const MAX_NAME = 8;
@@ -6,15 +7,30 @@ export const AVATAR_IDS = ['kyugo', 'soki'];
 export const DIFFICULTY_IDS = ['easy', 'normal', 'hard'];
 export const START_LIVES = 3;
 
-const BACK = { pick: 'title', avatar: 'name', difficulty: 'avatar' };
+const BACK = { pick: 'title', avatar: 'name', difficulty: 'avatar', ranking: 'title' };
 
 export class Flow {
-  constructor(stageCount, { savedNames = [], onSavedNamesChange = () => {} } = {}) {
+  constructor(stageCount, {
+    savedNames = [],
+    onSavedNamesChange = () => {},
+    ranking = emptyRanking(),
+    onRankingChange = () => {},
+    rankingAvailable = true,
+    now = () => new Date(),
+  } = {}) {
     this.stageCount = stageCount;
     // その端末で入れたことのある名前と、変わったときに保存する関数
     this.savedNames = savedNames;
     this.onSavedNamesChange = onSavedNamesChange;
     this.deleting = null;
+    // ランキング（難易度ごと）と、変わったときに保存する関数
+    this.ranking = ranking;
+    this.onRankingChange = onRankingChange;
+    this.rankingAvailable = rankingAvailable;
+    this.now = now;
+    this.rankingLevel = 'easy';
+    this.highlight = null;
+    this.confirmingReset = false;
     this.screen = 'title';
     this.name = '';
     this.avatar = 'kyugo';
@@ -89,6 +105,10 @@ export class Flow {
   }
 
   back() {
+    if (this.screen === 'ranking') {
+      this.highlight = null;
+      this.confirmingReset = false;
+    }
     if (this.screen === 'name') this.screen = this.savedNames.length ? 'pick' : 'title';
     else if (BACK[this.screen]) this.screen = BACK[this.screen];
   }
@@ -122,15 +142,62 @@ export class Flow {
       this.stageIndex++;
       this.screen = 'intro';
     } else {
-      this.result = { type: 'clear', score, coins };
+      this.result = { type: 'clear', score, coins, rank: this.record(score) };
       this.screen = 'result';
     }
   }
 
   gameOver({ score, coins }) {
     if (this.screen !== 'play') return;
-    this.result = { type: 'gameover', score, coins };
+    this.result = { type: 'gameover', score, coins, rank: this.record(score) };
     this.screen = 'result';
+  }
+
+  // 遊んだ難易度のランキングに入れて、順位（入らなければ 0）を返す
+  record(score) {
+    if (!this.rankingAvailable) return 0;
+    const entry = { name: this.name, avatar: this.avatar, score, date: formatDate(this.now()) };
+    const { list, rank } = insertScore(this.ranking[this.difficulty], entry);
+    if (rank > 0) {
+      this.ranking = { ...this.ranking, [this.difficulty]: list };
+      this.onRankingChange(this.ranking);
+    }
+    return rank;
+  }
+
+  openRanking() {
+    if (this.screen !== 'title') return;
+    this.rankingLevel = this.difficulty;
+    this.highlight = null;
+    this.screen = 'ranking';
+  }
+
+  openResultRanking() {
+    if (this.screen !== 'result') return;
+    this.rankingLevel = this.difficulty;
+    this.highlight = this.result.rank > 0 ? { level: this.difficulty, rank: this.result.rank } : null;
+    this.result = null;
+    this.screen = 'ranking';
+  }
+
+  showRanking(level) {
+    if (this.screen === 'ranking' && DIFFICULTY_IDS.includes(level)) this.rankingLevel = level;
+  }
+
+  askReset() {
+    if (this.screen === 'ranking' && this.rankingAvailable) this.confirmingReset = true;
+  }
+
+  confirmReset() {
+    if (!this.confirmingReset) return;
+    this.ranking = emptyRanking();
+    this.onRankingChange(this.ranking);
+    this.highlight = null;
+    this.confirmingReset = false;
+  }
+
+  cancelReset() {
+    this.confirmingReset = false;
   }
 
   pause() {
