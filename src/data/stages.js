@@ -13,7 +13,7 @@ export const TEST_STAGE = [
   '                                                                         GGGGG                 BBB            ',
   '                  BBBBB                      GG                         GGGGGG                                ',
   '                                             GG                        GGGGGGG                                ',
-  '   P                                         GG                       GGGGGGGG                                ',
-  'GGGGGGGGGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGGGGGG    GGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGG',
-  'GGGGGGGGGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGGGGGG    GGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGG',
+  '       P                                     GG                       GGGGGGGG                                ',
+  'GGGGGGGGGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGG',
+  'GGGGGGGGGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGG',
 ];
