@@ -1,7 +1,8 @@
-// 画面サイズから、内部解像度（高さ240固定）と拡大率を決める
-export const BASE_HEIGHT = 240;
-export const MIN_WIDTH = 320;
-export const MAX_WIDTH = 534;
+// 画面サイズから、内部解像度（高さ184固定）と拡大率を決める
+// 184 は以前の 240 の約 1/1.3。キャラとブロックが 1.3 倍の大きさに見える
+export const BASE_HEIGHT = 184;
+export const MIN_WIDTH = 245;
+export const MAX_WIDTH = 410;
 
 export function computeViewport(winW, winH) {
   let scale = winH / BASE_HEIGHT;

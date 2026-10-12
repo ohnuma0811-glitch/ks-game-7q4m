@@ -1,10 +1,12 @@
 import { TILE } from './game/level.js';
+import { cameraY } from './game/camera.js';
 
 const TILE_KEYS = [null, 'G', 'B'];
 const SKY = '#5c94fc';
 
 export function renderGame(ctx, game, gfx, viewW, viewH) {
   const { level, camX, player } = game;
+  const camY = cameraY(level.height * TILE, viewH);
   ctx.fillStyle = SKY;
   ctx.fillRect(0, 0, viewW, viewH);
 
@@ -14,11 +16,11 @@ export function renderGame(ctx, game, gfx, viewW, viewH) {
   for (let ty = 0; ty < level.height; ty++) {
     for (let tx = tx0; tx <= tx1; tx++) {
       const code = level.tiles[ty * level.width + tx];
-      if (code) ctx.drawImage(gfx.tiles[TILE_KEYS[code]], tx * TILE - camX, ty * TILE);
+      if (code) ctx.drawImage(gfx.tiles[TILE_KEYS[code]], tx * TILE - camX, ty * TILE - camY);
     }
   }
 
   const frame = gfx.avatars[game.avatar][player.spriteName()];
   const img = player.facing < 0 ? frame.left : frame.right;
-  ctx.drawImage(img, Math.round(player.x - 2 - camX), Math.round(player.y - 2));
+  ctx.drawImage(img, Math.round(player.x - 2 - camX), Math.round(player.y - 2 - camY));
 }
