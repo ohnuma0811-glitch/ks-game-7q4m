@@ -2,8 +2,14 @@
 // 戻り値: 曲の名前 / null（止める） / undefined（今の音のまま）
 const JINGLES = ['clear', 'gameover'];
 
-export function musicFor({ screen, gameState, star, stageIndex, stageMusic, current }) {
-  if (screen === 'play' && gameState === 'playing') return star > 0 ? 'star' : stageMusic[stageIndex] || 'grass';
+export function musicFor({ screen, gameState, star, stageIndex, stageMusic, current, boss = false }) {
+  if (screen === 'ending') return 'ending';
+  if (screen === 'play' && gameState === 'playing') {
+    if (star > 0) return 'star';
+    // ボスが出てから倒すまではボスの曲
+    if (boss) return 'boss';
+    return stageMusic[stageIndex] || 'grass';
+  }
   // ミス・クリアの演出中は、鳴っているジングルやミスの音のまま
   if (screen === 'play') return undefined;
   // クリア・ゲームオーバーのジングルは、結果画面や次の「STAGE N」の間も最後まで鳴らす

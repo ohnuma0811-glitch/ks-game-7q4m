@@ -130,6 +130,56 @@ export const SONGS = {
       { wave: 'noise', gain: 0.06, notes: rep('N:2 R:2 N:2 R:2 N:2 R:2 N:1 N:1 N:2', 4) },
     ],
   },
+  // ボス: 速く、緊張感
+  boss: {
+    bpm: 170,
+    loop: true,
+    tracks: [
+      {
+        wave: 'square',
+        gain: 0.15,
+        notes: [
+          'E4:2 E4:2 G4:2 E4:2 A4:2 E4:2 Bb4:2 A4:2',
+          'E4:2 E4:2 G4:2 E4:2 D5:2 C5:2 B4:2 G4:2',
+          'E5:2 D5:2 C5:2 B4:2 A4:2 G4:2 F#4:2 G4:2',
+          'A4:4 B4:4 E4:8',
+        ].join(' '),
+      },
+      {
+        wave: 'triangle',
+        gain: 0.32,
+        notes: [rep('E2:2 E3:2', 8), rep('C2:2 C3:2', 2), rep('D2:2 D3:2', 2), rep('B1:2 B2:2', 4)].join(' '),
+      },
+      { wave: 'noise', gain: 0.07, notes: rep('N:1 N:1 R:2 N:2 R:2', 8) },
+    ],
+  },
+  // エンディング: ゆったり、あたたかく
+  ending: {
+    bpm: 100,
+    loop: true,
+    tracks: [
+      {
+        wave: 'square',
+        gain: 0.14,
+        notes: [
+          'C5:4 E5:4 G5:6 E5:2',
+          'F5:4 A5:4 G5:8',
+          'E5:4 C5:4 D5:4 E5:4',
+          'D5:12 R:4',
+          'C5:4 E5:4 G5:6 A5:2',
+          'C6:4 B5:4 A5:4 G5:4',
+          'F5:4 E5:4 D5:4 E5:4',
+          'C5:12 R:4',
+        ].join(' '),
+      },
+      {
+        wave: 'triangle',
+        gain: 0.3,
+        notes: 'C3:8 G2:8 F2:8 C3:8 A2:8 E2:8 G2:8 G2:8 C3:8 E3:8 F2:8 G2:8 D3:8 G2:8 C3:16',
+      },
+      { wave: 'noise', gain: 0.03, notes: rep('N:4 R:4', 16) },
+    ],
+  },
   // スター中: 速く、わくわく
   star: {
     bpm: 200,
@@ -185,6 +235,10 @@ export const SFX = {
   star: { wave: 'square', steps: [{ freq: 784, dur: 0.05, gain: 0.15 }, { freq: 988, dur: 0.05, gain: 0.15 }, { freq: 1175, dur: 0.05, gain: 0.15 }, { freq: 1568, dur: 0.15, gain: 0.15 }] },
   miss: { wave: 'square', steps: [{ freq: 660, to: 330, dur: 0.25, gain: 0.18 }, { freq: 330, to: 110, dur: 0.45, gain: 0.18 }] },
   button: { wave: 'square', steps: [{ freq: 880, dur: 0.04, gain: 0.12 }] },
+  // ボスを踏んだ・ボスが甲羅に入った・ボスが倒れた
+  bosshit: { wave: 'square', steps: [{ freq: 320, to: 120, dur: 0.12, gain: 0.22 }, { freq: 220, to: 70, dur: 0.14, gain: 0.22 }] },
+  bossshell: { wave: 'triangle', steps: [{ freq: 240, to: 110, dur: 0.16, gain: 0.4 }] },
+  bossdown: { wave: 'square', steps: [{ freq: 220, to: 55, dur: 0.45, gain: 0.2 }, { freq: 523, dur: 0.1, gain: 0.16 }, { freq: 659, dur: 0.1, gain: 0.16 }, { freq: 784, dur: 0.1, gain: 0.16 }, { freq: 1047, dur: 0.3, gain: 0.16 }] },
 };
 
 export const SFX_NAMES = Object.keys(SFX);

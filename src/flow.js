@@ -1,5 +1,5 @@
-import { addName, removeName } from './names.js?v=d3bd601';
-import { emptyRanking, insertScore, formatDate } from './ranking.js?v=d3bd601';
+import { addName, removeName } from './names.js?v=124bae3';
+import { emptyRanking, insertScore, formatDate } from './ranking.js?v=124bae3';
 
 // 画面の流れ（タイトル → だれが遊ぶ／名前 → キャラ → むずかしさ → ステージ → 結果）。DOM に依存しない
 export const MAX_NAME = 8;
@@ -17,6 +17,7 @@ export class Flow {
     onRankingChange = () => {},
     rankingAvailable = true,
     now = () => new Date(),
+    startStage = 0,
   } = {}) {
     this.stageCount = stageCount;
     // その端末で入れたことのある名前と、変わったときに保存する関数
@@ -29,6 +30,8 @@ export class Flow {
     this.onRankingChange = onRankingChange;
     this.rankingAvailable = rankingAvailable;
     this.now = now;
+    // 確認用に途中のステージから始める（?stage=N）。その時はランキングに入れない
+    this.startStage = Number.isInteger(startStage) && startStage > 0 && startStage < stageCount ? startStage : 0;
     this.rankingLevel = 'easy';
     this.highlight = null;
     this.confirmingReset = false;
@@ -127,7 +130,7 @@ export class Flow {
   chooseDifficulty(id) {
     if (this.screen !== 'difficulty' || !DIFFICULTY_IDS.includes(id)) return;
     this.difficulty = id;
-    this.stageIndex = 0;
+    this.stageIndex = this.startStage;
     this.carry = { lives: START_LIVES, score: 0, coins: 0 };
     this.result = null;
     this.screen = 'intro';
@@ -148,8 +151,13 @@ export class Flow {
       this.screen = 'intro';
     } else {
       this.result = { type: 'clear', score, coins, rank: this.record(score) };
-      this.screen = 'result';
+      // 全部クリアしたら、まずエンディング
+      this.screen = 'ending';
     }
+  }
+
+  endingDone() {
+    if (this.screen === 'ending') this.screen = 'result';
   }
 
   gameOver({ score, coins }) {
@@ -160,7 +168,7 @@ export class Flow {
 
   // 遊んだ難易度のランキングに入れて、順位（入らなければ 0）を返す
   record(score) {
-    if (!this.rankingAvailable) return 0;
+    if (!this.rankingAvailable || this.startStage > 0) return 0;
     const entry = { name: this.name, avatar: this.avatar, score, date: formatDate(this.now()) };
     const { list, rank } = insertScore(this.ranking[this.difficulty], entry);
     if (rank > 0) {

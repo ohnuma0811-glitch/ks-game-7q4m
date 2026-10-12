@@ -1,4 +1,4 @@
-import { MAX_NAME, DIFFICULTY_IDS } from './flow.js?v=d3bd601';
+import { MAX_NAME, DIFFICULTY_IDS } from './flow.js?v=124bae3';
 
 // 画面ごとの見出しとボタン（DOM に依存しない。ui.js が HTML にする）
 export const GAME_TITLE = 'KyugoとSokiの大冒険';
@@ -95,9 +95,48 @@ export function screenModel(flow) {
     }
     case 'ranking':
       return rankingModel(flow);
+    case 'ending':
+      return {
+        id: 'ending',
+        heading: 'Congratulations!',
+        heroes: ['kyugo', 'soki'],
+        credits: endingCredits(flow),
+        guard: true,
+        buttons: [{ label: 'つぎへ', act: 'endingDone', primary: true }],
+      };
     default:
       return null;
   }
+}
+
+// エンドロール（下から上へ流れる）
+function endingCredits(flow) {
+  return [
+    'You cleared all stages!',
+    '',
+    'KyugoとSokiの大冒険',
+    '',
+    '― しゅやく ―',
+    'Kyugo',
+    'Soki',
+    '',
+    '― ステージ ―',
+    '1 くさはら',
+    '2 ちか',
+    '3 そら',
+    '4 おしろ',
+    '',
+    '― プレイヤー ―',
+    flow.name,
+    `SCORE ${flow.result.score}`,
+    '',
+    '― つくった人 ―',
+    'おとうさん',
+    '',
+    'あそんでくれて ありがとう！',
+    '',
+    'おとうさんより',
+  ];
 }
 
 function rankingModel(flow) {
@@ -134,6 +173,7 @@ const ACTIONS = new Set([
   'start', 'typeLetter', 'deleteLetter', 'confirmName', 'back',
   'pickName', 'newName', 'askDelete', 'confirmDelete', 'cancelDelete',
   'openRanking', 'openResultRanking', 'showRanking', 'askReset', 'confirmReset', 'cancelReset',
+  'endingDone',
   'chooseAvatar', 'chooseDifficulty', 'resume', 'quitToTitle', 'finish',
 ]);
 

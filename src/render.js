@@ -1,20 +1,22 @@
-import { TILE } from './game/level.js?v=d3bd601';
-import { cameraY } from './game/camera.js?v=d3bd601';
-import { LAYERS, BACKDROP_SPRITES, layerPositions } from './data/backdrop.js?v=d3bd601';
+import { TILE } from './game/level.js?v=124bae3';
+import { cameraY } from './game/camera.js?v=124bae3';
+import { BACKDROPS, BACKDROP_SPRITES, layerPositions } from './data/backdrop.js?v=124bae3';
+import { getTheme } from './data/themes.js?v=124bae3';
 
-const TILE_KEYS = [null, 'G', 'B', 'Q', 'U'];
-const SKY = '#5c94fc';
+const TILE_KEYS = [null, 'G', 'B', 'Q', 'U', 'C', 'L', 'X'];
 
 export function renderGame(ctx, game, gfx, viewW, viewH, tick, { hud = true, player: showPlayer = true } = {}) {
   const { level, camX, player } = game;
   const camY = cameraY(level.height * TILE, viewH);
   const sx = (x) => Math.round(x - camX);
   const sy = (y) => Math.round(y - camY);
-  ctx.fillStyle = SKY;
+  const theme = getTheme(game.theme);
+  const tiles = gfx.tiles[game.theme] || gfx.tiles.grass;
+  ctx.fillStyle = theme.sky;
   ctx.fillRect(0, 0, viewW, viewH);
 
   // 背景の雲と山（地面より遅く動く）
-  for (const layer of LAYERS) {
+  for (const layer of BACKDROPS[game.theme] || []) {
     const img = gfx.backdrop[layer.sprite];
     const pal = BACKDROP_SPRITES[layer.sprite].palette;
     for (const p of layerPositions(layer, camX, viewW, img.width)) {
@@ -36,7 +38,7 @@ export function renderGame(ctx, game, gfx, viewW, viewH, tick, { hud = true, pla
   const tx1 = Math.min(level.width - 1, Math.floor((camX + viewW - 1) / TILE));
   for (let ty = 0; ty < level.height; ty++) {
     for (let tx = tx0; tx <= tx1; tx++) {
-      const img = gfx.tiles[TILE_KEYS[level.tiles[ty * level.width + tx]]];
+      const img = tiles[TILE_KEYS[level.tiles[ty * level.width + tx]]];
       if (img) ctx.drawImage(img, tx * TILE - camX, ty * TILE - camY);
     }
   }
@@ -64,6 +66,14 @@ export function renderGame(ctx, game, gfx, viewW, viewH, tick, { hud = true, pla
     const f = gfx.enemies[flat ? `${e.kind}Flat` : e.kind];
     const img = e.kind === 'walker' ? (Math.floor(tick / 12) % 2 ? f.left : f.right) : (e.dir > 0 ? f.right : f.left);
     ctx.drawImage(img, sx(e.x - 1), sy(e.y - 1));
+  }
+
+  // ボス（ひるんでいる間は点滅）
+  const b = game.boss;
+  if (b && !b.removed && !(b.state === 'hurt' && Math.floor(tick / 3) % 2)) {
+    const key = b.state === 'shell' ? 'shell' : Math.floor(tick / 10) % 2 ? 'walkB' : 'walkA';
+    const f = gfx.boss[key];
+    ctx.drawImage(b.dir < 0 ? f.right : f.left, sx(b.x - 2), sy(b.y - 6));
   }
 
   // プレイヤー（スター中と無敵中は点滅。スターの残り3秒は速く点滅）
@@ -107,6 +117,18 @@ function drawHud(ctx, game, viewW) {
   const step = (viewW - 8) / cols.length;
   cols.forEach((s, i) => text(ctx, s, 4 + i * step, 3));
   text(ctx, game.diff.label, 4, 13);
+  // ボスの体力（ボスが出てから倒すまで）
+  const b = game.boss;
+  if (b && b.active && !b.defeated) {
+    const x0 = Math.round(viewW / 2) - 34;
+    text(ctx, 'BOSS', x0, 13);
+    for (let i = 0; i < 5; i++) {
+      ctx.fillStyle = '#000';
+      ctx.fillRect(x0 + 26 + i * 9, 14, 8, 6);
+      ctx.fillStyle = i < b.hp ? '#e02020' : '#555555';
+      ctx.fillRect(x0 + 27 + i * 9, 15, 6, 4);
+    }
+  }
 }
 
 function drawBanner(ctx, viewW, viewH, title) {

@@ -9,6 +9,9 @@ const GOAL_PAL = { y: '#f8d030', g: '#2e9e3e', w: '#ffffff' };
 const CHECK_PAL = { k: '#444444', r: '#e02020' };
 const CHECK_ON_PAL = { k: '#444444', r: '#2ecc40' };
 const BLOCK_PAL = { q: '#f8b800', w: '#ffffff', d: '#8a4517', u: '#a0522d', k: '#000000' };
+const CLOUD_PAL = { o: '#88b8e8', w: '#ffffff', s: '#d0e8ff' };
+const LAVA_PAL = { y: '#ffd040', o: '#ff6a00', r: '#d02000' };
+const GATE_PAL = { k: '#202020', g: '#8a8a8a', w: '#d0d0d0' };
 
 const empty = (n) => Array(n).fill('................');
 
@@ -258,6 +261,155 @@ export const BLOCKS = {
       'ukuuuuuuuuuuukuk',
       'uuuuuuuuuuuuuuuk',
       'kkkkkkkkkkkkkkkk',
+    ],
+  },
+  // 雲の足場（空のステージ）
+  C: {
+    palette: CLOUD_PAL,
+    rows: [
+      '..oooo....oooo..',
+      '.owwwwo..owwwwo.',
+      'owwwwwwoowwwwwwo',
+      ...Array(7).fill('owwwwwwwwwwwwwwo'),
+      'oswwwwwwwwwwwwso',
+      'osswwwwwwwwwwsso',
+      'osssswwwwwwsssso',
+      'osssssssssssssso',
+      'osssssssssssssso',
+      'oooooooooooooooo',
+    ],
+  },
+  // 溶岩（お城のステージ。触れるとミス）
+  L: {
+    palette: LAVA_PAL,
+    rows: [
+      'yy..yy..yy..yy..',
+      'yyyyyyyyyyyyyyyy',
+      'oyyoyyoyyoyyoyyo',
+      ...Array(13).fill(0).map((_, i) => (i % 2 ? 'rrrroooorrrroooo' : 'oooorrrroooorrrr')),
+    ],
+  },
+  // ボスの扉（ボスを倒すと消える）
+  X: {
+    palette: GATE_PAL,
+    rows: ['kkkkkkkkkkkkkkkk', ...Array(14).fill('kgwkkgwkkgwkkgwk'), 'kkkkkkkkkkkkkkkk'],
+  },
+};
+
+// ステージ4のボス（トゲの甲羅の亀。左向き。32×32）
+const BOSS_PAL = { s: '#8a4a12', S: '#4a2006', y: '#f0d060', w: '#ffffff', g: '#3a9a3a', G: '#1e5a1e', k: '#000000' };
+
+export const BOSS_SPRITES = {
+  walkA: {
+    palette: BOSS_PAL,
+    rows: [
+      '................................',
+      '................................',
+      '................................',
+      '................................',
+      '...............w....w...........',
+      '...............w....w...........',
+      '..........w...www..www...w......',
+      '..........w...SSSSSSSS...w......',
+      '.........wwwSSssssssssSSwww.....',
+      '..........SSssssssssssssSS......',
+      '.........SssssssssssssssssS.....',
+      '...GGGG.SssssssssssssssssssS....',
+      '.GGggggGgsssssssssssssssssssS...',
+      '.GgggggggsssssssssssssssssssS...',
+      'GggwwgggggsssssssssssssssssssS..',
+      'GggkwgggggsssssssssssssssssssS..',
+      'GgggggggggsssssssssssssssssssS..',
+      'GgggggggggsssssssssssssssssssS..',
+      '.GgggggggssssssssssssssssssssS..',
+      '.kkggggggssssssssssssssssssssS..',
+      '...GGGGSssssssssssssssssssssS...',
+      '.......SssssssssssssssssssssS...',
+      '........SSSSSSSSSSSSSSSSSSSS....',
+      '......yyyyyyyyyyyyyyyyyyyyyyyy..',
+      '......yyyyyyyyyyyyyyyyyyyyyyyy..',
+      '.........gggg........gggg.......',
+      '.........gggg........gggg.......',
+      '.........gggg........gggg.......',
+      '.........gggg........gggg.......',
+      '........GGGGGG......GGGGGG......',
+      '........GGGGGG......GGGGGG......',
+      '........GGGGGG......GGGGGG......',
+    ],
+  },
+  walkB: {
+    palette: BOSS_PAL,
+    rows: [
+      '................................',
+      '................................',
+      '................................',
+      '................................',
+      '...............w....w...........',
+      '...............w....w...........',
+      '..........w...www..www...w......',
+      '..........w...SSSSSSSS...w......',
+      '.........wwwSSssssssssSSwww.....',
+      '..........SSssssssssssssSS......',
+      '.........SssssssssssssssssS.....',
+      '...GGGG.SssssssssssssssssssS....',
+      '.GGggggGgsssssssssssssssssssS...',
+      '.GgggggggsssssssssssssssssssS...',
+      'GggwwgggggsssssssssssssssssssS..',
+      'GggkwgggggsssssssssssssssssssS..',
+      'GgggggggggsssssssssssssssssssS..',
+      'GgggggggggsssssssssssssssssssS..',
+      '.GgggggggssssssssssssssssssssS..',
+      '.kkggggggssssssssssssssssssssS..',
+      '...GGGGSssssssssssssssssssssS...',
+      '.......SssssssssssssssssssssS...',
+      '........SSSSSSSSSSSSSSSSSSSS....',
+      '......yyyyyyyyyyyyyyyyyyyyyyyy..',
+      '......yyyyyyyyyyyyyyyyyyyyyyyy..',
+      '.......gggg............gggg.....',
+      '.......gggg............gggg.....',
+      '.......gggg............gggg.....',
+      '.......gggg............gggg.....',
+      '......GGGGGG..........GGGGGG....',
+      '......GGGGGG..........GGGGGG....',
+      '......GGGGGG..........GGGGGG....',
+    ],
+  },
+  // 甲羅に入った状態（頭と足を引っこめる。トゲがあるので踏むとミス）
+  shell: {
+    palette: BOSS_PAL,
+    rows: [
+      '................................',
+      '................................',
+      '................................',
+      '................................',
+      '................................',
+      '................................',
+      '................................',
+      '................................',
+      '................................',
+      '................................',
+      '................................',
+      '...............w....w...........',
+      '...............w....w...........',
+      '..........w...www..www...w......',
+      '..........w...SSSSSSSS...w......',
+      '.........wwwSSssssssssSSwww.....',
+      '..........SSssssssssssssSS......',
+      '.........SssssssssssssssssS.....',
+      '........SssssssssssssssssssS....',
+      '.......SssssssssssssssssssssS...',
+      '.......SssssssssssssssssssssS...',
+      '......SssssssssssssssssssssssS..',
+      '......SssssssssssssssssssssssS..',
+      '......SssssssssssssssssssssssS..',
+      '......SssssssssssssssssssssssS..',
+      '......SssssssssssssssssssssssS..',
+      '......SssssssssssssssssssssssS..',
+      '.......SssssssssssssssssssssS...',
+      '.......SssssssssssssssssssssS...',
+      '........SSSSSSSSSSSSSSSSSSSS....',
+      '......yyyyyyyyyyyyyyyyyyyyyyyy..',
+      '......yyyyyyyyyyyyyyyyyyyyyyyy..',
     ],
   },
 };

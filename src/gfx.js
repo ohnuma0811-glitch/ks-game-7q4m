@@ -1,6 +1,7 @@
-import { AVATARS, TILES, TILE_PALETTE, parseSprite } from './data/sprites.js?v=d3bd601';
-import { ENEMIES, ITEMS, BLOCKS } from './data/objects.js?v=d3bd601';
-import { BACKDROP_SPRITES } from './data/backdrop.js?v=d3bd601';
+import { AVATARS, TILES, TILE_PALETTE, parseSprite } from './data/sprites.js?v=124bae3';
+import { ENEMIES, ITEMS, BLOCKS, BOSS_SPRITES } from './data/objects.js?v=124bae3';
+import { BACKDROP_SPRITES } from './data/backdrop.js?v=124bae3';
+import { THEMES } from './data/themes.js?v=124bae3';
 
 // ドット絵を小さな Canvas に描いておき、毎フレーム drawImage で使い回す
 function toCanvas(sprite, flip) {
@@ -28,16 +29,26 @@ export function buildGraphics() {
       avatars[name][frame] = both(parseSprite(rows, a.palette));
     }
   }
-  const tiles = {};
-  for (const [key, rows] of Object.entries(TILES)) {
-    tiles[key] = toCanvas(parseSprite(rows, TILE_PALETTE), false);
-  }
+  // 地面とレンガはステージごとの色、？ブロックなどは共通
+  const shared = {};
   for (const [key, s] of Object.entries(BLOCKS)) {
-    tiles[key] = toCanvas(parseSprite(s.rows, s.palette), false);
+    shared[key] = toCanvas(parseSprite(s.rows, s.palette), false);
+  }
+  const tiles = {};
+  for (const [theme, t] of Object.entries(THEMES)) {
+    tiles[theme] = { ...shared };
+    for (const [key, rows] of Object.entries(TILES)) {
+      tiles[theme][key] = toCanvas(parseSprite(rows, { ...TILE_PALETTE, ...t.tiles }), false);
+    }
   }
   const enemies = {};
   for (const [key, s] of Object.entries(ENEMIES)) {
     enemies[key] = both(parseSprite(s.rows, s.palette));
+  }
+  // ボスの絵は左向き。right が元の絵（左向き）、left が反転（右向き）
+  const boss = {};
+  for (const [key, s] of Object.entries(BOSS_SPRITES)) {
+    boss[key] = both(parseSprite(s.rows, s.palette));
   }
   const sprites = {};
   for (const [key, s] of Object.entries(ITEMS)) {
@@ -47,5 +58,5 @@ export function buildGraphics() {
   for (const [key, s] of Object.entries(BACKDROP_SPRITES)) {
     backdrop[key] = toCanvas(parseSprite(s.rows, s.palette), false);
   }
-  return { avatars, tiles, enemies, sprites, backdrop };
+  return { avatars, tiles, enemies, sprites, backdrop, boss };
 }

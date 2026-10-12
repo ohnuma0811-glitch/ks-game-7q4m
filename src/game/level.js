@@ -5,12 +5,17 @@ export const GROUND = 1;
 export const BRICK = 2;
 export const QUESTION = 3;
 export const USED = 4;
+export const CLOUD = 5;
+export const LAVA = 6;
+export const GATE = 7;
 
-const TILE_CODES = { G: GROUND, B: BRICK, '?': QUESTION, d: QUESTION, s: QUESTION };
+// C=雲の足場 L=溶岩（乗れない。触れるとミス） X=ボスの扉（ボスを倒すと消える）
+const TILE_CODES = { G: GROUND, B: BRICK, '?': QUESTION, d: QUESTION, s: QUESTION, C: CLOUD, L: LAVA, X: GATE };
 // ？ブロックの中身
 const BLOCK_CONTENTS = { '?': 'coin', d: 'drink', s: 'star' };
 // 敵・コイン・チェックポイント・ゴール
-export const ENTITY_CHARS = new Set(['c', 'w', 'W', 'x', 'j', 'J', 'y', 'S', 'h', 'H', 'F', '|']);
+// K=ボス
+export const ENTITY_CHARS = new Set(['c', 'w', 'W', 'x', 'j', 'J', 'y', 'S', 'h', 'H', 'F', '|', 'K']);
 
 export function parseLevel(lines) {
   const height = lines.length;
@@ -52,5 +57,6 @@ export function setTile(level, tx, ty, code) {
 export function isSolid(level, tx, ty) {
   if (tx < 0 || tx >= level.width) return true;
   if (ty < 0 || ty >= level.height) return false;
-  return level.tiles[ty * level.width + tx] !== EMPTY;
+  const t = level.tiles[ty * level.width + tx];
+  return t !== EMPTY && t !== LAVA;
 }

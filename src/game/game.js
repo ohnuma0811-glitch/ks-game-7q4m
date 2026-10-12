@@ -1,9 +1,10 @@
-import { parseLevel, tileAt, setTile, TILE, QUESTION, USED } from './level.js?v=d3bd601';
-import { Player, spawnPoint } from './player.js?v=d3bd601';
-import { cameraX } from './camera.js?v=d3bd601';
-import { createEnemy, updateEnemy } from './enemies.js?v=d3bd601';
-import { createCoin, popCoin, popItem, updateItem, itemBox, collectible } from './items.js?v=d3bd601';
-import { getDifficulty } from './difficulty.js?v=d3bd601';
+import { parseLevel, tileAt, setTile, TILE, QUESTION, USED, LAVA, GATE, EMPTY } from './level.js?v=124bae3';
+import { createBoss, updateBoss, hitBoss, canStomp } from './boss.js?v=124bae3';
+import { Player, spawnPoint } from './player.js?v=124bae3';
+import { cameraX } from './camera.js?v=124bae3';
+import { createEnemy, updateEnemy } from './enemies.js?v=124bae3';
+import { createCoin, popCoin, popItem, updateItem, itemBox, collectible } from './items.js?v=124bae3';
+import { getDifficulty } from './difficulty.js?v=124bae3';
 
 export const LIVES = 3;
 export const START_TIME = 200;
@@ -17,6 +18,11 @@ export const TIME_BONUS = 10;
 export const ENEMY_SCORE = 200;
 // ステージをクリアしたときの、残りライフ1つあたりの点数
 export const LIFE_BONUS = 1000;
+// ボスを1回踏む / 倒す
+export const BOSS_HIT_SCORE = 1000;
+export const BOSS_DOWN_SCORE = 5000;
+// ボスを踏んだあとの無敵（ボスに重なったままミスにならないように）
+const BOSS_STOMP_INVULN = 45;
 export const STOMP_BOUNCE = -3.2;
 export const STOMP_BOUNCE_HOLD = -4.6;
 // クリア・ゲームオーバーの結果を見せる時間（この間はやり直しを受け付けない）
@@ -30,10 +36,14 @@ export function overlap(a, b) {
 }
 
 export class Game {
-  constructor(levelLines, { avatar = 'kyugo', difficulty = 'normal', name = '', lives = LIVES, score = 0, coins = 0 } = {}) {
+  constructor(levelLines, { avatar = 'kyugo', difficulty = 'normal', name = '', lives = LIVES, score = 0, coins = 0, theme = 'grass', time = START_TIME } = {}) {
     this.lines = levelLines;
     this.avatar = avatar;
     this.name = name;
+    // ステージの見た目（src/data/themes.js）
+    this.theme = theme;
+    // 制限時間（秒）。ステージごとに違う
+    this.startTime = time;
     this.difficulty = difficulty;
     this.diff = getDifficulty(difficulty);
     this.lives = lives;
@@ -61,6 +71,7 @@ export class Game {
     this.items = [];
     this.checkpoints = [];
     this.goalX = Infinity;
+    this.boss = null;
     for (const e of this.level.entities) {
       if (e.ch === 'c') {
         if (!this.takenCoins.has(`${e.tx},${e.ty}`)) this.items.push(createCoin(e.tx, e.ty));
@@ -72,6 +83,8 @@ export class Game {
           enabled: this.diff.checkpoints.includes(e.ch),
           passed: this.passed.has(e.tx),
         });
+      } else if (e.ch === 'K') {
+        if (!this.boss) this.boss = createBoss(e.tx, e.ty, this.diff);
       } else if (e.ch === 'F' || e.ch === '|') {
         this.goalX = Math.min(this.goalX, e.tx * TILE + 7);
       } else {
@@ -84,7 +97,7 @@ export class Game {
   respawn() {
     const p = this.checkpoint || spawnPoint(this.level);
     this.player = new Player(p.x, p.y);
-    this.time = START_TIME;
+    this.time = this.startTime;
     this.timeTicks = 0;
     this.state = 'playing';
     this.deathTimer = 0;
@@ -114,13 +127,15 @@ export class Game {
     p.update(input, this.level);
     if (p.jumped) this.events.push('jump');
     if (p.lastHit.ceil) this.hitBlock(p.lastHit.ceil.tx, p.lastHit.ceil.ty);
-    if (p.fell) {
+    if (p.fell || this.touchingLava()) {
       this.miss();
       return;
     }
     this.camX = cameraX(p.x + p.w / 2, viewW, this.level.width * TILE);
     this.updateItems();
     this.updateEnemies(input, viewW);
+    if (this.state !== 'playing') return;
+    this.updateBoss(viewW);
     if (this.state !== 'playing') return;
     this.updateCheckpoints();
     this.updateTimer();
@@ -143,6 +158,19 @@ export class Game {
     }
     this.loadStage();
     this.respawn();
+  }
+
+  // プレイヤーの体が溶岩のマスに重なっているか
+  touchingLava() {
+    const p = this.player;
+    const x0 = Math.floor(p.x / TILE);
+    const x1 = Math.floor((p.x + p.w - 0.001) / TILE);
+    const y0 = Math.floor(p.y / TILE);
+    const y1 = Math.floor((p.y + p.h - 0.001) / TILE);
+    for (let ty = y0; ty <= y1; ty++) {
+      for (let tx = x0; tx <= x1; tx++) if (tileAt(this.level, tx, ty) === LAVA) return true;
+    }
+    return false;
   }
 
   hitBlock(tx, ty) {
@@ -246,6 +274,45 @@ export class Game {
       p.vy = input.jump ? STOMP_BOUNCE_HOLD : STOMP_BOUNCE;
       this.events.push('stomp');
     }
+  }
+
+  updateBoss(viewW) {
+    const b = this.boss;
+    const p = this.player;
+    if (!b || b.removed) return;
+    // 画面に入ったら動き出す（ボスの曲に切り替える）
+    if (!b.active) {
+      if (b.x >= this.camX + viewW) return;
+      b.active = true;
+      this.events.push('bossstart');
+    }
+    if (updateBoss(b, this.level, p) === 'shell') this.events.push('bossshell');
+    if (b.defeated || !overlap(p, b)) return;
+    // ひるんでいる間とスター中は、どちらも傷つかない
+    if (b.state === 'hurt' || p.star > 0) return;
+    if (canStomp(b) && p.vy > 0 && p.prevY + p.h <= b.y + 8) {
+      const r = hitBoss(b);
+      p.vy = STOMP_BOUNCE_HOLD;
+      p.invuln = BOSS_STOMP_INVULN;
+      this.score += BOSS_HIT_SCORE;
+      this.addPopup(BOSS_HIT_SCORE, b.x + b.w / 2, b.y);
+      this.events.push('bosshit');
+      if (r === 'down') {
+        this.score += BOSS_DOWN_SCORE;
+        this.addPopup(BOSS_DOWN_SCORE, b.x + b.w / 2, b.y - 10);
+        this.events.push('bossdown');
+        this.openGates();
+      }
+      return;
+    }
+    if (p.invuln > 0) return;
+    this.miss();
+  }
+
+  // ボスを倒したら、扉（X）を消す
+  openGates() {
+    const { tiles } = this.level;
+    for (let i = 0; i < tiles.length; i++) if (tiles[i] === GATE) tiles[i] = EMPTY;
   }
 
   updateCheckpoints() {

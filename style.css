@@ -280,3 +280,29 @@ html, body {
 #menu button.long.holding {
   outline: 4px solid #ffd84a;
 }
+/* エンディングのエンドロール */
+#menu[data-screen='ending'] h1 {
+  color: #ffd84a;
+}
+#menu .credits {
+  height: 48vh;
+  width: min(60vw, 520px);
+  overflow: hidden;
+}
+#menu .credits-roll {
+  animation: credits-roll 24s linear forwards;
+}
+#menu .credits-roll p {
+  margin: 0;
+  text-align: center;
+  line-height: 1.5;
+  font-size: clamp(14px, 5vh, 26px);
+}
+@keyframes credits-roll {
+  from {
+    transform: translateY(48vh);
+  }
+  to {
+    transform: translateY(calc(-100% + 48vh));
+  }
+}

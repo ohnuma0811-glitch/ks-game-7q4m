@@ -11,14 +11,65 @@ export const STAGE_1 = [
   '                                                                                                                                                                                                |       ',
   '                                                               c cc                                                                                                                             |       ',
   '              ?   B?B?B                                       BBdBBB                                      BBsB                                          B?BB                   GGGGG  G         |       ',
-  '                                                    GG                      cccc                                                      GG                                      GGGGGG  GG        |       ',
+  '                                                    GG                      cccc                                                      GG                                     wGGGGGG  GG        |       ',
   '                                          GG        GG                                        GG                          GG          GG                                     GGGGGGG  GGG       |       ',
-  '       P                 w    cccW      x GG   w    GG   W  y                x  W J  j    j   GG y  H      J  w x       W GG    S     GG     j ccc y    W  x       w    y J GGGGGGGG  GGGG      |       ',
+  '       P                 w    cccW        GG x w    GG   Wy                      xJW j    j   GG  yJH           xw        GG W  S     GG       cccjyW        x              GGGGGGGG  GGGG  Jy  |       ',
   'GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG  GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGGGGGGG  GGGGGGGG   GGGGGGGGGGGGGGGGGGGGG  GGGGGGGGG  GGGGGGG  GGGGG  GGGGGGGGGGGGG  GGGGGGGGGGGGGGGGGG',
   'GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG  GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGGGGGGG  GGGGGGGG   GGGGGGGGGGGGGGGGGGGGG  GGGGGGGGG  GGGGGGG  GGGGG  GGGGGGGGGGGGG  GGGGGGGGGGGGGGGGGG',
 ];
 
-// 遊ぶ順番（M7 でステージ2〜4を足す）
-export const STAGES = [STAGE_1];
-// ステージごとの BGM（src/music.js の SONGS の名前）
-export const STAGE_MUSIC = ['grass'];
+// ステージ2 地下: 天井があり、低い通路（天井の下にはジャンプする敵を置かない）
+// ステージ3 空: C=雲の足場。足場から落ちるとミス
+// ステージ4 お城: L=溶岩（触れるとミス）。最後に K=ボス、X=ボスの扉（ボスを倒すと開く）
+export const STAGE_2 = [
+  'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
+  '                                                                                                                                                                                                F       ',
+  '                                                                                                                                                                                                |       ',
+  '                                                                                                                                                                                                |       ',
+  '                                                                                                                                                                                                |       ',
+  '                          c  c  c  c  c               c c c                c c c c                            c  c  c  c  c  c                                                                  |       ',
+  '            ?BdB?       BBBBBBBBBBBBBBBBB                           G     BBBBsBBBB                         BBBBBBBBBBBBBBBBBBB           ?B?B?                              GGGGG              |       ',
+  '                                                            G       G                                                                               G                       GGGGGG              |       ',
+  '                                                    G       G       G                                                                               G       G              GGGGGGG              |       ',
+  '       P            w     x   w    W       y        G   j   G   W   G   x                     wy   JH           x  w    W        y               j  G W  J  G x wJ        GGGGGGGG        WyS   |       ',
+  'GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG  GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGG  GGGGGGGGGGGGGGGGGGGG',
+  'GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG  GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGG  GGGGGGGGGGGGGGGGGGGG',
+];
+
+export const STAGE_3 = [
+  '                                                                                                                                                                                                        ',
+  '                                                                                                                                                                                                F       ',
+  '                                                                                                                                                                                                |       ',
+  '                                                                                                                                                                                                |       ',
+  '                                                                                                                                                                                                |       ',
+  '                                    c c c                                                                         c c                                 c c                                       |       ',
+  '                          ?d?                                   c c c c                                                                    ?s?                                                  |       ',
+  '                                         x                                 CCCCCC                                                  CCCCC                                                        |       ',
+  '                                   CCCCCCCC            CCCCCC                                                    CCCCCC                              CCCCCC              CCCCC                  |       ',
+  '       P      w W              j                   Jy                SWwx                wJ         H      Wj y                wx               J y                WS x                      J  |  y    ',
+  'CCCCCCCCCCCCCCCCCCCCC   CCCCCCCCC            CCCCCCCC          CCCCCCCCCC          CCCCCCCCCC  CCCCCCCCCCCCCCCC          CCCCCCCC         CCCCCCCCC          CCCCCCCCCC         CCCCCCCCCCCCCCCCCCCCCCCC',
+  'CCCCCCCCCCCCCCCCCCCCC   CCCCCCCCC            CCCCCCCC          CCCCCCCCCC          CCCCCCCCCC  CCCCCCCCCCCCCCCC          CCCCCCCC         CCCCCCCCC          CCCCCCCCCC         CCCCCCCCCCCCCCCCCCCCCCCC',
+];
+
+export const STAGE_4 = [
+  'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
+  '                                                                                                                                                                                          X     F       ',
+  '                                                                                                                                                                                          X     |       ',
+  '                                                                                                                                                                                          X     |       ',
+  '                                                                                                                                                                                          X     |       ',
+  '                                    ?B?B?                      BdB                                         BsB                                                                            X     |       ',
+  '                                          c c c c                                     c c c c                                                                                             X     |       ',
+  '                                                                                                    G                                                                                     X     |       ',
+  '                                                                                  G                 G                      G                                  G                           X     |       ',
+  '       P              x   S            Ww    J  y           SW    x   j           G  J  w   y       G   Wx      S  y       G   Jx jJ   W            wyH       G                 K         X     |       ',
+  'GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGLLLGGGGGGGGGGGGGGGGGGGLLGGGGGGGGGGGGGGGGGGGGGLLLGGGGGGGGGGGGGGGGGGLLGGGGGGGGGGGGGGGGGGGGLLLGGGGGGGGGGGGGGGGGGGLLGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG',
+  'GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGLLLGGGGGGGGGGGGGGGGGGGLLGGGGGGGGGGGGGGGGGGGGGLLLGGGGGGGGGGGGGGGGGGLLGGGGGGGGGGGGGGGGGGGGLLLGGGGGGGGGGGGGGGGGGGLLGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG',
+];
+
+// 遊ぶ順番。theme は見た目（src/data/themes.js）、music は BGM（src/music.js）、time は制限時間（秒）
+export const STAGES = [
+  { map: STAGE_1, theme: 'grass', music: 'grass', time: 200 },
+  { map: STAGE_2, theme: 'underground', music: 'underground', time: 250 },
+  { map: STAGE_3, theme: 'sky', music: 'sky', time: 250 },
+  { map: STAGE_4, theme: 'castle', music: 'castle', time: 300 },
+];

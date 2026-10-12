@@ -1,4 +1,4 @@
-import { screenModel, dispatch } from './screens.js?v=d3bd601';
+import { screenModel, dispatch } from './screens.js?v=124bae3';
 
 // screenModel を HTML のメニューにする。ボタンを押すと flow を進めて onAction を呼ぶ
 // guard つきのメニューは、出てからこの時間はボタンを押せない（ゲーム中の連打で押されないように）
@@ -80,6 +80,14 @@ export function createUI({ root, flow, gfx, onAction }) {
     panel.append(el('h1', '', m.heading));
     if (m.text) panel.append(el('p', '', m.text));
     if (m.rankText) panel.append(el('p', 'rank-in', m.rankText));
+    if (m.credits) {
+      // エンドロール: 下から上へ流れて、最後の「おとうさんより」で止まる
+      const box = el('div', 'credits');
+      const roll = el('div', 'credits-roll');
+      for (const line of m.credits) roll.append(el('p', line ? '' : 'gap', line || ' '));
+      box.append(roll);
+      panel.append(box);
+    }
     if (m.tabs) {
       const tabs = el('div', 'tabs');
       for (const t of m.tabs) tabs.append(button(t));

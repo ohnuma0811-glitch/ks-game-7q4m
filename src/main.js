@@ -1,16 +1,16 @@
-import { computeViewport, isPortrait } from './screen.js?v=d3bd601';
-import { startLoop } from './loop.js?v=d3bd601';
-import { Input, attachInput, computeButtonLayout } from './input.js?v=d3bd601';
-import { buildGraphics } from './gfx.js?v=d3bd601';
-import { Game } from './game/game.js?v=d3bd601';
-import { renderGame } from './render.js?v=d3bd601';
-import { STAGES, STAGE_MUSIC } from './data/stages.js?v=d3bd601';
-import { Flow } from './flow.js?v=d3bd601';
-import { createUI } from './ui.js?v=d3bd601';
-import { loadNames, saveNames } from './names.js?v=d3bd601';
-import { loadRanking, saveRanking, storageWorks } from './ranking.js?v=d3bd601';
-import { Sound } from './audio.js?v=d3bd601';
-import { musicFor } from './musicstate.js?v=d3bd601';
+import { computeViewport, isPortrait } from './screen.js?v=124bae3';
+import { startLoop } from './loop.js?v=124bae3';
+import { Input, attachInput, computeButtonLayout } from './input.js?v=124bae3';
+import { buildGraphics } from './gfx.js?v=124bae3';
+import { Game } from './game/game.js?v=124bae3';
+import { renderGame } from './render.js?v=124bae3';
+import { STAGES } from './data/stages.js?v=124bae3';
+import { Flow } from './flow.js?v=124bae3';
+import { createUI } from './ui.js?v=124bae3';
+import { loadNames, saveNames } from './names.js?v=124bae3';
+import { loadRanking, saveRanking, storageWorks } from './ranking.js?v=124bae3';
+import { Sound } from './audio.js?v=124bae3';
+import { musicFor } from './musicstate.js?v=124bae3';
 
 // 「STAGE 1」を見せる時間（更新数）
 const INTRO_TICKS = 90;
@@ -43,7 +43,10 @@ function getStorage() {
   }
 }
 const storage = getStorage();
+// 確認用: ?stage=4 でステージ4から始める（ランキングには入らない）
+const startStage = Number(new URLSearchParams(location.search).get('stage')) - 1;
 const flow = new Flow(STAGES.length, {
+  startStage,
   savedNames: loadNames(storage),
   onSavedNamesChange: (list) => saveNames(storage, list),
   // ランキングも端末に記録する（保存できない端末では記録しない）
@@ -52,10 +55,12 @@ const flow = new Flow(STAGES.length, {
   rankingAvailable: storageWorks(storage),
 });
 // メニューの後ろに見せるステージ1の景色
-const backdrop = new Game(STAGES[0]);
+const backdrop = new Game(STAGES[0].map);
 let game = null;
 let tick = 0;
 let introTicks = 0;
+// 「STAGE N」の後ろに見せる、次のステージの景色
+let introPreview = null;
 let lastScreen = flow.screen;
 let lastPaused = flow.paused;
 
@@ -69,7 +74,11 @@ function afterAction(act) {
     sound.playSfx('button');
   }
   if (flow.screen !== lastScreen) {
-    if (flow.screen === 'intro') introTicks = 0;
+    if (flow.screen === 'intro') {
+      introTicks = 0;
+      const next = STAGES[flow.stageIndex];
+      introPreview = new Game(next.map, { theme: next.theme });
+    }
     if (flow.screen === 'title') game = null;
     lastScreen = flow.screen;
   }
@@ -91,7 +100,8 @@ function updateMusic() {
     gameState: game ? game.state : null,
     star: game ? game.player.star : 0,
     stageIndex: flow.stageIndex,
-    stageMusic: STAGE_MUSIC,
+    stageMusic: STAGES.map((s) => s.music),
+    boss: Boolean(game && game.boss && game.boss.active && !game.boss.defeated),
     current: sound.current,
   });
   if (want !== undefined) sound.playMusic(want);
@@ -159,7 +169,10 @@ function update() {
   if (flow.screen === 'intro') {
     introTicks++;
     if (introTicks >= INTRO_TICKS) {
-      game = new Game(STAGES[flow.stageIndex], {
+      const stage = STAGES[flow.stageIndex];
+      game = new Game(stage.map, {
+        theme: stage.theme,
+        time: stage.time,
         avatar: flow.avatar,
         difficulty: flow.difficulty,
         name: flow.name,
@@ -198,7 +211,8 @@ function render() {
   if (game && (flow.screen === 'play' || flow.screen === 'result')) {
     renderGame(ctx, game, gfx, view.width, view.height, tick);
   } else {
-    renderGame(ctx, backdrop, gfx, view.width, view.height, tick, { hud: false, player: false });
+    const scene = flow.screen === 'intro' && introPreview ? introPreview : backdrop;
+    renderGame(ctx, scene, gfx, view.width, view.height, tick, { hud: false, player: false });
   }
   ctx.font = '8px monospace';
   ctx.textAlign = 'right';
