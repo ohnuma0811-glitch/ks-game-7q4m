@@ -8,8 +8,10 @@ export function computeButtonLayout(winW, winH, safe = { left: 0, right: 0, bott
   // 半径は画面の短い辺の9%、34〜56px（約1〜1.5cm）
   const r = Math.max(34, Math.min(56, Math.min(winW, winH) * 0.09));
   const margin = 16;
+  // ◀ は親指が届きやすいよう左端に寄せる
+  const leftMargin = 8;
   const y = winH - safe.bottom - margin - r;
-  const left = { x: safe.left + margin + r, y, r };
+  const left = { x: safe.left + leftMargin + r, y, r };
   const right = { x: left.x + r * 2 + 16, y, r };
   const jumpR = r * 1.2;
   const jump = { x: winW - safe.right - margin - jumpR, y: winH - safe.bottom - margin - jumpR, r: jumpR };
