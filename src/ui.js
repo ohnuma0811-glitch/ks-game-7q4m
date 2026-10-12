@@ -1,4 +1,4 @@
-import { screenModel, dispatch } from './screens.js?v=a21c0b8';
+import { screenModel, dispatch } from './screens.js?v=b55e073';
 
 // screenModel を HTML のメニューにする。ボタンを押すと flow を進めて onAction を呼ぶ
 // guard つきのメニューは、出てからこの時間はボタンを押せない（ゲーム中の連打で押されないように）
@@ -28,6 +28,17 @@ export function createUI({ root, flow, gfx, onAction }) {
     return e;
   }
 
+  // ドット絵を拡大表示用の canvas にする（右向き／左向き）
+  function sprite(id, facing, className) {
+    const src = gfx.avatars[id].stand[facing];
+    const c = document.createElement('canvas');
+    c.width = src.width;
+    c.height = src.height;
+    c.getContext('2d').drawImage(src, 0, 0);
+    if (className) c.className = className;
+    return c;
+  }
+
   function render() {
     const m = screenModel(flow);
     const key = JSON.stringify(m);
@@ -37,6 +48,10 @@ export function createUI({ root, flow, gfx, onAction }) {
     root.classList.toggle('show', Boolean(m));
     if (!m) return;
     root.dataset.screen = m.id;
+    if (m.heroes) {
+      // 左の Kyugo は右向き、右の Soki は左向きで、まん中を向く
+      root.append(sprite(m.heroes[0], 'right', 'hero left'), sprite(m.heroes[1], 'left', 'hero right'));
+    }
     const panel = el('div', 'panel');
     panel.append(el('h1', '', m.heading));
     if (m.text) panel.append(el('p', '', m.text));
@@ -50,12 +65,7 @@ export function createUI({ root, flow, gfx, onAction }) {
       const row = el('div', 'avatars');
       for (const a of m.avatars) {
         const b = button(a);
-        const src = gfx.avatars[a.arg].stand.right;
-        const c = document.createElement('canvas');
-        c.width = src.width;
-        c.height = src.height;
-        c.getContext('2d').drawImage(src, 0, 0);
-        b.prepend(c);
+        b.prepend(sprite(a.arg, 'right'));
         row.append(b);
       }
       panel.append(row);

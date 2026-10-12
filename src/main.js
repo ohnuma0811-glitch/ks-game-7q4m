@@ -1,12 +1,12 @@
-import { computeViewport, isPortrait } from './screen.js?v=a21c0b8';
-import { startLoop } from './loop.js?v=a21c0b8';
-import { Input, attachInput, computeButtonLayout } from './input.js?v=a21c0b8';
-import { buildGraphics } from './gfx.js?v=a21c0b8';
-import { Game } from './game/game.js?v=a21c0b8';
-import { renderGame } from './render.js?v=a21c0b8';
-import { STAGES } from './data/stages.js?v=a21c0b8';
-import { Flow } from './flow.js?v=a21c0b8';
-import { createUI } from './ui.js?v=a21c0b8';
+import { computeViewport, isPortrait } from './screen.js?v=b55e073';
+import { startLoop } from './loop.js?v=b55e073';
+import { Input, attachInput, computeButtonLayout } from './input.js?v=b55e073';
+import { buildGraphics } from './gfx.js?v=b55e073';
+import { Game } from './game/game.js?v=b55e073';
+import { renderGame } from './render.js?v=b55e073';
+import { STAGES } from './data/stages.js?v=b55e073';
+import { Flow } from './flow.js?v=b55e073';
+import { createUI } from './ui.js?v=b55e073';
 
 // 「STAGE 1」を見せる時間（更新数）
 const INTRO_TICKS = 90;

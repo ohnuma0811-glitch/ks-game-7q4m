@@ -1,14 +1,15 @@
-import { MAX_NAME, DIFFICULTY_IDS } from './flow.js?v=a21c0b8';
+import { MAX_NAME, DIFFICULTY_IDS } from './flow.js?v=b55e073';
 
 // 画面ごとの見出しとボタン（DOM に依存しない。ui.js が HTML にする）
-export const GAME_TITLE = 'KYUGO & SOKI';
+export const GAME_TITLE = 'KyugoとSokiの大冒険';
 export const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 const DIFFICULTY_LABELS = { easy: 'かんたん', normal: 'ふつう', hard: 'むずかしい' };
 
 export function screenModel(flow) {
   switch (flow.screen) {
     case 'title':
-      return { id: 'title', heading: GAME_TITLE, buttons: [{ label: 'スタート', act: 'start', primary: true }] };
+      // 2人のゲームだとわかるよう、左に Kyugo・右に Soki を大きく出す
+      return { id: 'title', heading: GAME_TITLE, heroes: ['kyugo', 'soki'], buttons: [{ label: 'スタート', act: 'start', primary: true }] };
     case 'name': {
       const full = flow.name.length >= MAX_NAME;
       return {
