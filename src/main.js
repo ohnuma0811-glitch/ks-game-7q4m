@@ -1,10 +1,10 @@
-import { computeViewport, isPortrait } from './screen.js?v=5d5c045';
-import { startLoop } from './loop.js?v=5d5c045';
-import { Input, attachInput, computeButtonLayout } from './input.js?v=5d5c045';
-import { buildGraphics } from './gfx.js?v=5d5c045';
-import { Game } from './game/game.js?v=5d5c045';
-import { renderGame } from './render.js?v=5d5c045';
-import { STAGE_1 } from './data/stages.js?v=5d5c045';
+import { computeViewport, isPortrait } from './screen.js?v=2812ac1';
+import { startLoop } from './loop.js?v=2812ac1';
+import { Input, attachInput, computeButtonLayout } from './input.js?v=2812ac1';
+import { buildGraphics } from './gfx.js?v=2812ac1';
+import { Game } from './game/game.js?v=2812ac1';
+import { renderGame } from './render.js?v=2812ac1';
+import { STAGE_1 } from './data/stages.js?v=2812ac1';
 
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');

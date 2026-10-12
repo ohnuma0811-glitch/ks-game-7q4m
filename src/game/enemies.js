@@ -1,5 +1,5 @@
-import { TILE, isSolid } from './level.js?v=5d5c045';
-import { moveAndCollide } from './physics.js?v=5d5c045';
+import { TILE, isSolid } from './level.js?v=2812ac1';
+import { moveAndCollide } from './physics.js?v=2812ac1';
 
 // 敵の文字と種類
 const KIND = { w: 'walker', W: 'walker', x: 'walker', j: 'jumper', J: 'jumper', y: 'jumper', S: 'spike' };
@@ -51,17 +51,16 @@ export function updateEnemy(e, level, player) {
     return;
   }
 
-  if (e.kind === 'walker') {
-    e.vx = e.dir * WALK_SPEED * e.speed;
-  } else if (e.kind === 'spike') {
-    e.vx = e.dir * SPIKE_SPEED * e.speed;
-    // 足場の端で引き返す
+  if (e.kind === 'walker' || e.kind === 'spike') {
+    const speed = (e.kind === 'walker' ? WALK_SPEED : SPIKE_SPEED) * e.speed;
+    e.vx = e.dir * speed;
+    // 足場の端で引き返す（自分から穴に落ちない）
     if (e.onGround) {
       const aheadX = e.dir > 0 ? e.x + e.w + 1 : e.x - 1;
       const below = Math.floor((e.y + e.h + 1) / TILE);
       if (!isSolid(level, Math.floor(aheadX / TILE), below)) {
         e.dir = -e.dir;
-        e.vx = e.dir * SPIKE_SPEED * e.speed;
+        e.vx = e.dir * speed;
       }
     }
   } else if (e.kind === 'jumper' && e.onGround) {
