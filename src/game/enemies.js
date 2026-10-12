@@ -1,5 +1,5 @@
-import { TILE, isSolid } from './level.js?v=c6eb4c8';
-import { moveAndCollide } from './physics.js?v=c6eb4c8';
+import { TILE, isSolid } from './level.js?v=bb6eec5';
+import { moveAndCollide } from './physics.js?v=bb6eec5';
 
 // 敵の文字と種類
 const KIND = { w: 'walker', W: 'walker', x: 'walker', j: 'jumper', J: 'jumper', y: 'jumper', S: 'spike' };
