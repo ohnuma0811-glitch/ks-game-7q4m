@@ -1,4 +1,4 @@
-import { MAX_NAME, DIFFICULTY_IDS } from './flow.js?v=8daface';
+import { MAX_NAME, DIFFICULTY_IDS } from './flow.js?v=2d85724';
 
 // 画面ごとの見出しとボタン（DOM に依存しない。ui.js が HTML にする）
 export const GAME_TITLE = 'KyugoとSokiの大冒険';
@@ -86,7 +86,7 @@ export function screenModel(flow) {
         guard: true,
         heading: r.type === 'clear' ? 'ALL CLEAR!' : 'GAME OVER',
         text: `SCORE ${r.score}  COIN ${r.coins}`,
-        rankText: r.rank > 0 ? `ランクイン！ ${r.rank}い` : undefined,
+        rankText: r.rank > 0 ? `ランクイン！ ${r.rank}位` : undefined,
         buttons: [
           { label: 'ランキング', act: 'openResultRanking' },
           { label: 'タイトルへ', act: 'finish', primary: true },

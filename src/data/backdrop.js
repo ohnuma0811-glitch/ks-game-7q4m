@@ -1,5 +1,59 @@
-// 背景の雲と山（ステージ1の草原）。地面より遅くスクロールさせて奥行きを出す
+// 背景の富士山・雲・丸い山（ステージ1の草原）。地面より遅くスクロールさせて奥行きを出す
 export const BACKDROP_SPRITES = {
+  // 富士山（遠くの青い山。てっぺんに雪）
+  fuji: {
+    palette: { o: '#2a4f86', f: '#4a78bf', w: '#ffffff' },
+    rows: [
+      '.........................................oooooooooooooo.........................................',
+      '.........................................owwwwwwwwwwwwo.........................................',
+      '.........................................owwwwwwwwwwwwo.........................................',
+      '........................................owwwwwwwwwwwwwwo........................................',
+      '........................................owwwwwwwwwwwwwwo........................................',
+      '........................................owwwwwwwwwwwwwwo........................................',
+      '.......................................owwwwwwwwwwwwwwwwo.......................................',
+      '.......................................owwwwwwwwwwwwwwwwo.......................................',
+      '......................................owwwwwwwwwwwwwwwwwwo......................................',
+      '......................................owwwwwwwwwwwwwwwwwwo......................................',
+      '.....................................owwwwwwwwwwwwwwwwwwwwo.....................................',
+      '.....................................owwfffffwwwwwfffffwwwo.....................................',
+      '....................................owwwfffffwwwwwfffffwwwwo....................................',
+      '....................................owwwfffffwwwwwfffffwwwwo....................................',
+      '...................................owwwwfffffwwwwwfffffwwwwwo...................................',
+      '..................................offffffffffffffffffffffffffo..................................',
+      '..................................offffffffffffffffffffffffffo..................................',
+      '.................................offffffffffffffffffffffffffffo.................................',
+      '................................offffffffffffffffffffffffffffffo................................',
+      '...............................offffffffffffffffffffffffffffffffo...............................',
+      '..............................offffffffffffffffffffffffffffffffffo..............................',
+      '..............................offffffffffffffffffffffffffffffffffo..............................',
+      '.............................offffffffffffffffffffffffffffffffffffo.............................',
+      '............................offffffffffffffffffffffffffffffffffffffo............................',
+      '...........................offffffffffffffffffffffffffffffffffffffffo...........................',
+      '..........................offffffffffffffffffffffffffffffffffffffffffo..........................',
+      '.........................offffffffffffffffffffffffffffffffffffffffffffo.........................',
+      '........................offffffffffffffffffffffffffffffffffffffffffffffo........................',
+      '.......................offffffffffffffffffffffffffffffffffffffffffffffffo.......................',
+      '......................offffffffffffffffffffffffffffffffffffffffffffffffffo......................',
+      '.....................offffffffffffffffffffffffffffffffffffffffffffffffffffo.....................',
+      '....................offffffffffffffffffffffffffffffffffffffffffffffffffffffo....................',
+      '...................offffffffffffffffffffffffffffffffffffffffffffffffffffffffo...................',
+      '..................offffffffffffffffffffffffffffffffffffffffffffffffffffffffffo..................',
+      '.................offffffffffffffffffffffffffffffffffffffffffffffffffffffffffffo.................',
+      '................offffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffo................',
+      '...............offffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffo...............',
+      '.............ooffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffoo.............',
+      '............offffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffo............',
+      '...........offffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffo...........',
+      '..........offffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffo..........',
+      '.........offffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffo.........',
+      '.......ooffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffoo.......',
+      '......offffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffo......',
+      '.....offffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffo.....',
+      '...ooffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffoo...',
+      '..offffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffo..',
+      '.offffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffo.',
+    ],
+  },
   cloud: {
     palette: { o: '#b8d8ff', f: '#ffffff', s: '#dcecff' },
     rows: [
@@ -62,6 +116,8 @@ export const BACKDROP_SPRITES = {
 
 // 奥から順に描く。factor はカメラに対する動きの割合（小さいほど遠い）。y はステージの上からの位置
 export const LAYERS = [
+  // 一番遠い富士山。下端を地面の上面にそろえ、下は塗り足す
+  { sprite: 'fuji', factor: 0.12, spacing: 520, ys: [112], fillBelow: true },
   { sprite: 'cloud', factor: 0.25, spacing: 150, ys: [20, 44, 28, 56] },
   // 山の下端を地面の上面（10行目 = 160）にそろえる。穴の所で浮いて見えないよう、下は画面の下まで塗り足す
   { sprite: 'hill', factor: 0.5, spacing: 210, ys: [128], fillBelow: true },
