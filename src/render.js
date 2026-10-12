@@ -1,7 +1,8 @@
-import { TILE } from './game/level.js?v=124bae3';
-import { cameraY } from './game/camera.js?v=124bae3';
-import { BACKDROPS, BACKDROP_SPRITES, layerPositions } from './data/backdrop.js?v=124bae3';
-import { getTheme } from './data/themes.js?v=124bae3';
+import { TILE } from './game/level.js?v=c632a7d';
+import { cameraY } from './game/camera.js?v=c632a7d';
+import { BACKDROPS, BACKDROP_SPRITES, layerPositions } from './data/backdrop.js?v=c632a7d';
+import { getTheme } from './data/themes.js?v=c632a7d';
+import { BOSS_HP } from './game/boss.js?v=c632a7d';
 
 const TILE_KEYS = [null, 'G', 'B', 'Q', 'U', 'C', 'L', 'X'];
 
@@ -73,7 +74,10 @@ export function renderGame(ctx, game, gfx, viewW, viewH, tick, { hud = true, pla
   if (b && !b.removed && !(b.state === 'hurt' && Math.floor(tick / 3) % 2)) {
     const key = b.state === 'shell' ? 'shell' : Math.floor(tick / 10) % 2 ? 'walkB' : 'walkA';
     const f = gfx.boss[key];
-    ctx.drawImage(b.dir < 0 ? f.right : f.left, sx(b.x - 2), sy(b.y - 6));
+    // 甲羅に入る前はぶるぶるふるえる。甲羅の間は当たり判定が低いので、絵を上へずらす
+    const shake = b.warning && Math.floor(tick / 2) % 2 ? 1 : 0;
+    const oy = b.state === 'shell' ? 13 : 6;
+    ctx.drawImage(b.dir < 0 ? f.right : f.left, sx(b.x - 2 + shake), sy(b.y - oy));
   }
 
   // プレイヤー（スター中と無敵中は点滅。スターの残り3秒は速く点滅）
@@ -122,7 +126,7 @@ function drawHud(ctx, game, viewW) {
   if (b && b.active && !b.defeated) {
     const x0 = Math.round(viewW / 2) - 34;
     text(ctx, 'BOSS', x0, 13);
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < BOSS_HP; i++) {
       ctx.fillStyle = '#000';
       ctx.fillRect(x0 + 26 + i * 9, 14, 8, 6);
       ctx.fillStyle = i < b.hp ? '#e02020' : '#555555';

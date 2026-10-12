@@ -1,4 +1,4 @@
-import { MAX_NAME, DIFFICULTY_IDS } from './flow.js?v=124bae3';
+import { MAX_NAME, DIFFICULTY_IDS } from './flow.js?v=c632a7d';
 
 // 画面ごとの見出しとボタン（DOM に依存しない。ui.js が HTML にする）
 export const GAME_TITLE = 'KyugoとSokiの大冒険';
@@ -99,9 +99,12 @@ export function screenModel(flow) {
       return {
         id: 'ending',
         heading: 'Congratulations!',
+        text: 'You cleared all stages!',
         heroes: ['kyugo', 'soki'],
         credits: endingCredits(flow),
         guard: true,
+        // 連打でエンドロールを飛ばさないよう、つぎへ は3秒たってから
+        guardMs: 3000,
         buttons: [{ label: 'つぎへ', act: 'endingDone', primary: true }],
       };
     default:

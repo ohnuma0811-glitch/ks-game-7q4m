@@ -1,4 +1,4 @@
-import { screenModel, dispatch } from './screens.js?v=124bae3';
+import { screenModel, dispatch } from './screens.js?v=c632a7d';
 
 // screenModel を HTML のメニューにする。ボタンを押すと flow を進めて onAction を呼ぶ
 // guard つきのメニューは、出てからこの時間はボタンを押せない（ゲーム中の連打で押されないように）
@@ -148,7 +148,7 @@ export function createUI({ root, flow, gfx, onAction }) {
       for (const b of buttons) b.disabled = true;
       guardTimer = setTimeout(() => {
         for (const b of buttons) b.disabled = false;
-      }, GUARD_MS);
+      }, m.guardMs || GUARD_MS);
     }
   }
 

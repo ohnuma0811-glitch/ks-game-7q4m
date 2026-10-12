@@ -115,6 +115,10 @@ export const BACKDROP_SPRITES = {
       '................................',
     ],
   },
+  // 空のステージの背景の雲（青っぽく、乗れる雲と見分けがつく）
+  get cloudFar() {
+    return { palette: { o: '#8fb8e0', f: '#dcecfb', s: '#c3dbf2' }, rows: BACKDROP_SPRITES.cloud.rows };
+  },
   hill: {
     palette: { o: '#1e6b1e', f: '#4caf3c' },
     rows: [
@@ -168,9 +172,10 @@ export const BACKDROPS = {
   grass: GRASS_LAYERS,
   underground: [],
   // 空: 遠くの小さな動きの雲と、近くの雲
+  // 乗れる雲（足場）と見分けがつくよう、青っぽい雲を足場より上だけに
   sky: [
-    { sprite: 'cloud', factor: 0.15, spacing: 120, ys: [30, 70, 50, 90] },
-    { sprite: 'cloud', factor: 0.4, spacing: 170, ys: [100, 20, 130, 60] },
+    { sprite: 'cloudFar', factor: 0.15, spacing: 120, ys: [24, 60, 40, 80] },
+    { sprite: 'cloudFar', factor: 0.4, spacing: 170, ys: [70, 16, 90, 48] },
   ],
   castle: [],
 };

@@ -44,9 +44,9 @@ export const STAGE_3 = [
   '                                                                                                                                                                                                |       ',
   '                                    c c c                                                                         c c                                 c c                                       |       ',
   '                          ?d?                                   c c c c                                                                    ?s?                                                  |       ',
-  '                                         x                                 CCCCCC                                                  CCCCC                                                        |       ',
+  '                                         xw                                CCCCCC                                                  CCCCC                                                        |       ',
   '                                   CCCCCCCC            CCCCCC                                                    CCCCCC                              CCCCCC              CCCCC                  |       ',
-  '       P      w W              j                   Jy                SWwx                wJ         H      Wj y                wx               J y                WS x                      J  |  y    ',
+  '       P      w W              j                   Jy                 Wwx                wJ         H      Wj y                wx               J y                WS x                      J  |  y    ',
   'CCCCCCCCCCCCCCCCCCCCC   CCCCCCCCC            CCCCCCCC          CCCCCCCCCC          CCCCCCCCCC  CCCCCCCCCCCCCCCC          CCCCCCCC         CCCCCCCCC          CCCCCCCCCC         CCCCCCCCCCCCCCCCCCCCCCCC',
   'CCCCCCCCCCCCCCCCCCCCC   CCCCCCCCC            CCCCCCCC          CCCCCCCCCC          CCCCCCCCCC  CCCCCCCCCCCCCCCC          CCCCCCCC         CCCCCCCCC          CCCCCCCCCC         CCCCCCCCCCCCCCCCCCCCCCCC',
 ];

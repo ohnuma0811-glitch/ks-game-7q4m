@@ -1,10 +1,10 @@
-import { parseLevel, tileAt, setTile, TILE, QUESTION, USED, LAVA, GATE, EMPTY } from './level.js?v=124bae3';
-import { createBoss, updateBoss, hitBoss, canStomp } from './boss.js?v=124bae3';
-import { Player, spawnPoint } from './player.js?v=124bae3';
-import { cameraX } from './camera.js?v=124bae3';
-import { createEnemy, updateEnemy } from './enemies.js?v=124bae3';
-import { createCoin, popCoin, popItem, updateItem, itemBox, collectible } from './items.js?v=124bae3';
-import { getDifficulty } from './difficulty.js?v=124bae3';
+import { parseLevel, tileAt, setTile, TILE, QUESTION, USED, LAVA, GATE, EMPTY } from './level.js?v=c632a7d';
+import { createBoss, updateBoss, hitBoss, canStomp, HURT_TICKS } from './boss.js?v=c632a7d';
+import { Player, spawnPoint } from './player.js?v=c632a7d';
+import { cameraX } from './camera.js?v=c632a7d';
+import { createEnemy, updateEnemy } from './enemies.js?v=c632a7d';
+import { createCoin, popCoin, popItem, updateItem, itemBox, collectible } from './items.js?v=c632a7d';
+import { getDifficulty } from './difficulty.js?v=c632a7d';
 
 export const LIVES = 3;
 export const START_TIME = 200;
@@ -21,8 +21,8 @@ export const LIFE_BONUS = 1000;
 // ボスを1回踏む / 倒す
 export const BOSS_HIT_SCORE = 1000;
 export const BOSS_DOWN_SCORE = 5000;
-// ボスを踏んだあとの無敵（ボスに重なったままミスにならないように）
-const BOSS_STOMP_INVULN = 45;
+// ボスを踏んだあとの無敵。ボスがひるんでいる間より長く（壁ぎわで重なったままミスにならないように）
+const BOSS_STOMP_INVULN = HURT_TICKS + 20;
 export const STOMP_BOUNCE = -3.2;
 export const STOMP_BOUNCE_HOLD = -4.6;
 // クリア・ゲームオーバーの結果を見せる時間（この間はやり直しを受け付けない）
@@ -84,7 +84,7 @@ export class Game {
           passed: this.passed.has(e.tx),
         });
       } else if (e.ch === 'K') {
-        if (!this.boss) this.boss = createBoss(e.tx, e.ty, this.diff);
+        this.boss = createBoss(e.tx, e.ty, this.diff);
       } else if (e.ch === 'F' || e.ch === '|') {
         this.goalX = Math.min(this.goalX, e.tx * TILE + 7);
       } else {

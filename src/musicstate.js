@@ -3,7 +3,8 @@
 const JINGLES = ['clear', 'gameover'];
 
 export function musicFor({ screen, gameState, star, stageIndex, stageMusic, current, boss = false }) {
-  if (screen === 'ending') return 'ending';
+  // エンディングの曲は、クリアのジングルが鳴り終わってから
+  if (screen === 'ending') return current === 'clear' ? undefined : 'ending';
   if (screen === 'play' && gameState === 'playing') {
     if (star > 0) return 'star';
     // ボスが出てから倒すまではボスの曲

@@ -1,5 +1,5 @@
-import { TILE } from './level.js?v=124bae3';
-import { moveAndCollide } from './physics.js?v=124bae3';
+import { TILE } from './level.js?v=c632a7d';
+import { moveAndCollide } from './physics.js?v=c632a7d';
 
 // ステージ4のボス（トゲの甲羅の大きな亀）
 // 歩く（プレイヤーの方へ）→ 甲羅に入る（その場で止まる）をくり返す。踏まれるとひるんで離れ、また歩き出す。
@@ -12,6 +12,10 @@ export const WALK_TICKS = 150;
 export const SHELL_TICKS = 110;
 // ひるむ時間。跳ね返ったプレイヤーが落ちてくるまで（約60更新）より長く
 export const HURT_TICKS = 75;
+// 甲羅に入る少し前から、ぶるぶるふるえて合図する
+export const WARN_TICKS = 25;
+// 甲羅の間の当たり判定の高さ（甲羅の絵に合わせる。足元の高さは同じ）
+const SHELL_H = 19;
 // ひるんだとき、プレイヤーから離れる速さ
 const HURT_RETREAT = 1.2;
 const GRAVITY = 0.3;
@@ -34,7 +38,15 @@ export function createBoss(tx, ty, diff) {
     defeated: false,
     removed: false,
     onGround: false,
+    warning: false,
   };
+}
+
+// 甲羅に入る・出るときに、当たり判定の高さを変える（足元はそのまま）
+function setShell(b, on) {
+  const h = on ? SHELL_H : BOSS_H;
+  b.y += b.h - h;
+  b.h = h;
 }
 
 // 甲羅に入った更新だけ 'shell' を返す（効果音用）
@@ -55,6 +67,7 @@ export function updateBoss(b, level, player) {
     if (b.timer >= WALK_TICKS / b.speed) {
       b.state = 'shell';
       b.timer = 0;
+      setShell(b, true);
       ev = 'shell';
     }
   } else if (b.state === 'shell') {
@@ -62,6 +75,7 @@ export function updateBoss(b, level, player) {
     if (b.timer >= SHELL_TICKS) {
       b.state = 'walk';
       b.timer = 0;
+      setShell(b, false);
     }
   } else if (b.state === 'hurt') {
     b.vx = -towardPlayer * HURT_RETREAT;
@@ -71,6 +85,7 @@ export function updateBoss(b, level, player) {
       b.timer = 0;
     }
   }
+  b.warning = b.state === 'walk' && b.timer >= WALK_TICKS / b.speed - WARN_TICKS;
   b.vy = Math.min(b.vy + GRAVITY, MAX_FALL);
   const r = moveAndCollide(b, level);
   b.onGround = r.onGround;
