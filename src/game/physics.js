@@ -1,0 +1,50 @@
+import { TILE, isSolid } from './level.js';
+
+// 端のぴったり上は隣のタイルに入らないよう、少しだけ内側で判定する
+const EPS = 0.001;
+
+export function moveAndCollide(body, level) {
+  const r = { onGround: false, hitCeiling: false, hitWall: false };
+
+  // 横に動かして押し戻す
+  body.x += body.vx;
+  if (body.vx !== 0) {
+    const top = Math.floor(body.y / TILE);
+    const bottom = Math.floor((body.y + body.h - EPS) / TILE);
+    const tx = body.vx > 0
+      ? Math.floor((body.x + body.w - EPS) / TILE)
+      : Math.floor(body.x / TILE);
+    for (let ty = top; ty <= bottom; ty++) {
+      if (isSolid(level, tx, ty)) {
+        body.x = body.vx > 0 ? tx * TILE - body.w : (tx + 1) * TILE;
+        body.vx = 0;
+        r.hitWall = true;
+        break;
+      }
+    }
+  }
+
+  // 縦に動かして押し戻す
+  body.y += body.vy;
+  if (body.vy !== 0) {
+    const left = Math.floor(body.x / TILE);
+    const right = Math.floor((body.x + body.w - EPS) / TILE);
+    const ty = body.vy > 0
+      ? Math.floor((body.y + body.h - EPS) / TILE)
+      : Math.floor(body.y / TILE);
+    for (let tx = left; tx <= right; tx++) {
+      if (isSolid(level, tx, ty)) {
+        if (body.vy > 0) {
+          body.y = ty * TILE - body.h;
+          r.onGround = true;
+        } else {
+          body.y = (ty + 1) * TILE;
+          r.hitCeiling = true;
+        }
+        body.vy = 0;
+        break;
+      }
+    }
+  }
+  return r;
+}
