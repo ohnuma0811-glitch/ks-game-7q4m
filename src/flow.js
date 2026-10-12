@@ -1,4 +1,4 @@
-import { addName, removeName } from './names.js?v=db36c2a';
+import { addName, removeName } from './names.js?v=d96f255';
 
 // 画面の流れ（タイトル → だれが遊ぶ／名前 → キャラ → むずかしさ → ステージ → 結果）。DOM に依存しない
 export const MAX_NAME = 8;

@@ -1,9 +1,9 @@
-import { parseLevel, tileAt, setTile, TILE, QUESTION, USED } from './level.js?v=db36c2a';
-import { Player, spawnPoint } from './player.js?v=db36c2a';
-import { cameraX } from './camera.js?v=db36c2a';
-import { createEnemy, updateEnemy } from './enemies.js?v=db36c2a';
-import { createCoin, popCoin, popItem, updateItem, itemBox, collectible } from './items.js?v=db36c2a';
-import { getDifficulty } from './difficulty.js?v=db36c2a';
+import { parseLevel, tileAt, setTile, TILE, QUESTION, USED } from './level.js?v=d96f255';
+import { Player, spawnPoint } from './player.js?v=d96f255';
+import { cameraX } from './camera.js?v=d96f255';
+import { createEnemy, updateEnemy } from './enemies.js?v=d96f255';
+import { createCoin, popCoin, popItem, updateItem, itemBox, collectible } from './items.js?v=d96f255';
+import { getDifficulty } from './difficulty.js?v=d96f255';
 
 export const LIVES = 3;
 export const START_TIME = 200;

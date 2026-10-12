@@ -1,4 +1,4 @@
-import { MAX_NAME, DIFFICULTY_IDS } from './flow.js?v=db36c2a';
+import { MAX_NAME, DIFFICULTY_IDS } from './flow.js?v=d96f255';
 
 // 画面ごとの見出しとボタン（DOM に依存しない。ui.js が HTML にする）
 export const GAME_TITLE = 'KyugoとSokiの大冒険';
@@ -38,10 +38,11 @@ export function screenModel(flow) {
         heading: 'なまえを いれてね',
         nameBox: flow.name.padEnd(MAX_NAME, '_'),
         keyRows: KEY_ROWS.map((row) => row.split('').map((ch) => ({ label: ch, act: 'typeLetter', arg: ch, disabled: full }))),
+        // OK は一番右
         buttons: [
+          { label: 'もどる', act: 'back' },
           { label: 'けす', act: 'deleteLetter', disabled: flow.name.length === 0 },
           { label: 'OK', act: 'confirmName', primary: true, disabled: !flow.canConfirmName() },
-          { label: 'もどる', act: 'back' },
         ],
       };
     }
