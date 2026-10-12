@@ -63,8 +63,8 @@ export const BACKDROP_SPRITES = {
 // 奥から順に描く。factor はカメラに対する動きの割合（小さいほど遠い）。y はステージの上からの位置
 export const LAYERS = [
   { sprite: 'cloud', factor: 0.25, spacing: 150, ys: [20, 44, 28, 56] },
-  // 山の下端を地面の上面（10行目 = 160）にそろえる
-  { sprite: 'hill', factor: 0.5, spacing: 210, ys: [128] },
+  // 山の下端を地面の上面（10行目 = 160）にそろえる。穴の所で浮いて見えないよう、下は画面の下まで塗り足す
+  { sprite: 'hill', factor: 0.5, spacing: 210, ys: [128], fillBelow: true },
 ];
 
 // 画面に入る分の位置（x は画面上、y はステージ上）

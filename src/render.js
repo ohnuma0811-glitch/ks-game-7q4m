@@ -1,6 +1,6 @@
-import { TILE } from './game/level.js?v=af73966';
-import { cameraY } from './game/camera.js?v=af73966';
-import { LAYERS, layerPositions } from './data/backdrop.js?v=af73966';
+import { TILE } from './game/level.js?v=8daface';
+import { cameraY } from './game/camera.js?v=8daface';
+import { LAYERS, BACKDROP_SPRITES, layerPositions } from './data/backdrop.js?v=8daface';
 
 const TILE_KEYS = [null, 'G', 'B', 'Q', 'U'];
 const SKY = '#5c94fc';
@@ -16,7 +16,19 @@ export function renderGame(ctx, game, gfx, viewW, viewH, tick, { hud = true, pla
   // 背景の雲と山（地面より遅く動く）
   for (const layer of LAYERS) {
     const img = gfx.backdrop[layer.sprite];
-    for (const p of layerPositions(layer, camX, viewW, img.width)) ctx.drawImage(img, p.x, p.y - camY);
+    const pal = BACKDROP_SPRITES[layer.sprite].palette;
+    for (const p of layerPositions(layer, camX, viewW, img.width)) {
+      const y = p.y - camY;
+      ctx.drawImage(img, p.x, y);
+      if (layer.fillBelow) {
+        // 絵の下を、ふち（両端1ドット）と中の色で画面の下まで続ける
+        const top = y + img.height;
+        ctx.fillStyle = pal.o;
+        ctx.fillRect(p.x, top, img.width, viewH - top);
+        ctx.fillStyle = pal.f;
+        ctx.fillRect(p.x + 1, top, img.width - 2, viewH - top);
+      }
+    }
   }
 
   // 画面に入っている列だけ描く

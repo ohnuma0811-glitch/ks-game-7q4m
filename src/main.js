@@ -1,14 +1,14 @@
-import { computeViewport, isPortrait } from './screen.js?v=af73966';
-import { startLoop } from './loop.js?v=af73966';
-import { Input, attachInput, computeButtonLayout } from './input.js?v=af73966';
-import { buildGraphics } from './gfx.js?v=af73966';
-import { Game } from './game/game.js?v=af73966';
-import { renderGame } from './render.js?v=af73966';
-import { STAGES } from './data/stages.js?v=af73966';
-import { Flow } from './flow.js?v=af73966';
-import { createUI } from './ui.js?v=af73966';
-import { loadNames, saveNames } from './names.js?v=af73966';
-import { loadRanking, saveRanking, storageWorks } from './ranking.js?v=af73966';
+import { computeViewport, isPortrait } from './screen.js?v=8daface';
+import { startLoop } from './loop.js?v=8daface';
+import { Input, attachInput, computeButtonLayout } from './input.js?v=8daface';
+import { buildGraphics } from './gfx.js?v=8daface';
+import { Game } from './game/game.js?v=8daface';
+import { renderGame } from './render.js?v=8daface';
+import { STAGES } from './data/stages.js?v=8daface';
+import { Flow } from './flow.js?v=8daface';
+import { createUI } from './ui.js?v=8daface';
+import { loadNames, saveNames } from './names.js?v=8daface';
+import { loadRanking, saveRanking, storageWorks } from './ranking.js?v=8daface';
 
 // 「STAGE 1」を見せる時間（更新数）
 const INTRO_TICKS = 90;
