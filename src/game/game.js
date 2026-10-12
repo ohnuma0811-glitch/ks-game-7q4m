@@ -1,4 +1,4 @@
-import { parseLevel, tileAt, setTile, isSolid, TILE, QUESTION, USED } from './level.js';
+import { parseLevel, tileAt, setTile, TILE, QUESTION, USED } from './level.js';
 import { Player, spawnPoint } from './player.js';
 import { cameraX } from './camera.js';
 import { createEnemy, updateEnemy } from './enemies.js';
@@ -7,13 +7,14 @@ import { getDifficulty } from './difficulty.js';
 
 export const LIVES = 3;
 export const START_TIME = 200;
-export const STAR_TICKS = 900;
+// スターの無敵時間（7.5秒。M3 実機確認で15秒から半分に）
+export const STAR_TICKS = 450;
 export const DEATH_TICKS = 90;
-// かんたんの歩く敵が、立っているプレイヤーを通り過ぎる時間（約87更新）より長く
-export const RESCUE_INVULN = 120;
 export const COIN_SCORE = 100;
 export const DRINK_BONUS = 1000;
 export const TIME_BONUS = 10;
+// 敵を倒したとき（踏む・スター）
+export const ENEMY_SCORE = 200;
 export const STOMP_BOUNCE = -3.2;
 export const STOMP_BOUNCE_HOLD = -4.6;
 // クリア・ゲームオーバーの結果を見せる時間（この間はやり直しを受け付けない）
@@ -78,7 +79,6 @@ export class Game {
     this.timeTicks = 0;
     this.state = 'playing';
     this.deathTimer = 0;
-    this.safe = null;
   }
 
   miss() {
@@ -102,10 +102,9 @@ export class Game {
     const p = this.player;
     p.update(input, this.level);
     if (p.lastHit.ceil) this.hitBlock(p.lastHit.ceil.tx, p.lastHit.ceil.ty);
-    this.updateSafeGround();
     if (p.fell) {
-      this.onFall();
-      if (this.state !== 'playing') return;
+      this.miss();
+      return;
     }
     this.camX = cameraX(p.x + p.w / 2, viewW, this.level.width * TILE);
     this.updateItems();
@@ -131,30 +130,6 @@ export class Game {
     }
     this.loadStage();
     this.respawn();
-  }
-
-  onFall() {
-    const p = this.player;
-    if (this.diff.pitRescue && this.safe) {
-      p.x = this.safe.x;
-      p.y = this.safe.y;
-      p.vx = 0;
-      p.vy = 0;
-      p.fell = false;
-      p.invuln = RESCUE_INVULN;
-      return;
-    }
-    this.miss();
-  }
-
-  // 両足が地面に乗っている位置を覚えておく（かんたんの穴の救済用）
-  updateSafeGround() {
-    const p = this.player;
-    if (!p.onGround) return;
-    const ty = Math.floor((p.y + p.h + 1) / TILE);
-    const left = Math.floor(p.x / TILE);
-    const right = Math.floor((p.x + p.w - 0.001) / TILE);
-    if (isSolid(this.level, left, ty) && isSolid(this.level, right, ty)) this.safe = { x: p.x, y: p.y };
   }
 
   hitBlock(tx, ty) {
@@ -212,11 +187,13 @@ export class Game {
       if (p.star > 0) {
         e.dead = true;
         e.vy = -3;
+        this.score += ENEMY_SCORE;
         continue;
       }
       if (e.stompable && falling && p.prevY + p.h <= e.y + 6) {
         e.squash = 30;
         stomped = true;
+        this.score += ENEMY_SCORE;
         continue;
       }
       if (p.invuln > 0) continue;
