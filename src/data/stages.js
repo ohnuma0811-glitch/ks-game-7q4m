@@ -20,3 +20,5 @@ export const STAGE_1 = [
 
 // 遊ぶ順番（M7 でステージ2〜4を足す）
 export const STAGES = [STAGE_1];
+// ステージごとの BGM（src/music.js の SONGS の名前）
+export const STAGE_MUSIC = ['grass'];

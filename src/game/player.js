@@ -1,5 +1,5 @@
-import { TILE } from './level.js?v=bb6eec5';
-import { moveAndCollide } from './physics.js?v=bb6eec5';
+import { TILE } from './level.js?v=5c4c7fb';
+import { moveAndCollide } from './physics.js?v=5c4c7fb';
 
 // 動きの数値（ドット/更新、更新は 1/60 秒）
 export const ACCEL = 0.06;
@@ -45,10 +45,13 @@ export class Player {
     this.star = 0;
     this.invuln = 0;
     this.lastHit = { onGround: false, hitCeiling: false, hitWall: false, ceil: null };
+    // この更新で跳んだか（効果音用）
+    this.jumped = false;
   }
 
   update(input, level) {
     this.prevY = this.y;
+    this.jumped = false;
     const dir = (input.right ? 1 : 0) - (input.left ? 1 : 0);
 
     // 横の動き: 同じ向きに押し続けると少しずつ速くなる
@@ -80,6 +83,7 @@ export class Player {
       this.vy = JUMP_V;
       this.jumpBuffer = 0;
       this.coyote = 0;
+      this.jumped = true;
     }
     const g = input.jump && this.vy < 0 ? GRAVITY_HOLD : GRAVITY;
     this.vy = Math.min(this.vy + g, MAX_FALL);

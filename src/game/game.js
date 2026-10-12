@@ -1,9 +1,9 @@
-import { parseLevel, tileAt, setTile, TILE, QUESTION, USED } from './level.js?v=bb6eec5';
-import { Player, spawnPoint } from './player.js?v=bb6eec5';
-import { cameraX } from './camera.js?v=bb6eec5';
-import { createEnemy, updateEnemy } from './enemies.js?v=bb6eec5';
-import { createCoin, popCoin, popItem, updateItem, itemBox, collectible } from './items.js?v=bb6eec5';
-import { getDifficulty } from './difficulty.js?v=bb6eec5';
+import { parseLevel, tileAt, setTile, TILE, QUESTION, USED } from './level.js?v=5c4c7fb';
+import { Player, spawnPoint } from './player.js?v=5c4c7fb';
+import { cameraX } from './camera.js?v=5c4c7fb';
+import { createEnemy, updateEnemy } from './enemies.js?v=5c4c7fb';
+import { createCoin, popCoin, popItem, updateItem, itemBox, collectible } from './items.js?v=5c4c7fb';
+import { getDifficulty } from './difficulty.js?v=5c4c7fb';
 
 export const LIVES = 3;
 export const START_TIME = 200;
@@ -46,6 +46,8 @@ export class Game {
     this.usedBlocks = new Set();
     this.resultTicks = 0;
     this.popups = [];
+    // 起きたこと（音を鳴らすため）。読む側が空にする
+    this.events = [];
     this.camX = 0;
     this.loadStage();
     this.respawn();
@@ -92,6 +94,7 @@ export class Game {
     if (this.state !== 'playing') return;
     this.state = 'dying';
     this.deathTimer = DEATH_TICKS;
+    this.events.push('miss');
     // 敵に当たったときは小さく跳ねて落ちる（穴に落ちたときはそのまま）
     if (!this.player.fell) this.player.vy = -4;
   }
@@ -109,6 +112,7 @@ export class Game {
 
     const p = this.player;
     p.update(input, this.level);
+    if (p.jumped) this.events.push('jump');
     if (p.lastHit.ceil) this.hitBlock(p.lastHit.ceil.tx, p.lastHit.ceil.ty);
     if (p.fell) {
       this.miss();
@@ -134,6 +138,7 @@ export class Game {
     this.lives--;
     if (this.lives <= 0) {
       this.state = 'gameover';
+      this.events.push('gameover');
       return;
     }
     this.loadStage();
@@ -141,7 +146,10 @@ export class Game {
   }
 
   hitBlock(tx, ty) {
-    if (tileAt(this.level, tx, ty) !== QUESTION) return;
+    if (tileAt(this.level, tx, ty) !== QUESTION) {
+      this.events.push('bump');
+      return;
+    }
     setTile(this.level, tx, ty, USED);
     this.usedBlocks.add(ty * this.level.width + tx);
     const kind = this.level.contents.get(ty * this.level.width + tx) || 'coin';
@@ -150,12 +158,14 @@ export class Game {
       this.items.push(popCoin(tx, ty));
     } else {
       this.items.push(popItem(kind, tx, ty));
+      this.events.push('item');
     }
   }
 
   addCoin(x, y) {
     this.coins++;
     this.score += COIN_SCORE;
+    this.events.push('coin');
     this.addPopup(COIN_SCORE, x, y);
   }
 
@@ -184,6 +194,7 @@ export class Game {
         this.addCoin(it.x + TILE / 2, it.y);
         this.takenCoins.add(`${it.x / TILE},${it.y / TILE}`);
       } else if (it.kind === 'drink') {
+        this.events.push('drink');
         if (this.lives >= LIVES) {
           this.score += DRINK_BONUS;
           this.addPopup(DRINK_BONUS, it.x + TILE / 2, it.y);
@@ -192,6 +203,7 @@ export class Game {
         }
       } else if (it.kind === 'star') {
         p.star = STAR_TICKS;
+        this.events.push('star');
       }
     }
     if (this.items.some((it) => it.taken)) this.items = this.items.filter((it) => !it.taken);
@@ -216,6 +228,7 @@ export class Game {
         e.vy = -3;
         this.score += ENEMY_SCORE;
         this.addPopup(ENEMY_SCORE, e.x + e.w / 2, e.y);
+        this.events.push('kill');
         continue;
       }
       if (e.stompable && falling && p.prevY + p.h <= e.y + 6) {
@@ -229,7 +242,10 @@ export class Game {
       this.miss();
       return;
     }
-    if (stomped) p.vy = input.jump ? STOMP_BOUNCE_HOLD : STOMP_BOUNCE;
+    if (stomped) {
+      p.vy = input.jump ? STOMP_BOUNCE_HOLD : STOMP_BOUNCE;
+      this.events.push('stomp');
+    }
   }
 
   updateCheckpoints() {
@@ -260,6 +276,7 @@ export class Game {
 
   clear() {
     this.state = 'clear';
+    this.events.push('clear');
     this.score += this.time * TIME_BONUS + this.lives * LIFE_BONUS;
   }
 }

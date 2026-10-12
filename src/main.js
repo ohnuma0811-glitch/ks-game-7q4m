@@ -1,14 +1,15 @@
-import { computeViewport, isPortrait } from './screen.js?v=bb6eec5';
-import { startLoop } from './loop.js?v=bb6eec5';
-import { Input, attachInput, computeButtonLayout } from './input.js?v=bb6eec5';
-import { buildGraphics } from './gfx.js?v=bb6eec5';
-import { Game } from './game/game.js?v=bb6eec5';
-import { renderGame } from './render.js?v=bb6eec5';
-import { STAGES } from './data/stages.js?v=bb6eec5';
-import { Flow } from './flow.js?v=bb6eec5';
-import { createUI } from './ui.js?v=bb6eec5';
-import { loadNames, saveNames } from './names.js?v=bb6eec5';
-import { loadRanking, saveRanking, storageWorks } from './ranking.js?v=bb6eec5';
+import { computeViewport, isPortrait } from './screen.js?v=5c4c7fb';
+import { startLoop } from './loop.js?v=5c4c7fb';
+import { Input, attachInput, computeButtonLayout } from './input.js?v=5c4c7fb';
+import { buildGraphics } from './gfx.js?v=5c4c7fb';
+import { Game } from './game/game.js?v=5c4c7fb';
+import { renderGame } from './render.js?v=5c4c7fb';
+import { STAGES, STAGE_MUSIC } from './data/stages.js?v=5c4c7fb';
+import { Flow } from './flow.js?v=5c4c7fb';
+import { createUI } from './ui.js?v=5c4c7fb';
+import { loadNames, saveNames } from './names.js?v=5c4c7fb';
+import { loadRanking, saveRanking, storageWorks } from './ranking.js?v=5c4c7fb';
+import { Sound } from './audio.js?v=5c4c7fb';
 
 // 「STAGE 1」を見せる時間（更新数）
 const INTRO_TICKS = 90;
@@ -31,6 +32,7 @@ let view = computeViewport(window.innerWidth, window.innerHeight);
 let layout = computeButtonLayout(window.innerWidth, window.innerHeight);
 
 const gfx = buildGraphics();
+const sound = new Sound(window.AudioContext || window.webkitAudioContext);
 // 入れたことのある名前は端末に覚えておく（保存できない端末でもゲームは遊べる）
 function getStorage() {
   try {
@@ -58,8 +60,13 @@ let lastPaused = flow.paused;
 
 const ui = createUI({ root: menuEl, flow, gfx, onAction: afterAction });
 
-// 画面が変わったあとの片付け（ボタンの表示切り替え、メニューの作り直し）
-function afterAction() {
+// 画面が変わったあとの片付け（ボタンの表示切り替え、メニューの作り直し、音）
+function afterAction(act) {
+  if (act) {
+    // ボタンを押したときに音を有効にする（スマホ・タブレットはタッチの中でしか鳴らせない）
+    sound.unlock();
+    sound.playSfx('button');
+  }
   if (flow.screen !== lastScreen) {
     if (flow.screen === 'intro') introTicks = 0;
     if (flow.screen === 'title') game = null;
@@ -70,7 +77,31 @@ function afterAction() {
   for (const b of Object.values(btnEls)) b.classList.toggle('hidden', !playing);
   pauseEl.classList.toggle('show', playing);
   if (!playing) input.clear();
+  if (flow.paused) sound.suspend();
+  else sound.resume();
+  updateMusic();
   ui.render();
+}
+
+// 今の状態に合う BGM にする（メニューでは止める。ミス・クリア・結果の間はジングルのまま）
+function updateMusic() {
+  if (flow.screen === 'play' && game && game.state === 'playing') {
+    sound.playMusic(game.player.star > 0 ? 'star' : STAGE_MUSIC[flow.stageIndex] || 'grass');
+  } else if (flow.screen !== 'play' && flow.screen !== 'result') {
+    sound.playMusic(null);
+  }
+}
+
+// ゲームで起きたことに合わせて効果音・ジングルを鳴らす
+function playEvents() {
+  for (const ev of game.events) {
+    if (ev === 'clear' || ev === 'gameover') sound.playMusic(ev);
+    else if (ev === 'miss') {
+      sound.playMusic(null);
+      sound.playSfx('miss');
+    } else sound.playSfx(ev);
+  }
+  game.events.length = 0;
 }
 
 function pause() {
@@ -133,6 +164,8 @@ function update() {
     }
   } else if (flow.screen === 'play' && !flow.paused) {
     game.update(input, view.width);
+    playEvents();
+    updateMusic();
     // クリア・ゲームオーバーの表示を見せ終わったら次へ
     if (game.canRestart()) {
       if (game.state === 'clear') flow.stageCleared(game);

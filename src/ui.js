@@ -1,4 +1,4 @@
-import { screenModel, dispatch } from './screens.js?v=bb6eec5';
+import { screenModel, dispatch } from './screens.js?v=5c4c7fb';
 
 // screenModel を HTML のメニューにする。ボタンを押すと flow を進めて onAction を呼ぶ
 // guard つきのメニューは、出てからこの時間はボタンを押せない（ゲーム中の連打で押されないように）
@@ -39,7 +39,8 @@ export function createUI({ root, flow, gfx, onAction }) {
     }
     el.addEventListener('click', () => {
       dispatch(flow, b.act, b.arg);
-      onAction();
+      // 押したボタンを伝える（音を鳴らし始めるため。タッチの中で呼ぶ必要がある）
+      onAction(b.act);
     });
     return el;
   }
