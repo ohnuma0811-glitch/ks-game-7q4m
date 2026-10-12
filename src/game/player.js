@@ -1,5 +1,5 @@
-import { TILE } from './level.js?v=bd0bd2d';
-import { moveAndCollide } from './physics.js?v=bd0bd2d';
+import { TILE } from './level.js?v=db36c2a';
+import { moveAndCollide } from './physics.js?v=db36c2a';
 
 // 動きの数値（ドット/更新、更新は 1/60 秒）
 export const ACCEL = 0.06;

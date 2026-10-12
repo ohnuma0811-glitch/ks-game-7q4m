@@ -1,4 +1,4 @@
-import { MAX_NAME, DIFFICULTY_IDS } from './flow.js?v=bd0bd2d';
+import { MAX_NAME, DIFFICULTY_IDS } from './flow.js?v=db36c2a';
 
 // 画面ごとの見出しとボタン（DOM に依存しない。ui.js が HTML にする）
 export const GAME_TITLE = 'KyugoとSokiの大冒険';
@@ -11,6 +11,26 @@ export function screenModel(flow) {
     case 'title':
       // 2人のゲームだとわかるよう、左に Kyugo・右に Soki を大きく出す
       return { id: 'title', heading: GAME_TITLE, heroes: ['kyugo', 'soki'], buttons: [{ label: 'スタート', act: 'start', primary: true }] };
+    case 'pick':
+      if (flow.deleting) {
+        return {
+          id: 'confirmDelete',
+          heading: `${flow.deleting} を けしますか？`,
+          buttons: [
+            { label: 'けす', act: 'confirmDelete', primary: true },
+            { label: 'やめる', act: 'cancelDelete' },
+          ],
+        };
+      }
+      return {
+        id: 'pick',
+        heading: 'だれが あそぶ？',
+        savedNames: flow.savedNames.map((n) => ({ label: n, act: 'pickName', arg: n, remove: { label: '×', act: 'askDelete', arg: n } })),
+        buttons: [
+          { label: 'あたらしい なまえ', act: 'newName', primary: true },
+          { label: 'もどる', act: 'back' },
+        ],
+      };
     case 'name': {
       const full = flow.name.length >= MAX_NAME;
       return {
@@ -74,6 +94,7 @@ export function screenModel(flow) {
 
 const ACTIONS = new Set([
   'start', 'typeLetter', 'deleteLetter', 'confirmName', 'back',
+  'pickName', 'newName', 'askDelete', 'confirmDelete', 'cancelDelete',
   'chooseAvatar', 'chooseDifficulty', 'resume', 'quitToTitle', 'finish',
 ]);
 

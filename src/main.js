@@ -1,12 +1,13 @@
-import { computeViewport, isPortrait } from './screen.js?v=bd0bd2d';
-import { startLoop } from './loop.js?v=bd0bd2d';
-import { Input, attachInput, computeButtonLayout } from './input.js?v=bd0bd2d';
-import { buildGraphics } from './gfx.js?v=bd0bd2d';
-import { Game } from './game/game.js?v=bd0bd2d';
-import { renderGame } from './render.js?v=bd0bd2d';
-import { STAGES } from './data/stages.js?v=bd0bd2d';
-import { Flow } from './flow.js?v=bd0bd2d';
-import { createUI } from './ui.js?v=bd0bd2d';
+import { computeViewport, isPortrait } from './screen.js?v=db36c2a';
+import { startLoop } from './loop.js?v=db36c2a';
+import { Input, attachInput, computeButtonLayout } from './input.js?v=db36c2a';
+import { buildGraphics } from './gfx.js?v=db36c2a';
+import { Game } from './game/game.js?v=db36c2a';
+import { renderGame } from './render.js?v=db36c2a';
+import { STAGES } from './data/stages.js?v=db36c2a';
+import { Flow } from './flow.js?v=db36c2a';
+import { createUI } from './ui.js?v=db36c2a';
+import { loadNames, saveNames } from './names.js?v=db36c2a';
 
 // 「STAGE 1」を見せる時間（更新数）
 const INTRO_TICKS = 90;
@@ -29,7 +30,19 @@ let view = computeViewport(window.innerWidth, window.innerHeight);
 let layout = computeButtonLayout(window.innerWidth, window.innerHeight);
 
 const gfx = buildGraphics();
-const flow = new Flow(STAGES.length);
+// 入れたことのある名前は端末に覚えておく（保存できない端末でもゲームは遊べる）
+function getStorage() {
+  try {
+    return window.localStorage;
+  } catch {
+    return null;
+  }
+}
+const storage = getStorage();
+const flow = new Flow(STAGES.length, {
+  savedNames: loadNames(storage),
+  onSavedNamesChange: (list) => saveNames(storage, list),
+});
 // メニューの後ろに見せるステージ1の景色
 const backdrop = new Game(STAGES[0]);
 let game = null;

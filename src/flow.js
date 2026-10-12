@@ -1,14 +1,20 @@
-// 画面の流れ（タイトル → 名前 → キャラ → むずかしさ → ステージ → 結果）。DOM に依存しない
+import { addName, removeName } from './names.js?v=db36c2a';
+
+// 画面の流れ（タイトル → だれが遊ぶ／名前 → キャラ → むずかしさ → ステージ → 結果）。DOM に依存しない
 export const MAX_NAME = 8;
 export const AVATAR_IDS = ['kyugo', 'soki'];
 export const DIFFICULTY_IDS = ['easy', 'normal', 'hard'];
 export const START_LIVES = 3;
 
-const BACK = { name: 'title', avatar: 'name', difficulty: 'avatar' };
+const BACK = { pick: 'title', avatar: 'name', difficulty: 'avatar' };
 
 export class Flow {
-  constructor(stageCount) {
+  constructor(stageCount, { savedNames = [], onSavedNamesChange = () => {} } = {}) {
     this.stageCount = stageCount;
+    // その端末で入れたことのある名前と、変わったときに保存する関数
+    this.savedNames = savedNames;
+    this.onSavedNamesChange = onSavedNamesChange;
+    this.deleting = null;
     this.screen = 'title';
     this.name = '';
     this.avatar = 'kyugo';
@@ -24,7 +30,41 @@ export class Flow {
   start() {
     if (this.screen !== 'title') return;
     this.name = '';
+    this.deleting = null;
+    this.screen = this.savedNames.length ? 'pick' : 'name';
+  }
+
+  pickName(name) {
+    if (this.screen !== 'pick' || this.deleting || !this.savedNames.includes(name)) return;
+    this.name = name;
+    this.remember(name);
+    this.screen = 'avatar';
+  }
+
+  newName() {
+    if (this.screen !== 'pick') return;
+    this.name = '';
     this.screen = 'name';
+  }
+
+  askDelete(name) {
+    if (this.screen === 'pick' && this.savedNames.includes(name)) this.deleting = name;
+  }
+
+  confirmDelete() {
+    if (!this.deleting) return;
+    this.savedNames = removeName(this.savedNames, this.deleting);
+    this.onSavedNamesChange(this.savedNames);
+    this.deleting = null;
+  }
+
+  cancelDelete() {
+    this.deleting = null;
+  }
+
+  remember(name) {
+    this.savedNames = addName(this.savedNames, name);
+    this.onSavedNamesChange(this.savedNames);
   }
 
   typeLetter(ch) {
@@ -44,11 +84,13 @@ export class Flow {
 
   confirmName() {
     if (this.screen !== 'name' || !this.canConfirmName()) return;
+    this.remember(this.name);
     this.screen = 'avatar';
   }
 
   back() {
-    if (BACK[this.screen]) this.screen = BACK[this.screen];
+    if (this.screen === 'name') this.screen = this.savedNames.length ? 'pick' : 'title';
+    else if (BACK[this.screen]) this.screen = BACK[this.screen];
   }
 
   chooseAvatar(id) {

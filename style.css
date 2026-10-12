@@ -200,3 +200,24 @@ html, body {
   position: relative;
   z-index: 1;
 }
+/* 「だれが あそぶ？」の名前（4人ずつ並べる） */
+#menu .saved-names {
+  display: grid;
+  grid-template-columns: repeat(4, auto);
+  gap: 1.5vh 2vw;
+}
+#menu .saved-name {
+  display: flex;
+  align-items: stretch;
+}
+#menu .saved-name button {
+  border-radius: 12px 0 0 12px;
+  min-width: clamp(80px, 16vw, 180px);
+}
+#menu .saved-name button.remove {
+  min-width: clamp(36px, 10vh, 56px);
+  border-radius: 0 12px 12px 0;
+  border-left: none;
+  background: #555;
+  padding: 0;
+}
