@@ -1,6 +1,6 @@
-import { TILE, isSolid } from './level.js?v=f6806db';
-import { moveAndCollide } from './physics.js?v=f6806db';
-import { platformUnder } from './platforms.js?v=f6806db';
+import { TILE, isSolid } from './level.js?v=63dc67f';
+import { moveAndCollide } from './physics.js?v=63dc67f';
+import { platformUnder } from './platforms.js?v=63dc67f';
 
 // x の位置の足元（footY）に、地面か動く足場があるか
 function groundAt(level, x, footY) {
@@ -18,10 +18,11 @@ export const SPIKE_SPEED = 0.4;
 export const HOP_V = -3.6;
 export const HOP_VX = 0.9;
 export const HOP_INTERVAL = 50;
-// 赤いカエル: 火を吹く前に溜める時間（約1秒）と、次に溜めはじめるまでの時間（ランダム。3〜6秒）
+// 赤いカエル: 火を吹く前に溜める時間（約1秒）と、次に溜めはじめるまでの時間（ランダム。1.5〜3秒）。
+// 画面に入ったら、まずすぐに溜める
 export const CHARGE_TICKS = 60;
-export const FROG_FIRE_MIN = 180;
-export const FROG_FIRE_MAX = 360;
+export const FROG_FIRE_MIN = 90;
+export const FROG_FIRE_MAX = 180;
 // 跳んでから着地するまでの更新数（-HOP_V / GRAVITY の2倍）
 const HOP_AIR_TICKS = Math.ceil((2 * -HOP_V) / GRAVITY);
 
@@ -61,7 +62,8 @@ function nextFire(rng) {
 // 赤いカエル: 時間が来たら着地している所で止まって溜め、溜め終わったら fire（火はゲームが出す）。
 // 溜めている間は true を返す（跳ねない）
 function updateRedFrog(e, rng) {
-  if (e.fireTimer === null) e.fireTimer = nextFire(rng);
+  // 動き出して最初は、すぐに溜める
+  if (e.fireTimer === null) e.fireTimer = 0;
   if (e.charge > 0) {
     e.charge--;
     e.vx = 0;
