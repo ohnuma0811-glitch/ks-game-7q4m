@@ -1,4 +1,4 @@
-import { MAX_NAME, DIFFICULTY_IDS } from './flow.js?v=78b1ed6';
+import { MAX_NAME, DIFFICULTY_IDS, RESET_PASSWORD } from './flow.js?v=43f5bcf';
 
 // ランキングの画面に出す順位（レベルごと）
 export const RANK_SHOWN = 5;
@@ -176,12 +176,18 @@ function rankingNotice(flow) {
 
 function rankingModel(flow) {
   if (flow.confirmingReset) {
+    // 大人だけが消せるよう、パスワードを入れる（入れた数字は ● で隠す）
+    const full = flow.resetCode.length >= RESET_PASSWORD.length;
     return {
       id: 'confirmReset',
       heading: 'ランキングを ぜんぶ けしますか？',
+      text: flow.resetError ? 'パスワードが ちがいます' : 'パスワードを いれてね',
+      nameBox: '●'.repeat(flow.resetCode.length).padEnd(RESET_PASSWORD.length, '_'),
+      keyRows: [[...'1234567890'].map((d) => ({ label: d, act: 'typeDigit', arg: d, disabled: full }))],
       buttons: [
-        { label: 'けす', act: 'confirmReset', primary: true },
         { label: 'やめる', act: 'cancelReset' },
+        { label: 'けす', act: 'deleteDigit', disabled: flow.resetCode.length === 0 },
+        { label: 'リセット', act: 'confirmReset', primary: true, disabled: !full },
       ],
     };
   }
@@ -208,7 +214,7 @@ function rankingModel(flow) {
 const ACTIONS = new Set([
   'start', 'typeLetter', 'deleteLetter', 'confirmName', 'back',
   'pickName', 'newName', 'askDelete', 'confirmDelete', 'cancelDelete',
-  'openRanking', 'openResultRanking', 'showRanking', 'askReset', 'confirmReset', 'cancelReset',
+  'openRanking', 'openResultRanking', 'showRanking', 'askReset', 'typeDigit', 'deleteDigit', 'confirmReset', 'cancelReset',
   'endingDone',
   'chooseAvatar', 'chooseDifficulty', 'resume', 'quitToTitle', 'finish', 'retry',
   'installYes', 'installLater', 'installDone',

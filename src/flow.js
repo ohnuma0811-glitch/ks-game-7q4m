@@ -1,11 +1,13 @@
-import { addName, removeName } from './names.js?v=78b1ed6';
-import { emptyRanking, insertScore, formatDate } from './ranking.js?v=78b1ed6';
+import { addName, removeName } from './names.js?v=43f5bcf';
+import { emptyRanking, insertScore, formatDate } from './ranking.js?v=43f5bcf';
 
 // 画面の流れ（タイトル → だれが遊ぶ／名前 → キャラ → むずかしさ → ステージ → 結果）。DOM に依存しない
 export const MAX_NAME = 8;
 export const AVATAR_IDS = ['kyugo', 'soki'];
 export const DIFFICULTY_IDS = ['easy', 'normal', 'hard'];
 export const START_LIVES = 3;
+// ランキングのリセットのパスワード（大人だけが消せるように）
+export const RESET_PASSWORD = '9563';
 
 const BACK = { pick: 'title', avatar: 'name', difficulty: 'avatar', ranking: 'title' };
 
@@ -48,6 +50,9 @@ export class Flow {
     this.rankingLevel = 'easy';
     this.highlight = null;
     this.confirmingReset = false;
+    // リセットの確認で入れたパスワードと、まちがえたか
+    this.resetCode = '';
+    this.resetError = false;
     this.install = install;
     // ホーム画面に追加するかを、タイトルの前に聞く
     this.screen = install ? 'install' : 'title';
@@ -253,11 +258,32 @@ export class Flow {
 
   askReset() {
     // みんなのランキングは、ゲームからは消せない（消すときはスプレッドシートで）
-    if (this.screen === 'ranking' && this.rankingAvailable && !this.shared) this.confirmingReset = true;
+    if (this.screen === 'ranking' && this.rankingAvailable && !this.shared) {
+      this.confirmingReset = true;
+      this.resetCode = '';
+      this.resetError = false;
+    }
   }
 
+  typeDigit(d) {
+    if (!this.confirmingReset || !/^[0-9]$/.test(d) || this.resetCode.length >= RESET_PASSWORD.length) return;
+    this.resetCode += d;
+    this.resetError = false;
+  }
+
+  deleteDigit() {
+    if (this.confirmingReset) this.resetCode = this.resetCode.slice(0, -1);
+  }
+
+  // パスワードが合っていたら全部消す。ちがえば消さずに、入れ直し
   confirmReset() {
     if (!this.confirmingReset) return;
+    if (this.resetCode !== RESET_PASSWORD) {
+      this.resetCode = '';
+      this.resetError = true;
+      return;
+    }
+    this.resetCode = '';
     this.ranking = emptyRanking();
     this.onRankingChange(this.ranking);
     this.highlight = null;

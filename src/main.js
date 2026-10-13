@@ -1,18 +1,18 @@
-import { computeViewport, isPortrait } from './screen.js?v=78b1ed6';
-import { startLoop } from './loop.js?v=78b1ed6';
-import { Input, attachInput, computeButtonLayout } from './input.js?v=78b1ed6';
-import { buildGraphics } from './gfx.js?v=78b1ed6';
-import { Game } from './game/game.js?v=78b1ed6';
-import { renderGame } from './render.js?v=78b1ed6';
-import { STAGES } from './data/stages.js?v=78b1ed6';
-import { Flow } from './flow.js?v=78b1ed6';
-import { createUI } from './ui.js?v=78b1ed6';
-import { loadNames, saveNames } from './names.js?v=78b1ed6';
-import { loadRanking, saveRanking, storageWorks } from './ranking.js?v=78b1ed6';
-import { Sound } from './audio.js?v=78b1ed6';
-import { musicFor } from './musicstate.js?v=78b1ed6';
-import { SharedRanking } from './shared.js?v=78b1ed6';
-import { RANKING_URL } from './config.js?v=78b1ed6';
+import { computeViewport, isPortrait } from './screen.js?v=43f5bcf';
+import { startLoop } from './loop.js?v=43f5bcf';
+import { Input, attachInput, computeButtonLayout } from './input.js?v=43f5bcf';
+import { buildGraphics } from './gfx.js?v=43f5bcf';
+import { Game } from './game/game.js?v=43f5bcf';
+import { renderGame } from './render.js?v=43f5bcf';
+import { STAGES } from './data/stages.js?v=43f5bcf';
+import { Flow } from './flow.js?v=43f5bcf';
+import { createUI } from './ui.js?v=43f5bcf';
+import { loadNames, saveNames } from './names.js?v=43f5bcf';
+import { loadRanking, saveRanking, storageWorks } from './ranking.js?v=43f5bcf';
+import { Sound } from './audio.js?v=43f5bcf';
+import { musicFor } from './musicstate.js?v=43f5bcf';
+import { SharedRanking } from './shared.js?v=43f5bcf';
+import { RANKING_URL } from './config.js?v=43f5bcf';
 
 // 「STAGE 1」を見せる時間（更新数）
 const INTRO_TICKS = 90;
@@ -296,6 +296,15 @@ window.addEventListener('keydown', (e) => {
     if (/^Key[A-Z]$/.test(e.code)) flow.typeLetter(e.code.slice(3));
     else if (e.code === 'Backspace') flow.deleteLetter();
     else if (e.code === 'Enter') flow.confirmName();
+    else return;
+    e.preventDefault();
+    afterAction();
+  } else if (flow.confirmingReset) {
+    // リセットのパスワードも、パソコンの数字キーで入れられる
+    const m = /^(?:Digit|Numpad)([0-9])$/.exec(e.code);
+    if (m) flow.typeDigit(m[1]);
+    else if (e.code === 'Backspace') flow.deleteDigit();
+    else if (e.code === 'Enter' || e.code === 'NumpadEnter') flow.confirmReset();
     else return;
     e.preventDefault();
     afterAction();
