@@ -1,5 +1,5 @@
-import { addName, removeName } from './names.js?v=7431a49';
-import { emptyRanking, insertScore, formatDate } from './ranking.js?v=7431a49';
+import { addName, removeName } from './names.js?v=5176cdb';
+import { emptyRanking, insertScore, formatDate } from './ranking.js?v=5176cdb';
 
 // 画面の流れ（タイトル → だれが遊ぶ／名前 → キャラ → むずかしさ → ステージ → 結果）。DOM に依存しない
 export const MAX_NAME = 8;
@@ -130,6 +130,16 @@ export class Flow {
   chooseDifficulty(id) {
     if (this.screen !== 'difficulty' || !DIFFICULTY_IDS.includes(id)) return;
     this.difficulty = id;
+    this.startRun();
+  }
+
+  // 結果の画面から、同じ名前・キャラ・レベルで最初から（選ぶ画面は飛ばす）
+  retry() {
+    if (this.screen !== 'result') return;
+    this.startRun();
+  }
+
+  startRun() {
     this.stageIndex = this.startStage;
     this.carry = { lives: START_LIVES, score: 0, coins: 0 };
     this.result = null;
