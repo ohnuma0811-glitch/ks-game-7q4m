@@ -1,4 +1,4 @@
-import { screenModel, dispatch } from './screens.js?v=a714c69';
+import { screenModel, dispatch } from './screens.js?v=0ac1c0a';
 
 // screenModel を HTML のメニューにする。ボタンを押すと flow を進めて onAction を呼ぶ
 // guard つきのメニューは、出てからこの時間はボタンを押せない（ゲーム中の連打で押されないように）
