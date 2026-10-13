@@ -27,6 +27,8 @@ export const DIFFICULTIES = {
     enemyChars: ['w', 'W', 'x', 'j', 'J', 'y', 'R', 'r', 'S', 'z'],
     // R のカエルを赤いカエル（火を吹く）にする
     redFrog: true,
+    // ライフアップ（ドリンク）は出さず、コインにする
+    noDrink: true,
     bossWalk: 70,
     bossFire: 1,
     // 甲羅に入るまでの時間と、甲羅に入っている時間を毎回ランダムに

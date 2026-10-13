@@ -1,12 +1,12 @@
-import { parseLevel, tileAt, setTile, isSolid, TILE, QUESTION, USED, LAVA, GATE, EMPTY } from './level.js?v=42d497e';
-import { moveAndCollide } from './physics.js?v=42d497e';
-import { createBoss, updateBoss, hitBoss, canStomp, HURT_TICKS } from './boss.js?v=42d497e';
-import { createPlatform, createCloud, updatePlatform, PLATFORM_BOTTOM, LAVA_DIP_BOTTOM } from './platforms.js?v=42d497e';
-import { Player, spawnPoint } from './player.js?v=42d497e';
-import { cameraX } from './camera.js?v=42d497e';
-import { createEnemy, updateEnemy } from './enemies.js?v=42d497e';
-import { createCoin, popCoin, popItem, updateItem, itemBox, collectible } from './items.js?v=42d497e';
-import { getDifficulty } from './difficulty.js?v=42d497e';
+import { parseLevel, tileAt, setTile, isSolid, TILE, QUESTION, USED, LAVA, GATE, EMPTY } from './level.js?v=f6806db';
+import { moveAndCollide } from './physics.js?v=f6806db';
+import { createBoss, updateBoss, hitBoss, canStomp, HURT_TICKS } from './boss.js?v=f6806db';
+import { createPlatform, createCloud, updatePlatform, PLATFORM_BOTTOM, LAVA_DIP_BOTTOM } from './platforms.js?v=f6806db';
+import { Player, spawnPoint } from './player.js?v=f6806db';
+import { cameraX } from './camera.js?v=f6806db';
+import { createEnemy, updateEnemy } from './enemies.js?v=f6806db';
+import { createCoin, popCoin, popItem, updateItem, itemBox, collectible } from './items.js?v=f6806db';
+import { getDifficulty } from './difficulty.js?v=f6806db';
 
 export const LIVES = 3;
 export const START_TIME = 200;
@@ -280,7 +280,9 @@ export class Game {
     }
     setTile(this.level, tx, ty, USED);
     this.usedBlocks.add(ty * this.level.width + tx);
-    const kind = this.level.contents.get(ty * this.level.width + tx) || 'coin';
+    let kind = this.level.contents.get(ty * this.level.width + tx) || 'coin';
+    // Level 3 ではライフアップ（ドリンク）の代わりにコイン
+    if (kind === 'drink' && this.diff.noDrink) kind = 'coin';
     if (kind === 'coin') {
       this.addCoin(tx * TILE + TILE / 2, ty * TILE - TILE / 2);
       this.items.push(popCoin(tx, ty));
