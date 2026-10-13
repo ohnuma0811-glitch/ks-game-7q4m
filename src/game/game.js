@@ -1,12 +1,12 @@
-import { parseLevel, tileAt, setTile, isSolid, TILE, QUESTION, USED, LAVA, GATE, EMPTY } from './level.js?v=7b794e6';
-import { moveAndCollide } from './physics.js?v=7b794e6';
-import { createBoss, updateBoss, hitBoss, canStomp, HURT_TICKS } from './boss.js?v=7b794e6';
-import { createPlatform, createCloud, updatePlatform, PLATFORM_BOTTOM, LAVA_DIP_BOTTOM } from './platforms.js?v=7b794e6';
-import { Player, spawnPoint } from './player.js?v=7b794e6';
-import { cameraX } from './camera.js?v=7b794e6';
-import { createEnemy, updateEnemy } from './enemies.js?v=7b794e6';
-import { createCoin, popCoin, popItem, updateItem, itemBox, collectible } from './items.js?v=7b794e6';
-import { getDifficulty } from './difficulty.js?v=7b794e6';
+import { parseLevel, tileAt, setTile, isSolid, TILE, QUESTION, USED, LAVA, GATE, EMPTY } from './level.js?v=e150c2c';
+import { moveAndCollide } from './physics.js?v=e150c2c';
+import { createBoss, updateBoss, hitBoss, canStomp, HURT_TICKS } from './boss.js?v=e150c2c';
+import { createPlatform, createCloud, updatePlatform, PLATFORM_BOTTOM, LAVA_DIP_BOTTOM } from './platforms.js?v=e150c2c';
+import { Player, spawnPoint } from './player.js?v=e150c2c';
+import { cameraX } from './camera.js?v=e150c2c';
+import { createEnemy, updateEnemy } from './enemies.js?v=e150c2c';
+import { createCoin, popCoin, popItem, updateItem, itemBox, collectible } from './items.js?v=e150c2c';
+import { getDifficulty } from './difficulty.js?v=e150c2c';
 
 export const LIVES = 3;
 export const START_TIME = 200;
@@ -393,6 +393,42 @@ export class Game {
       p.vy = input.jump ? STOMP_BOUNCE_HOLD : STOMP_BOUNCE;
       this.events.push(['stomp', 'stomp2', 'stomp3'][this.combo - 1]);
     }
+    this.separateEnemies();
+  }
+
+  // 敵どうしは重ならない。重なったら押し戻し合い、それぞれ相手と反対の向きにする（歩く敵は引き返す）。
+  // つぶれた敵・スターで倒された敵とはぶつからない
+  separateEnemies() {
+    const list = this.enemies.filter((e) => e.active && !e.removed && !e.dead && e.squash === 0);
+    for (let i = 0; i < list.length; i++) {
+      for (let j = i + 1; j < list.length; j++) {
+        const a = list[i];
+        const b = list[j];
+        if (!overlap(a, b)) continue;
+        const [left, right] = a.x + a.w / 2 <= b.x + b.w / 2 ? [a, b] : [b, a];
+        const ov = left.x + left.w - right.x + 0.01;
+        // 壁があって押せない方は動かさず、もう一方を全部押す
+        const canL = this.canShift(left, -ov / 2);
+        const canR = this.canShift(right, ov / 2);
+        if (canL && canR) {
+          left.x -= ov / 2;
+          right.x += ov / 2;
+        } else if (canL) {
+          left.x -= ov;
+        } else if (canR) {
+          right.x += ov;
+        }
+        left.dir = -1;
+        right.dir = 1;
+        left.vx = Math.min(left.vx, 0);
+        right.vx = Math.max(right.vx, 0);
+      }
+    }
+  }
+
+  canShift(e, dx) {
+    const edge = dx < 0 ? e.x + dx : e.x + e.w + dx - 0.01;
+    return !isSolid(this.level, Math.floor(edge / TILE), Math.floor((e.y + e.h / 2) / TILE));
   }
 
   updateBoss(viewW) {
