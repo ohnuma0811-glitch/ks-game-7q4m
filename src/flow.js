@@ -1,5 +1,5 @@
-import { addName, removeName } from './names.js?v=f048943';
-import { emptyRanking, insertScore, formatDate } from './ranking.js?v=f048943';
+import { addName, removeName } from './names.js?v=5e6f81b';
+import { emptyRanking, insertScore, formatDate } from './ranking.js?v=5e6f81b';
 
 // 画面の流れ（タイトル → だれが遊ぶ／名前 → キャラ → むずかしさ → ステージ → 結果）。DOM に依存しない
 export const MAX_NAME = 8;
@@ -84,6 +84,15 @@ export class Flow {
 
   installDone() {
     if (this.screen === 'installHelp') this.screen = 'title';
+  }
+
+  // インストールが終わった（Android）。ブラウザを閉じてホーム画面から遊ぶように案内する（遊んでいる途中なら出さない）
+  installed() {
+    if (['install', 'installHelp', 'title'].includes(this.screen)) this.screen = 'installed';
+  }
+
+  installedPlay() {
+    if (this.screen === 'installed') this.screen = 'title';
   }
 
   start() {

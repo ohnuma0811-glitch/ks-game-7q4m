@@ -340,3 +340,9 @@ html, body {
     display: block;
   }
 }
+/* ホーム画面に追加したあとの案内（ブラウザを閉じてホーム画面から遊ぶ）は目立たせる */
+#menu[data-screen="installHelp"] .notice,
+#menu[data-screen="installed"] .panel > p {
+  color: #ffd84a;
+  font-weight: bold;
+}

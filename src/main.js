@@ -1,18 +1,18 @@
-import { computeViewport, isPortrait } from './screen.js?v=f048943';
-import { startLoop } from './loop.js?v=f048943';
-import { Input, attachInput, computeButtonLayout } from './input.js?v=f048943';
-import { buildGraphics } from './gfx.js?v=f048943';
-import { Game } from './game/game.js?v=f048943';
-import { renderGame } from './render.js?v=f048943';
-import { STAGES } from './data/stages.js?v=f048943';
-import { Flow } from './flow.js?v=f048943';
-import { createUI } from './ui.js?v=f048943';
-import { loadNames, saveNames } from './names.js?v=f048943';
-import { loadRanking, saveRanking, storageWorks } from './ranking.js?v=f048943';
-import { Sound } from './audio.js?v=f048943';
-import { musicFor } from './musicstate.js?v=f048943';
-import { SharedRanking } from './shared.js?v=f048943';
-import { RANKING_URL } from './config.js?v=f048943';
+import { computeViewport, isPortrait } from './screen.js?v=5e6f81b';
+import { startLoop } from './loop.js?v=5e6f81b';
+import { Input, attachInput, computeButtonLayout } from './input.js?v=5e6f81b';
+import { buildGraphics } from './gfx.js?v=5e6f81b';
+import { Game } from './game/game.js?v=5e6f81b';
+import { renderGame } from './render.js?v=5e6f81b';
+import { STAGES } from './data/stages.js?v=5e6f81b';
+import { Flow } from './flow.js?v=5e6f81b';
+import { createUI } from './ui.js?v=5e6f81b';
+import { loadNames, saveNames } from './names.js?v=5e6f81b';
+import { loadRanking, saveRanking, storageWorks } from './ranking.js?v=5e6f81b';
+import { Sound } from './audio.js?v=5e6f81b';
+import { musicFor } from './musicstate.js?v=5e6f81b';
+import { SharedRanking } from './shared.js?v=5e6f81b';
+import { RANKING_URL } from './config.js?v=5e6f81b';
 
 // 「STAGE 1」を見せる時間（更新数）
 const INTRO_TICKS = 90;
@@ -67,6 +67,11 @@ window.addEventListener('beforeinstallprompt', (e) => {
   // Chrome が勝手に出す案内の代わりに、ゲームの画面で聞く
   e.preventDefault();
   installPrompt = e;
+});
+// インストールが終わったら（Android）、ブラウザを閉じてホーム画面から遊ぶように案内する
+window.addEventListener('appinstalled', () => {
+  flow.installed();
+  afterAction();
 });
 function installOptions() {
   const ua = navigator.userAgent;

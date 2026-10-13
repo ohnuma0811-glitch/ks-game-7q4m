@@ -1,4 +1,4 @@
-import { MAX_NAME, DIFFICULTY_IDS, RESET_PASSWORD } from './flow.js?v=f048943';
+import { MAX_NAME, DIFFICULTY_IDS, RESET_PASSWORD } from './flow.js?v=5e6f81b';
 
 // ランキングの画面に出す順位（レベルごと）
 export const RANK_SHOWN = 5;
@@ -8,6 +8,9 @@ const INSTALL_HELP = {
   ios: '画面の 下（iPad は 上）の 共有ボタン（□に↑）→「ホーム画面に追加」',
   android: '右上の「︙」→「ホーム画面に追加」（または「アプリをインストール」）',
 };
+
+// ホーム画面に追加したあとの案内（アイコンの下の名前は manifest.json の short_name）
+const PLAY_FROM_HOME = 'この ブラウザを とじて、ホーム画面の「K&S大冒険」から あそんでね';
 
 // 画面ごとの見出しとボタン（DOM に依存しない。ui.js が HTML にする）
 export const GAME_TITLE = 'Super Kyugo＆Soki Brothers';
@@ -33,7 +36,15 @@ export function screenModel(flow) {
         id: 'installHelp',
         heading: 'ホーム画面に ついかする',
         text: INSTALL_HELP[flow.install && flow.install.platform] || INSTALL_HELP.android,
+        notice: `ついかしたら、${PLAY_FROM_HOME}`,
         buttons: [{ label: 'わかった', act: 'installDone', primary: true }],
+      };
+    case 'installed':
+      return {
+        id: 'installed',
+        heading: 'インストールできました！',
+        text: PLAY_FROM_HOME,
+        buttons: [{ label: 'このまま あそぶ', act: 'installedPlay', primary: true }],
       };
     case 'title':
       // 2人のゲームだとわかるよう、左に Kyugo・右に Soki を大きく出す
@@ -218,7 +229,7 @@ const ACTIONS = new Set([
   'openRanking', 'openResultRanking', 'showRanking', 'askReset', 'typeDigit', 'deleteDigit', 'confirmReset', 'cancelReset',
   'endingDone',
   'chooseAvatar', 'chooseDifficulty', 'resume', 'quitToTitle', 'finish', 'retry',
-  'installYes', 'installLater', 'installDone',
+  'installYes', 'installLater', 'installDone', 'installedPlay',
 ]);
 
 export function dispatch(flow, act, arg) {
