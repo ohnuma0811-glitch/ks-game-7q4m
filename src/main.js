@@ -1,18 +1,19 @@
-import { computeViewport, isPortrait } from './screen.js?v=f580f5c';
-import { startLoop } from './loop.js?v=f580f5c';
-import { Input, attachInput, computeButtonLayout } from './input.js?v=f580f5c';
-import { buildGraphics } from './gfx.js?v=f580f5c';
-import { Game } from './game/game.js?v=f580f5c';
-import { renderGame } from './render.js?v=f580f5c';
-import { STAGES } from './data/stages.js?v=f580f5c';
-import { Flow } from './flow.js?v=f580f5c';
-import { createUI } from './ui.js?v=f580f5c';
-import { loadNames, saveNames } from './names.js?v=f580f5c';
-import { loadRanking, saveRanking, storageWorks } from './ranking.js?v=f580f5c';
-import { Sound } from './audio.js?v=f580f5c';
-import { musicFor } from './musicstate.js?v=f580f5c';
-import { SharedRanking } from './shared.js?v=f580f5c';
-import { RANKING_URL } from './config.js?v=f580f5c';
+import { computeViewport, isPortrait } from './screen.js?v=28e5421';
+import { startLoop } from './loop.js?v=28e5421';
+import { Input, attachInput, computeButtonLayout } from './input.js?v=28e5421';
+import { buildGraphics } from './gfx.js?v=28e5421';
+import { Game } from './game/game.js?v=28e5421';
+import { renderGame } from './render.js?v=28e5421';
+import { STAGES } from './data/stages.js?v=28e5421';
+import { Flow } from './flow.js?v=28e5421';
+import { createUI } from './ui.js?v=28e5421';
+import { loadNames, saveNames } from './names.js?v=28e5421';
+import { loadRanking, saveRanking, storageWorks } from './ranking.js?v=28e5421';
+import { Sound } from './audio.js?v=28e5421';
+import { musicFor } from './musicstate.js?v=28e5421';
+import { SharedRanking } from './shared.js?v=28e5421';
+import { RANKING_URL } from './config.js?v=28e5421';
+import { PlayTime } from './playtime.js?v=28e5421';
 
 // 「STAGE 1」を見せる時間（更新数）
 const INTRO_TICKS = 90;
@@ -59,7 +60,9 @@ function makeId() {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
 }
 // みんなのランキング（src/config.js に URL があるとき）。遠くの家族の端末で遊んだ記録もまとめる
-const shared = new SharedRanking({ url: RANKING_URL, fetch: (url, opt) => fetch(url, opt), storage, makeId });
+// 手元の確認（http）では使わない（試しの記録を、みんなのランキングに送らないように）
+const sharedUrl = location.protocol === 'https:' ? RANKING_URL : '';
+const shared = new SharedRanking({ url: sharedUrl, fetch: (url, opt) => fetch(url, opt), storage, makeId });
 if (shared.enabled) shared.migrate(loadRanking(storage));
 // ホーム画面への追加: ホーム画面から開いていない Android・iPhone・iPad のときだけ、タイトルの前に聞く
 let installPrompt = null;
@@ -92,7 +95,18 @@ function installOptions() {
     },
   };
 }
+// 1日に遊べる時間（KYUGO・SOKI は1日15分。端末ごと）
+const playTime = new PlayTime(storage);
+// まだ保存していない遊んだ時間（1秒ごとにまとめて保存する）
+let unsavedMs = 0;
+// 時間が終わったあとにミスした（やり直す前に「きょうは おしまい」にする）
+let missedAfterTime = false;
+function savePlayTime() {
+  if (unsavedMs > 0) playTime.add(flow.name, unsavedMs);
+  unsavedMs = 0;
+}
 const flow = new Flow(STAGES.length, {
+  timeLeft: (name) => playTime.remaining(name),
   startStage,
   install: installOptions(),
   savedNames: loadNames(storage),
@@ -134,6 +148,11 @@ function afterAction(act) {
     sound.playSfx('button');
   }
   if (flow.screen !== lastScreen) {
+    // ステージを出たら、数えた時間を保存する
+    if (lastScreen === 'play') {
+      savePlayTime();
+      missedAfterTime = false;
+    }
     // タイトルとランキングの画面に来たら、みんなのランキングを受け取り直す
     if (flow.screen === 'title' || flow.screen === 'ranking') refreshShared(flow.screen === 'ranking');
     if (flow.screen === 'intro') {
@@ -192,6 +211,7 @@ function playEvents() {
       // ミスの音が下がりきるころに、いじわるな笑い声
       sound.playSfx('laugh', LAUGH_DELAY);
     } else sound.playSfx(ev);
+    if (ev === 'miss' && timeLeftNow() <= 0) missedAfterTime = true;
   }
   game.events.length = 0;
 }
@@ -238,6 +258,11 @@ function resize() {
   input.relayout(layout);
 }
 
+// いま遊んでいる名前の、きょうの のこり（ミリ秒。制限のない名前は Infinity）
+function timeLeftNow() {
+  return playTime.remaining(flow.name) - unsavedMs;
+}
+
 function update() {
   input.tick();
   tick++;
@@ -258,11 +283,26 @@ function update() {
       flow.beginStage();
     }
   } else if (flow.screen === 'play' && !flow.paused) {
+    // 遊んだ時間を数える（KYUGO・SOKI だけ）
+    if (Number.isFinite(playTime.remaining(flow.name))) {
+      unsavedMs += 1000 / 60;
+      if (unsavedMs >= 1000) savePlayTime();
+    }
+    game.timeLeftMs = timeLeftNow();
     game.update(input, view.width);
     playEvents();
-    // クリア・ゲームオーバーの表示を見せ終わったら次へ
-    if (game.canRestart()) {
-      if (game.state === 'clear') flow.stageCleared(game);
+    const over = timeLeftNow() <= 0;
+    // 時間が終わったあとのミスは、やり直さずに「きょうは おしまい」
+    if (missedAfterTime && game.state === 'playing') {
+      missedAfterTime = false;
+      savePlayTime();
+      flow.timeUp(game);
+    } else if (game.canRestart()) {
+      // クリア・ゲームオーバーの表示を見せ終わったら次へ（時間が終わっていたら、次のステージへは進まない）
+      if (game.state === 'clear' && over && flow.stageIndex + 1 < flow.stageCount) {
+        savePlayTime();
+        flow.timeUp(game);
+      } else if (game.state === 'clear') flow.stageCleared(game);
       else flow.gameOver(game);
     }
   }

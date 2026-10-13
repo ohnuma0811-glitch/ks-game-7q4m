@@ -1,5 +1,5 @@
-import { addName, removeName } from './names.js?v=f580f5c';
-import { emptyRanking, insertScore, formatDate } from './ranking.js?v=f580f5c';
+import { addName, removeName } from './names.js?v=28e5421';
+import { emptyRanking, insertScore, formatDate } from './ranking.js?v=28e5421';
 
 // 画面の流れ（タイトル → だれが遊ぶ／名前 → キャラ → むずかしさ → ステージ → 結果）。DOM に依存しない
 export const MAX_NAME = 8;
@@ -27,6 +27,8 @@ export class Flow {
     // ホーム画面から開いていない Android・iPhone のとき: { platform, prompt }。
     // prompt() はブラウザの追加の画面を出せたら true
     install = null,
+    // その名前の、きょう遊べる のこり時間（ミリ秒。KYUGO・SOKI は1日15分、ほかは Infinity）
+    timeLeft = () => Infinity,
     now = () => new Date(),
     startStage = 0,
   } = {}) {
@@ -59,6 +61,7 @@ export class Flow {
     this.resetCode = '';
     this.resetError = false;
     this.install = install;
+    this.timeLeft = timeLeft;
     // ホーム画面に追加するかを、タイトルの前に聞く
     this.screen = install ? 'install' : 'title';
     this.name = '';
@@ -108,7 +111,13 @@ export class Flow {
     this.remember(name);
     // キャラ選択のもどるで「だれが あそぶ？」に戻れるように覚えておく
     this.pickedName = true;
-    this.screen = 'avatar';
+    this.toAvatarOrTimeUp();
+  }
+
+  // 名前を決めたら、キャラ選びへ。きょうの時間が残っていなければ「きょうは おしまい」
+  toAvatarOrTimeUp() {
+    this.result = null;
+    this.screen = this.timeLeft(this.name) > 0 ? 'avatar' : 'timeUp';
   }
 
   newName() {
@@ -156,7 +165,7 @@ export class Flow {
     if (this.screen !== 'name' || !this.canConfirmName()) return;
     this.remember(this.name);
     this.pickedName = false;
-    this.screen = 'avatar';
+    this.toAvatarOrTimeUp();
   }
 
   back() {
@@ -219,6 +228,13 @@ export class Flow {
     if (this.screen === 'ending') this.screen = 'result';
   }
 
+  // きょうの時間が終わった（ステージの区切りで呼ぶ）。記録して「きょうは おしまい」
+  timeUp({ score, coins }) {
+    if (this.screen !== 'play') return;
+    this.result = { type: 'timeup', score, coins, rank: this.record(score) };
+    this.screen = 'timeUp';
+  }
+
   gameOver({ score, coins }) {
     if (this.screen !== 'play') return;
     this.result = { type: 'gameover', score, coins, rank: this.record(score) };
@@ -249,7 +265,7 @@ export class Flow {
   }
 
   openResultRanking() {
-    if (this.screen !== 'result') return;
+    if (!((this.screen === 'result' || this.screen === 'timeUp') && this.result)) return;
     this.rankingLevel = this.difficulty;
     this.highlight = this.result.rank > 0 ? { level: this.difficulty, rank: this.result.rank } : null;
     if (this.highlight && this.shared) this.highlight.id = this.lastId;
@@ -328,7 +344,7 @@ export class Flow {
   }
 
   finish() {
-    if (this.screen !== 'result') return;
+    if (this.screen !== 'result' && this.screen !== 'timeUp') return;
     this.screen = 'title';
     this.result = null;
   }

@@ -1,4 +1,5 @@
-import { MAX_NAME, DIFFICULTY_IDS, RESET_PASSWORD } from './flow.js?v=f580f5c';
+import { MAX_NAME, DIFFICULTY_IDS, RESET_PASSWORD } from './flow.js?v=28e5421';
+import { formatLeft } from './playtime.js?v=28e5421';
 
 // ランキングの画面に出す順位（レベルごと）
 export const RANK_SHOWN = 5;
@@ -84,16 +85,37 @@ export function screenModel(flow) {
         ],
       };
     }
-    case 'avatar':
+    case 'avatar': {
+      // KYUGO・SOKI は、きょうの のこり時間を出す
+      const left = flow.timeLeft(flow.name);
       return {
         id: 'avatar',
         heading: 'キャラを えらんでね',
+        text: Number.isFinite(left) ? `きょうの ${formatLeft(left)}` : undefined,
         avatars: [
           { label: 'KYUGO', act: 'chooseAvatar', arg: 'kyugo' },
           { label: 'SOKI', act: 'chooseAvatar', arg: 'soki' },
         ],
         buttons: [{ label: 'もどる', act: 'back' }],
       };
+    }
+    case 'timeUp': {
+      const r = flow.result;
+      if (!r) {
+        return { id: 'timeUp', heading: 'きょうは おしまい！', text: 'きょうの じかんは おわり。またあした あそぼうね', buttons: [{ label: 'タイトルへ', act: 'finish', primary: true }] };
+      }
+      return {
+        id: 'timeUp',
+        heading: 'きょうは おしまい！',
+        text: `SCORE ${r.score}  またあした あそぼうね`,
+        rankText: r.rank > 0 && r.rank <= RANK_SHOWN ? `ランクイン！ ${r.rank}位` : undefined,
+        guard: true,
+        buttons: [
+          { label: 'ランキング', act: 'openResultRanking' },
+          { label: 'タイトルへ', act: 'finish', primary: true },
+        ],
+      };
+    }
     case 'difficulty':
       return {
         id: 'difficulty',

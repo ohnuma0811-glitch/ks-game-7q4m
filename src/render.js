@@ -1,9 +1,10 @@
-import { TILE } from './game/level.js?v=f580f5c';
-import { cameraY } from './game/camera.js?v=f580f5c';
-import { BACKDROPS, BACKDROP_SPRITES, layerPositions } from './data/backdrop.js?v=f580f5c';
-import { getTheme } from './data/themes.js?v=f580f5c';
-import { BOSS_HP } from './game/boss.js?v=f580f5c';
-import { starCountdown } from './game/game.js?v=f580f5c';
+import { TILE } from './game/level.js?v=28e5421';
+import { cameraY } from './game/camera.js?v=28e5421';
+import { BACKDROPS, BACKDROP_SPRITES, layerPositions } from './data/backdrop.js?v=28e5421';
+import { getTheme } from './data/themes.js?v=28e5421';
+import { BOSS_HP } from './game/boss.js?v=28e5421';
+import { starCountdown } from './game/game.js?v=28e5421';
+import { formatLeft } from './playtime.js?v=28e5421';
 
 const TILE_KEYS = [null, 'G', 'B', 'Q', 'U', 'C', 'L', 'X'];
 
@@ -168,6 +169,8 @@ function drawHud(ctx, game, viewW) {
   const step = (viewW - 8) / cols.length;
   cols.forEach((s, i) => text(ctx, s, 4 + i * step, 3));
   text(ctx, game.diff.label, 4, 13);
+  // KYUGO・SOKI は、きょう遊べる のこり時間（TIME の下。右上のポーズボタンと重ならないように）
+  if (Number.isFinite(game.timeLeftMs)) text(ctx, formatLeft(game.timeLeftMs), 4 + 3 * step, 13);
   // ボスの体力（ボスが出てから倒すまで）
   const b = game.boss;
   if (b && b.active && !b.defeated) {
