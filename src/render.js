@@ -1,8 +1,8 @@
-import { TILE } from './game/level.js?v=016b13c';
-import { cameraY } from './game/camera.js?v=016b13c';
-import { BACKDROPS, BACKDROP_SPRITES, layerPositions } from './data/backdrop.js?v=016b13c';
-import { getTheme } from './data/themes.js?v=016b13c';
-import { BOSS_HP } from './game/boss.js?v=016b13c';
+import { TILE } from './game/level.js?v=696a819';
+import { cameraY } from './game/camera.js?v=696a819';
+import { BACKDROPS, BACKDROP_SPRITES, layerPositions } from './data/backdrop.js?v=696a819';
+import { getTheme } from './data/themes.js?v=696a819';
+import { BOSS_HP } from './game/boss.js?v=696a819';
 
 const TILE_KEYS = [null, 'G', 'B', 'Q', 'U', 'C', 'L', 'X'];
 
