@@ -1,12 +1,12 @@
-import { parseLevel, tileAt, setTile, isSolid, TILE, QUESTION, USED, LAVA, GATE, EMPTY } from './level.js?v=bede74e';
-import { moveAndCollide } from './physics.js?v=bede74e';
-import { createBoss, updateBoss, hitBoss, canStomp, HURT_TICKS } from './boss.js?v=bede74e';
-import { createPlatform, createCloud, updatePlatform, PLATFORM_BOTTOM, LAVA_DIP_BOTTOM } from './platforms.js?v=bede74e';
-import { Player, spawnPoint } from './player.js?v=bede74e';
-import { cameraX } from './camera.js?v=bede74e';
-import { createEnemy, updateEnemy } from './enemies.js?v=bede74e';
-import { createCoin, popCoin, popItem, updateItem, itemBox, collectible } from './items.js?v=bede74e';
-import { getDifficulty } from './difficulty.js?v=bede74e';
+import { parseLevel, tileAt, setTile, isSolid, TILE, QUESTION, USED, LAVA, GATE, EMPTY } from './level.js?v=9ac93ed';
+import { moveAndCollide } from './physics.js?v=9ac93ed';
+import { createBoss, updateBoss, hitBoss, canStomp, HURT_TICKS } from './boss.js?v=9ac93ed';
+import { createPlatform, createCloud, updatePlatform, PLATFORM_BOTTOM, LAVA_DIP_BOTTOM } from './platforms.js?v=9ac93ed';
+import { Player, spawnPoint } from './player.js?v=9ac93ed';
+import { cameraX } from './camera.js?v=9ac93ed';
+import { createEnemy, updateEnemy } from './enemies.js?v=9ac93ed';
+import { createCoin, popCoin, popItem, updateItem, itemBox, collectible } from './items.js?v=9ac93ed';
+import { getDifficulty } from './difficulty.js?v=9ac93ed';
 
 export const LIVES = 3;
 export const START_TIME = 200;
@@ -20,6 +20,8 @@ export const TIME_BONUS = 10;
 export const ENEMY_SCORE = 200;
 // 着地する前に続けて踏むと、点が 2倍・3倍になる（3倍まで）
 export const MAX_COMBO = 3;
+// 足元からこのドット数より低い所で敵に触れたら、踏んだことにする（キャラの背は22）
+export const LOW_STOMP = 8;
 // ステージをクリアしたときの、残りライフ1つあたりの点数
 export const LIFE_BONUS = 1000;
 // ボスを1回踏む / 倒す
@@ -329,9 +331,9 @@ export class Game {
         this.events.push('kill');
         continue;
       }
-      // 上から落ちてきて踏んだときのほか、キャラの真ん中より低い所で触れたときも踏んだことにする
+      // 上から落ちてきて踏んだときのほか、足元に近い所で触れたときも踏んだことにする
       // （立っている足に下からカエルが跳んできた、など。ミスの判定を少しゆるく）
-      const low = e.y >= p.y + p.h / 2;
+      const low = e.y >= p.y + p.h - LOW_STOMP;
       if (e.stompable && ((falling && p.prevY + p.h <= e.y + 6) || low)) {
         e.squash = 30;
         stomped = true;
