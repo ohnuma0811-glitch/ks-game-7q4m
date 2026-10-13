@@ -1,4 +1,4 @@
-import { emptyRanking, validEntry, RANK_SIZE } from './ranking.js?v=76f1aec';
+import { emptyRanking, validEntry, RANK_SIZE } from './ranking.js?v=17caa52';
 
 // みんなのランキング（遠くの家族の端末で遊んだ記録もまとめる）。DOM に依存しない
 // 記録の置き場所は Google スプレッドシート（apps-script/Code.gs）。URL は src/config.js に書く
