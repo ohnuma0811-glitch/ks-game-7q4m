@@ -1,12 +1,12 @@
-import { parseLevel, tileAt, setTile, isSolid, TILE, QUESTION, USED, LAVA, GATE, EMPTY } from './level.js?v=623cc89';
-import { moveAndCollide } from './physics.js?v=623cc89';
-import { createBoss, updateBoss, hitBoss, canStomp, HURT_TICKS } from './boss.js?v=623cc89';
-import { createPlatform, updatePlatform, PLATFORM_BOTTOM, LAVA_DIP_BOTTOM } from './platforms.js?v=623cc89';
-import { Player, spawnPoint } from './player.js?v=623cc89';
-import { cameraX } from './camera.js?v=623cc89';
-import { createEnemy, updateEnemy } from './enemies.js?v=623cc89';
-import { createCoin, popCoin, popItem, updateItem, itemBox, collectible } from './items.js?v=623cc89';
-import { getDifficulty } from './difficulty.js?v=623cc89';
+import { parseLevel, tileAt, setTile, isSolid, TILE, QUESTION, USED, LAVA, GATE, EMPTY } from './level.js?v=26d012e';
+import { moveAndCollide } from './physics.js?v=26d012e';
+import { createBoss, updateBoss, hitBoss, canStomp, HURT_TICKS } from './boss.js?v=26d012e';
+import { createPlatform, createCloud, updatePlatform, PLATFORM_BOTTOM, LAVA_DIP_BOTTOM } from './platforms.js?v=26d012e';
+import { Player, spawnPoint } from './player.js?v=26d012e';
+import { cameraX } from './camera.js?v=26d012e';
+import { createEnemy, updateEnemy } from './enemies.js?v=26d012e';
+import { createCoin, popCoin, popItem, updateItem, itemBox, collectible } from './items.js?v=26d012e';
+import { getDifficulty } from './difficulty.js?v=26d012e';
 
 export const LIVES = 3;
 export const START_TIME = 200;
@@ -101,6 +101,7 @@ export class Game {
     this.combo = 0;
     // 上下に動く足場（当たり判定から見えるよう level にも持たせる）
     this.platforms = [];
+    let clouds = 0;
     this.level.platforms = this.platforms;
     for (const e of this.level.entities) {
       if (e.ch === 'c') {
@@ -125,6 +126,13 @@ export class Game {
           enemy.ride = p;
           this.enemies.push(enemy);
         }
+      } else if (e.ch === 'V') {
+        // 横に並んだ V の左端で、1つの雲にする。雲ごとに動き始めの向きを逆にする
+        if (this.level.entities.some((o) => o.ch === 'V' && o.ty === e.ty && o.tx === e.tx - 1)) continue;
+        let width = 1;
+        while (this.level.entities.some((o) => o.ch === 'V' && o.ty === e.ty && o.tx === e.tx + width)) width++;
+        clouds++;
+        this.platforms.push(createCloud(e.tx, e.ty, width, clouds % 2 ? 1 : -1));
       } else if (e.ch === 'K') {
         this.boss = createBoss(e.tx, e.ty, this.diff);
       } else if (e.ch === 'F' || e.ch === '|') {

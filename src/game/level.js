@@ -15,7 +15,8 @@ const TILE_CODES = { G: GROUND, B: BRICK, '?': QUESTION, d: QUESTION, s: QUESTIO
 const BLOCK_CONTENTS = { '?': 'coin', d: 'drink', s: 'star' };
 // 敵・コイン・チェックポイント・ゴール
 // K=ボス M=上下に動く足場（左端） N=2つ目の足場（Level 2 はクリボー、Level 3 はカエルが乗る）
-export const ENTITY_CHARS = new Set(['c', 'w', 'W', 'x', 'j', 'J', 'y', 'S', 'h', 'H', 'F', '|', 'K', 'M', 'N']);
+// V=上下に動く雲（横に並んだ V が1つの足場になる）
+export const ENTITY_CHARS = new Set(['c', 'w', 'W', 'x', 'j', 'J', 'y', 'S', 'h', 'H', 'F', '|', 'K', 'M', 'N', 'V']);
 
 export function parseLevel(lines) {
   const height = lines.length;

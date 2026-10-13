@@ -1,4 +1,4 @@
-import { TILE } from './level.js?v=623cc89';
+import { TILE } from './level.js?v=26d012e';
 
 // 上下に動く足場（空とお城のステージ）。横3タイル。上から乗れて、下からはすり抜ける
 export const PLATFORM_TOP = 104;
@@ -21,14 +21,24 @@ export function createPlatform(tx, ty, index, bottom = PLATFORM_BOTTOM) {
     { y: (PLATFORM_TOP + bottom) / 2, dir: 1 },
   ];
   const s = starts[index % starts.length];
-  return { x: tx * TILE, y: s.y, prevY: s.y, dy: 0, w: W, h: H, dir: s.dir, speed: PLATFORM_SPEED, bottom };
+  return { x: tx * TILE, y: s.y, prevY: s.y, dy: 0, w: W, h: H, dir: s.dir, speed: PLATFORM_SPEED, top: PLATFORM_TOP, bottom };
+}
+
+// 上下に動く雲（空のステージ）。width タイルの幅で、置いた高さから上下に CLOUD_RANGE ずつ動く。dir は動き始めの向き
+export const CLOUD_RANGE = 24;
+export function createCloud(tx, ty, width, dir) {
+  const y = ty * TILE;
+  return {
+    x: tx * TILE, y, prevY: y, dy: 0, w: width * TILE, h: H, dir, speed: PLATFORM_SPEED,
+    top: y - CLOUD_RANGE, bottom: y + CLOUD_RANGE,
+  };
 }
 
 export function updatePlatform(p) {
   p.prevY = p.y;
   p.y += p.dir * (p.y >= LAVA_SURFACE ? DIP_SPEED : p.speed);
-  if (p.y <= PLATFORM_TOP) {
-    p.y = PLATFORM_TOP;
+  if (p.y <= p.top) {
+    p.y = p.top;
     p.dir = 1;
   } else if (p.y >= p.bottom) {
     p.y = p.bottom;

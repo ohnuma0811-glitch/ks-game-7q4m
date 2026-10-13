@@ -1,4 +1,4 @@
-import { MAX_NAME, DIFFICULTY_IDS } from './flow.js?v=623cc89';
+import { MAX_NAME, DIFFICULTY_IDS } from './flow.js?v=26d012e';
 
 // 画面ごとの見出しとボタン（DOM に依存しない。ui.js が HTML にする）
 export const GAME_TITLE = 'KyugoとSokiの大冒険';
@@ -134,7 +134,8 @@ function endingCredits(flow) {
     flow.name,
     `SCORE ${flow.result.score}`,
     '',
-    'ゲームばかりしてないで、べんきょうしなさい！',
+    'ゲームばかりしてないで、',
+    'べんきょうしなさい！',
     '',
     'お父さんより',
   ];
