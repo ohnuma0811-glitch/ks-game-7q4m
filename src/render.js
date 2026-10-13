@@ -1,9 +1,9 @@
-import { TILE } from './game/level.js?v=63dc67f';
-import { cameraY } from './game/camera.js?v=63dc67f';
-import { BACKDROPS, BACKDROP_SPRITES, layerPositions } from './data/backdrop.js?v=63dc67f';
-import { getTheme } from './data/themes.js?v=63dc67f';
-import { BOSS_HP } from './game/boss.js?v=63dc67f';
-import { starCountdown } from './game/game.js?v=63dc67f';
+import { TILE } from './game/level.js?v=f9d92c9';
+import { cameraY } from './game/camera.js?v=f9d92c9';
+import { BACKDROPS, BACKDROP_SPRITES, layerPositions } from './data/backdrop.js?v=f9d92c9';
+import { getTheme } from './data/themes.js?v=f9d92c9';
+import { BOSS_HP } from './game/boss.js?v=f9d92c9';
+import { starCountdown } from './game/game.js?v=f9d92c9';
 
 const TILE_KEYS = [null, 'G', 'B', 'Q', 'U', 'C', 'L', 'X'];
 
