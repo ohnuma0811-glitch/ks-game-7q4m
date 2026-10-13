@@ -13,7 +13,7 @@ export const STAGE_1 = [
   '              ?   B?B?B                                       BBdBBB                                      BBsB                                          B?BB                   GGGGG  G         |       ',
   '                                                    GG                      cccc                                                      GG                                      GGGGGG  GG        |       ',
   '                                          GG        GG                                        GG                          GG          GG                                     GGGGGGG  GGG       |       ',
-  '       P                 w    cccW        GG x w    GG   Wy                      xJW j    j   GG  yJH           xw        GG W  S     GG       cccjyW        x              GGGGGGGG  GGGG  Jy  |       ',
+  '       P                 w    cccW        GG x w    GG   Wy                      xJW j   Jjy  GG    H           xw        GG W  S     GG       cccjyW        x              GGGGGGGG  GGGG  Jy  |       ',
   'GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG  GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGGGGGGG  GGGGGGGG   GGGGGGGGGGGGGGGGGGGGG  GGGGGGGGG  GGGGGGG  GGGGG  GGGGGGGGGGGGG  GGGGGGGGGGGGGGGGGG',
   'GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG  GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGGGGGGG  GGGGGGGG   GGGGGGGGGGGGGGGGGGGGG  GGGGGGGGG  GGGGGGG  GGGGG  GGGGGGGGGGGGG  GGGGGGGGGGGGGGGGGG',
 ];
@@ -31,7 +31,7 @@ export const STAGE_2 = [
   '            ?BdB?       BBBBBBBBBBBBBBBBB                           G     BBBBsBBBB                         BBBBBBBBBBBBBBBBBBB           ?B?B?                              GGGGG              |       ',
   '                                                            G       G                                                                               G                       GGGGGG              |       ',
   '                                                    G       G       G                                                                               G       G              GGGGGGG              |       ',
-  '       P            w     x   w    W       y        G   j   G   W   G   x                     wy   JH           x  w    W        y               j  G W  J  G x wJ        GGGGGGGG        WyS   |       ',
+  '       P            w     x   w    W       y        G   j   G   W   G   x                     wyJ   H           x  w    W        y               j  G W  J  G x wJ        GGGGGGGG        WyS   |       ',
   'GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG  GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGG  GGGGGGGGGGGGGGGGGGGG',
   'GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG  GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGG  GGGGGGGGGGGGGGGGGGGG',
 ];
@@ -61,7 +61,7 @@ export const STAGE_4 = [
   '                                 BdB      c c c c                              BsB    c                  c c c                                                                                             X     |       ',
   '                                                                                          M    N    M                G                                                                                     X     |       ',
   '                                                                                  G                                  G                      G                                  G                           X     |       ',
-  '       P              x   S            Ww    J  y           SW    x   j           G  J                         wy    G   Wx      S  y       G   Jx jJ   W            wyH       G                 K         X     |       ',
+  '       P              x   S            Ww    J  y           SW    x   j           G  J                         wy    G   Wx      S  y       G   Jx jJ   W  yw          H       G                 K         X     |       ',
   'GGGGGGGGGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGG  GGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGG                 GGGGGGGG  GGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGG  GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG',
   'GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGLLLGGGGGGGGGGGGGGGGGGGLLGGGGGGGGGGGGGGGGGGGGGLLLGGGGGGGGGGLLLLLLLLLLLLLLLLLGGGGGGGGLLGGGGGGGGGGGGGGGGGGGGLLLGGGGGGGGGGGGGGGGGGGLLGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG',
 ];
