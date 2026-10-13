@@ -9,6 +9,7 @@ const CHAR_PALETTE = {
   P: '#222222', // ハーフパンツ
   O: '#ffffff', // 靴下
   B: '#111111', // 靴
+  N: '#c0705e', // 乳首（服が脱げたとき）
 };
 
 const KYUGO_TOP = [
@@ -124,9 +125,19 @@ function frames(top, legs) {
   return Object.fromEntries(Object.entries(legs).map(([k, v]) => [k, top.concat(v)]));
 }
 
-// 服が脱げた絵（シャツとシャツのマークを肌の色にする）
+// 服が脱げた絵（シャツとシャツのマークを肌の色にして、胸に乳首を2つ）
 function bare(fr, shirt) {
-  return Object.fromEntries(Object.entries(fr).map(([k, rows]) => [k, rows.map((r) => r.replaceAll(shirt, 'S').replaceAll('W', 'S'))]));
+  return Object.fromEntries(Object.entries(fr).map(([k, rows]) => {
+    // 乳首はシャツの一番上の段の1つ下。体のはしから2ドット内側に、左右1つずつ
+    const y = rows.findIndex((r) => r.includes(shirt)) + 1;
+    const left = rows[y].indexOf(shirt) + 2;
+    const right = rows[y].lastIndexOf(shirt) - 2;
+    return [k, rows.map((r, i) => {
+      let row = r;
+      if (i === y) row = [...row].map((c, x) => (x === left || x === right ? 'N' : c)).join('');
+      return row.replaceAll(shirt, 'S').replaceAll('W', 'S');
+    })];
+  }));
 }
 
 const KYUGO_FRAMES = frames(KYUGO_TOP, KYUGO_LEGS);
