@@ -128,10 +128,10 @@ function frames(top, legs) {
 // 服が脱げた絵（シャツとシャツのマークを肌の色にして、胸に乳首を2つ）
 function bare(fr, shirt) {
   return Object.fromEntries(Object.entries(fr).map(([k, rows]) => {
-    // 乳首はシャツの一番上の段の2つ下。体のはしから3ドット内側に、左右1つずつ
+    // 乳首はシャツの一番上の段の2つ下。体のはしから3ドット内側の所から、向いている方（絵は右向き）へ1ドット寄せる
     const y = rows.findIndex((r) => r.includes(shirt)) + 2;
-    const left = rows[y].indexOf(shirt) + 3;
-    const right = rows[y].lastIndexOf(shirt) - 3;
+    const left = rows[y].indexOf(shirt) + 4;
+    const right = rows[y].lastIndexOf(shirt) - 2;
     return [k, rows.map((r, i) => {
       let row = r;
       if (i === y) row = [...row].map((c, x) => (x === left || x === right ? 'N' : c)).join('');
