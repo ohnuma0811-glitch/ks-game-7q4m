@@ -8,7 +8,7 @@ export const DIFFICULTIES = {
     enemyChars: ['w', 'j', 'S'],
     // ボスが甲羅に入るまでに歩く時間（更新数）と、火の玉を吹くか
     bossWalk: 150,
-    bossFire: false,
+    bossFire: 0,
   },
   normal: {
     label: 'LEVEL 2',
@@ -16,7 +16,7 @@ export const DIFFICULTIES = {
     checkpoints: ['H'],
     enemyChars: ['w', 'W', 'j', 'J', 'S'],
     bossWalk: 100,
-    bossFire: false,
+    bossFire: 2,
   },
   hard: {
     label: 'LEVEL 3',
@@ -24,7 +24,7 @@ export const DIFFICULTIES = {
     checkpoints: [],
     enemyChars: ['w', 'W', 'x', 'j', 'J', 'y', 'S'],
     bossWalk: 70,
-    bossFire: true,
+    bossFire: 1,
   },
 };
 

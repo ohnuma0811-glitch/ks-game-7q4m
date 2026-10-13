@@ -1,19 +1,21 @@
-import { computeViewport, isPortrait } from './screen.js?v=09f3fcb';
-import { startLoop } from './loop.js?v=09f3fcb';
-import { Input, attachInput, computeButtonLayout } from './input.js?v=09f3fcb';
-import { buildGraphics } from './gfx.js?v=09f3fcb';
-import { Game } from './game/game.js?v=09f3fcb';
-import { renderGame } from './render.js?v=09f3fcb';
-import { STAGES } from './data/stages.js?v=09f3fcb';
-import { Flow } from './flow.js?v=09f3fcb';
-import { createUI } from './ui.js?v=09f3fcb';
-import { loadNames, saveNames } from './names.js?v=09f3fcb';
-import { loadRanking, saveRanking, storageWorks } from './ranking.js?v=09f3fcb';
-import { Sound } from './audio.js?v=09f3fcb';
-import { musicFor } from './musicstate.js?v=09f3fcb';
+import { computeViewport, isPortrait } from './screen.js?v=c90d32a';
+import { startLoop } from './loop.js?v=c90d32a';
+import { Input, attachInput, computeButtonLayout } from './input.js?v=c90d32a';
+import { buildGraphics } from './gfx.js?v=c90d32a';
+import { Game } from './game/game.js?v=c90d32a';
+import { renderGame } from './render.js?v=c90d32a';
+import { STAGES } from './data/stages.js?v=c90d32a';
+import { Flow } from './flow.js?v=c90d32a';
+import { createUI } from './ui.js?v=c90d32a';
+import { loadNames, saveNames } from './names.js?v=c90d32a';
+import { loadRanking, saveRanking, storageWorks } from './ranking.js?v=c90d32a';
+import { Sound } from './audio.js?v=c90d32a';
+import { musicFor } from './musicstate.js?v=c90d32a';
 
 // 「STAGE 1」を見せる時間（更新数）
 const INTRO_TICKS = 90;
+// ミスの音から笑い声までの秒数
+const LAUGH_DELAY = 0.6;
 
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
@@ -44,8 +46,11 @@ function getStorage() {
   }
 }
 const storage = getStorage();
+const params = new URLSearchParams(location.search);
 // 確認用: ?stage=4 でステージ4から始める（ランキングには入らない）
-const startStage = Number(new URLSearchParams(location.search).get('stage')) - 1;
+const startStage = Number(params.get('stage')) - 1;
+// 確認用: ?fps で、1秒に何回描けているかを右上に出す
+const showFps = params.has('fps');
 const flow = new Flow(STAGES.length, {
   startStage,
   savedNames: loadNames(storage),
@@ -117,6 +122,8 @@ function playEvents() {
     else if (ev === 'miss') {
       sound.playMusic(null);
       sound.playSfx('miss');
+      // ミスの音が下がりきるころに、いじわるな笑い声
+      sound.playSfx('laugh', LAUGH_DELAY);
     } else sound.playSfx(ev);
   }
   game.events.length = 0;
@@ -218,11 +225,13 @@ function render() {
     const scene = flow.screen === 'intro' && introPreview ? introPreview : backdrop;
     renderGame(ctx, scene, gfx, view.width, view.height, tick, { hud: false, player: false });
   }
-  ctx.font = '8px monospace';
-  ctx.textAlign = 'right';
-  ctx.textBaseline = 'top';
-  ctx.fillStyle = '#fff';
-  ctx.fillText(`${fps}fps`, view.width - 4, 13);
+  if (showFps) {
+    ctx.font = '8px monospace';
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'top';
+    ctx.fillStyle = '#fff';
+    ctx.fillText(`${fps}fps`, view.width - 4, 13);
+  }
   btnEls.left.classList.toggle('active', input.left);
   btnEls.right.classList.toggle('active', input.right);
   btnEls.jump.classList.toggle('active', input.jump);
@@ -244,14 +253,30 @@ window.addEventListener('keydown', (e) => {
   }
 });
 pauseEl.addEventListener('click', pause);
+// ほかのアプリやタブに切り替えたら、音も止める（タイトルの曲が裏で鳴り続けないように）
 document.addEventListener('visibilitychange', () => {
-  if (document.hidden) pause();
+  if (document.hidden) {
+    pause();
+    sound.suspend();
+  } else if (!flow.paused) sound.resume();
 });
+// スマホ・タブレットは、画面に触れるまで音を出せない。最初にどこかに触れたらタイトルの曲を始める
+for (const type of ['pointerdown', 'touchend', 'keydown']) {
+  // ポーズ中は鳴らし始めない。iPhone は pointerdown では鳴らせないことがあるので、鳴っていなければ touchend でもう一度
+  window.addEventListener(type, () => {
+    if (!flow.paused && (!sound.ctx || sound.ctx.state !== 'running')) sound.unlock();
+  }, { capture: true });
+}
 
 attachInput(input, touchLayer, () => layout);
 window.addEventListener('resize', resize);
 window.addEventListener('orientationchange', resize);
 document.addEventListener('gesturestart', (e) => e.preventDefault());
+
+// 公開している所では、ゲームのファイルを端末に保存して、オフラインでも遊べるようにする（手元の確認では使わない）
+if ('serviceWorker' in navigator && location.protocol === 'https:') {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
 
 resize();
 afterAction();

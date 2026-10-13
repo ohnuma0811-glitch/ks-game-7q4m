@@ -1,4 +1,4 @@
-import { SONGS, SFX, parseTrack } from './music.js?v=09f3fcb';
+import { SONGS, SFX, parseTrack } from './music.js?v=c90d32a';
 
 // Web Audio で BGM と効果音を鳴らす（ブラウザ専用）
 // BGM は少し先まで音を予約しておく（先読みスケジューラ）。重い端末でも途切れにくい
@@ -77,10 +77,11 @@ export class Sound {
     src.stop(start + dur + 0.02);
   }
 
-  playSfx(name) {
+  // delay 秒あとから鳴らす（ミスの音のあとに笑い声など）
+  playSfx(name, delay = 0) {
     const spec = SFX[name];
     if (!this.ctx || !spec) return;
-    let t = this.ctx.currentTime + 0.005;
+    let t = this.ctx.currentTime + 0.005 + delay;
     for (const st of spec.steps) {
       this.tone(this.sfxBus, spec.wave, st.freq, st.to, t, st.dur, st.gain);
       t += st.dur;

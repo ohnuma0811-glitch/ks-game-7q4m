@@ -1,4 +1,4 @@
-import { MAX_NAME, DIFFICULTY_IDS } from './flow.js?v=09f3fcb';
+import { MAX_NAME, DIFFICULTY_IDS } from './flow.js?v=c90d32a';
 
 // 画面ごとの見出しとボタン（DOM に依存しない。ui.js が HTML にする）
 export const GAME_TITLE = 'KyugoとSokiの大冒険';

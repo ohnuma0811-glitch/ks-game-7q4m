@@ -1,10 +1,13 @@
 // 今の状態に合う BGM を決める（Web Audio に依存しない）
 // 戻り値: 曲の名前 / null（止める） / undefined（今の音のまま）
 const JINGLES = ['clear', 'gameover'];
+// タイトルの曲を流す画面（タイトル、名前・キャラ・レベルを選ぶ画面、ランキング）
+const MENUS = ['title', 'pick', 'name', 'avatar', 'difficulty', 'ranking'];
 
 export function musicFor({ screen, gameState, star, stageIndex, stageMusic, current, boss = false }) {
   // エンディングの曲は、クリアのジングルが鳴り終わってから
   if (screen === 'ending') return current === 'clear' ? undefined : 'ending';
+  if (MENUS.includes(screen)) return 'title';
   if (screen === 'play' && gameState === 'playing') {
     if (star > 0) return 'star';
     // ボスが出てから倒すまではボスの曲

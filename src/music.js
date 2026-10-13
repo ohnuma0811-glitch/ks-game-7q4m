@@ -30,6 +30,110 @@ const rep = (s, n) => Array(n).fill(s).join(' ');
 
 // bpm は4分音符の速さ。gain は音の大きさ（0〜1）
 export const SONGS = {
+  // タイトル: 勇ましい冒険の始まり。短調の行進から、明るく開ける（オリジナル）
+  title: {
+    bpm: 140,
+    loop: true,
+    tracks: [
+      {
+        wave: 'square',
+        gain: 0.14,
+        notes: [
+          'A4:2 A4:1 A4:1 A4:2 C5:2 E5:2 A5:6',
+          'G5:2 G5:1 G5:1 G5:2 F5:2 E5:2 D5:2 E5:4',
+          'A5:3 E5:1 A5:2 B5:2 C6:4 B5:2 A5:2',
+          'F5:3 C5:1 F5:2 G5:2 A5:6 R:2',
+          'G5:3 D5:1 G5:2 A5:2 B5:4 A5:2 G5:2',
+          'E5:6 G#5:2 B5:4 E6:4',
+          'A5:3 E5:1 A5:2 B5:2 C6:4 D6:2 E6:2',
+          'F6:4 E6:2 D6:2 C6:4 A5:4',
+          'B5:3 C6:1 D6:2 B5:2 G5:4 B5:4',
+          'A5:12 R:4',
+          'E5:2 G5:2 C6:4 E6:2 D6:2 C6:4',
+          'D6:2 B5:2 G5:4 B5:2 C6:2 D6:4',
+          'C6:2 A5:2 F5:4 A5:2 B5:2 C6:4',
+          'B5:6 A5:2 G5:8',
+          'E5:2 G5:2 C6:4 E6:2 F6:2 G6:4',
+          'F6:2 E6:2 D6:4 B5:2 C6:2 D6:4',
+          'C6:3 A5:1 F6:4 E6:3 C6:1 A5:4',
+          'B5:4 G#5:4 E5:4 B4:2 D5:2',
+        ].join(' '),
+      },
+      {
+        // ハモリ
+        wave: 'square',
+        gain: 0.07,
+        notes: [
+          'E4:2 E4:1 E4:1 E4:2 A4:2 C5:2 E5:6',
+          'D5:2 D5:1 D5:1 D5:2 C5:2 B4:2 G4:2 B4:4',
+          'C5:3 C5:1 C5:2 E5:2 E5:4 E5:2 C5:2',
+          'A4:3 A4:1 A4:2 C5:2 C5:6 R:2',
+          'B4:3 B4:1 B4:2 D5:2 D5:4 D5:2 B4:2',
+          'B4:6 E5:2 G#5:4 B5:4',
+          'C5:3 C5:1 C5:2 E5:2 E5:4 A5:2 C6:2',
+          'A5:4 C6:2 A5:2 A5:4 F5:4',
+          'G5:3 G5:1 B5:2 G5:2 D5:4 G5:4',
+          'E5:12 R:4',
+          'C5:2 E5:2 G5:4 C6:2 B5:2 G5:4',
+          'B5:2 G5:2 D5:4 G5:2 A5:2 B5:4',
+          'A5:2 F5:2 C5:4 F5:2 G5:2 A5:4',
+          'G5:6 F5:2 D5:8',
+          'C5:2 E5:2 G5:4 C6:2 D6:2 E6:4',
+          'D6:2 C6:2 B5:4 G5:2 A5:2 B5:4',
+          'A5:3 F5:1 C6:4 C6:3 A5:1 F5:4',
+          'G#5:4 E5:4 B4:4 G#4:2 B4:2',
+        ].join(' '),
+      },
+      {
+        wave: 'triangle',
+        gain: 0.3,
+        notes: [
+          'A2:2 A3:2 A2:2 A3:2 A2:2 A3:2 A2:2 A3:2',
+          'G2:2 G3:2 G2:2 G3:2 E2:2 E3:2 E2:2 E3:2',
+          'A2:2 E3:2 A2:2 E3:2 A2:2 E3:2 A2:2 E3:2',
+          'F2:2 C3:2 F2:2 C3:2 F2:2 C3:2 F2:2 C3:2',
+          'G2:2 D3:2 G2:2 D3:2 G2:2 D3:2 G2:2 D3:2',
+          'E2:2 B2:2 E2:2 B2:2 E2:2 B2:2 E2:2 B2:2',
+          'A2:2 E3:2 A2:2 E3:2 A2:2 E3:2 A2:2 E3:2',
+          'F2:2 C3:2 F2:2 C3:2 F2:2 C3:2 F2:2 C3:2',
+          'G2:2 D3:2 G2:2 D3:2 G2:2 D3:2 G2:2 D3:2',
+          'A2:4 E2:4 A2:4 R:4',
+          'C3:2 G3:2 C3:2 G3:2 C3:2 G3:2 C3:2 G3:2',
+          'G2:2 D3:2 G2:2 D3:2 G2:2 D3:2 G2:2 D3:2',
+          'F2:2 C3:2 F2:2 C3:2 F2:2 C3:2 F2:2 C3:2',
+          'G2:2 D3:2 G2:2 D3:2 G2:2 D3:2 G2:2 D3:2',
+          'C3:2 G3:2 C3:2 G3:2 C3:2 G3:2 C3:2 G3:2',
+          'G2:2 D3:2 G2:2 D3:2 G2:2 D3:2 G2:2 D3:2',
+          'F2:2 C3:2 F2:2 C3:2 F2:2 C3:2 F2:2 C3:2',
+          'E2:2 B2:2 E2:2 B2:2 E2:2 E2:2 E3:2 E3:2',
+        ].join(' '),
+      },
+      {
+        wave: 'noise',
+        gain: 0.05,
+        notes: [
+          'N:2 N:1 N:1 N:2 N:2 N:2 N:1 N:1 N:2 N:2',
+          'N:1 N:1 N:1 N:1 N:1 N:1 N:1 N:1 N:2 N:2 N:2 N:2',
+          'N:2 R:1 N:1 N:2 R:2 N:2 R:1 N:1 N:2 R:2',
+          'N:2 R:1 N:1 N:2 R:2 N:2 R:1 N:1 N:2 R:2',
+          'N:2 R:1 N:1 N:2 R:2 N:2 R:1 N:1 N:2 R:2',
+          'N:2 R:1 N:1 N:2 R:2 N:2 R:1 N:1 N:2 R:2',
+          'N:2 R:1 N:1 N:2 R:2 N:2 R:1 N:1 N:2 R:2',
+          'N:2 R:1 N:1 N:2 R:2 N:2 R:1 N:1 N:2 R:2',
+          'N:2 R:1 N:1 N:2 R:2 N:2 R:1 N:1 N:2 R:2',
+          'N:1 N:1 N:1 N:1 N:1 N:1 N:1 N:1 N:2 N:2 N:2 N:2',
+          'N:2 R:1 N:1 N:2 R:2 N:2 R:1 N:1 N:2 R:2',
+          'N:2 R:1 N:1 N:2 R:2 N:2 R:1 N:1 N:2 R:2',
+          'N:2 R:1 N:1 N:2 R:2 N:2 R:1 N:1 N:2 R:2',
+          'N:2 R:1 N:1 N:2 R:2 N:2 R:1 N:1 N:2 R:2',
+          'N:2 R:1 N:1 N:2 R:2 N:2 R:1 N:1 N:2 R:2',
+          'N:2 R:1 N:1 N:2 R:2 N:2 R:1 N:1 N:2 R:2',
+          'N:2 R:1 N:1 N:2 R:2 N:2 R:1 N:1 N:2 R:2',
+          'N:1 N:1 N:1 N:1 N:1 N:1 N:1 N:1 N:2 N:2 N:2 N:2',
+        ].join(' '),
+      },
+    ],
+  },
   // 草原: 明るく弾む
   grass: {
     bpm: 150,
@@ -350,6 +454,9 @@ export const SONGS = {
 };
 
 // 効果音: steps を順に鳴らす。freq から to へ音の高さを動かす。dur は秒
+// 笑い声の「ハッ」と「ハッ」の間のすき間（ほぼ無音）
+const gap = { freq: 100, dur: 0.04, gain: 0.001 };
+
 export const SFX = {
   jump: { wave: 'square', steps: [{ freq: 260, to: 620, dur: 0.12, gain: 0.18 }] },
   coin: { wave: 'square', steps: [{ freq: 1175, dur: 0.05, gain: 0.18 }, { freq: 1568, dur: 0.2, gain: 0.18 }] },
@@ -364,6 +471,25 @@ export const SFX = {
   star: { wave: 'square', steps: [{ freq: 784, dur: 0.05, gain: 0.15 }, { freq: 988, dur: 0.05, gain: 0.15 }, { freq: 1175, dur: 0.05, gain: 0.15 }, { freq: 1568, dur: 0.15, gain: 0.15 }] },
   miss: { wave: 'square', steps: [{ freq: 660, to: 330, dur: 0.25, gain: 0.18 }, { freq: 330, to: 110, dur: 0.45, gain: 0.18 }] },
   button: { wave: 'square', steps: [{ freq: 880, dur: 0.04, gain: 0.12 }] },
+  // ミスしたときの、いじわるな笑い声（「ヒャーッ」と上がって「ハッハッハッ」と下がる。オリジナル）
+  laugh: {
+    wave: 'square',
+    steps: [
+      { freq: 700, to: 1600, dur: 0.2, gain: 0.16 },
+      gap,
+      { freq: 1500, to: 1200, dur: 0.07, gain: 0.16 },
+      gap,
+      { freq: 1400, to: 1120, dur: 0.07, gain: 0.16 },
+      gap,
+      { freq: 1300, to: 1040, dur: 0.07, gain: 0.16 },
+      gap,
+      { freq: 1200, to: 960, dur: 0.07, gain: 0.16 },
+      gap,
+      { freq: 1100, to: 880, dur: 0.07, gain: 0.16 },
+      gap,
+      { freq: 1000, to: 800, dur: 0.07, gain: 0.16 },
+    ],
+  },
   // スターがもうすぐ切れる（3・2・1）
   starwarn: { wave: 'square', steps: [{ freq: 1319, dur: 0.07, gain: 0.16 }] },
   // ボスを踏んだ・ボスが甲羅に入った・ボスが倒れた

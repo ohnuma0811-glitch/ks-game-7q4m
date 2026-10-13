@@ -1,5 +1,5 @@
-import { TILE } from './level.js?v=09f3fcb';
-import { moveAndCollide } from './physics.js?v=09f3fcb';
+import { TILE } from './level.js?v=c90d32a';
+import { moveAndCollide } from './physics.js?v=c90d32a';
 
 // ステージ4のボス（トゲの甲羅の大きな亀）
 // 歩く（プレイヤーの方へ）→ 甲羅に入る（その場で止まる）をくり返す。踏まれるとひるんで離れ、また歩き出す。
@@ -40,9 +40,11 @@ export function createBoss(tx, ty, diff) {
     removed: false,
     onGround: false,
     warning: false,
-    // 甲羅に入るまでに歩く時間（難易度ごと）。Level 3 は歩いている途中で1回火を吹く
+    // 甲羅に入るまでに歩く時間（難易度ごと）
     walkTicks: diff.bossWalk ?? WALK_TICKS,
-    canFire: Boolean(diff.bossFire),
+    // 何回歩くうち1回、歩いている途中で火を吹くか（0 なら吹かない。Level 3 は毎回、Level 2 は2回に1回）
+    fireEvery: diff.bossFire || 0,
+    walks: 0,
     fired: false,
   };
 }
@@ -69,7 +71,7 @@ export function updateBoss(b, level, player) {
   if (b.state === 'walk') {
     b.dir = towardPlayer;
     b.vx = b.dir * BOSS_WALK * b.speed;
-    if (b.canFire && !b.fired && b.timer >= Math.floor(b.walkTicks / 2)) {
+    if (b.fireEvery && b.walks % b.fireEvery === 0 && !b.fired && b.timer >= Math.floor(b.walkTicks / 2)) {
       b.fired = true;
       ev = 'fire';
     }
@@ -85,6 +87,7 @@ export function updateBoss(b, level, player) {
       b.state = 'walk';
       b.timer = 0;
       b.fired = false;
+      b.walks++;
       setShell(b, false);
     }
   } else if (b.state === 'hurt') {
@@ -94,6 +97,7 @@ export function updateBoss(b, level, player) {
       b.state = 'walk';
       b.timer = 0;
       b.fired = false;
+      b.walks++;
     }
   }
   b.warning = b.state === 'walk' && b.timer >= b.walkTicks - WARN_TICKS;
