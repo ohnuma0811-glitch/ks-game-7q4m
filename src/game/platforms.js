@@ -1,13 +1,14 @@
-import { TILE } from './level.js?v=5176cdb';
+import { TILE } from './level.js?v=2f88e93';
 
 // 上下に動く足場（空とお城のステージ）。横3タイル。上から乗れて、下からはすり抜ける
 export const PLATFORM_TOP = 104;
 export const PLATFORM_BOTTOM = 152;
 export const PLATFORM_SPEED = 0.5;
-// お城の溶岩の上の足場は、一番下で少しの間だけ溶岩（上面 160）に沈む。
+// お城の溶岩は一番下の行（上面 176）。溶岩の上の足場は、ふつうより1ブロック下まで下りて、
+// 一番下で少しの間だけ溶岩に沈む。
 // 沈んでいる間は2倍の速さで動くので、沈むのは約12更新。ジャンプして戻ってくるまでに出てくる
-export const LAVA_DIP_BOTTOM = 166;
-const LAVA_SURFACE = 160;
+export const LAVA_DIP_BOTTOM = 182;
+const LAVA_SURFACE = 176;
 const DIP_SPEED = 1;
 const W = TILE * 3;
 const H = TILE;
