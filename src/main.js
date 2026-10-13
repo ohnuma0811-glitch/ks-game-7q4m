@@ -1,16 +1,16 @@
-import { computeViewport, isPortrait } from './screen.js?v=79fd970';
-import { startLoop } from './loop.js?v=79fd970';
-import { Input, attachInput, computeButtonLayout } from './input.js?v=79fd970';
-import { buildGraphics } from './gfx.js?v=79fd970';
-import { Game } from './game/game.js?v=79fd970';
-import { renderGame } from './render.js?v=79fd970';
-import { STAGES } from './data/stages.js?v=79fd970';
-import { Flow } from './flow.js?v=79fd970';
-import { createUI } from './ui.js?v=79fd970';
-import { loadNames, saveNames } from './names.js?v=79fd970';
-import { loadRanking, saveRanking, storageWorks } from './ranking.js?v=79fd970';
-import { Sound } from './audio.js?v=79fd970';
-import { musicFor } from './musicstate.js?v=79fd970';
+import { computeViewport, isPortrait } from './screen.js?v=25c18d6';
+import { startLoop } from './loop.js?v=25c18d6';
+import { Input, attachInput, computeButtonLayout } from './input.js?v=25c18d6';
+import { buildGraphics } from './gfx.js?v=25c18d6';
+import { Game } from './game/game.js?v=25c18d6';
+import { renderGame } from './render.js?v=25c18d6';
+import { STAGES } from './data/stages.js?v=25c18d6';
+import { Flow } from './flow.js?v=25c18d6';
+import { createUI } from './ui.js?v=25c18d6';
+import { loadNames, saveNames } from './names.js?v=25c18d6';
+import { loadRanking, saveRanking, storageWorks } from './ranking.js?v=25c18d6';
+import { Sound } from './audio.js?v=25c18d6';
+import { musicFor } from './musicstate.js?v=25c18d6';
 
 // 「STAGE 1」を見せる時間（更新数）
 const INTRO_TICKS = 90;
@@ -22,6 +22,7 @@ const touchLayer = document.getElementById('touch-layer');
 const probe = document.getElementById('safe-probe');
 const pauseEl = document.getElementById('btn-pause');
 const menuEl = document.getElementById('menu');
+const keyHintEl = document.getElementById('key-hint');
 const btnEls = {
   left: document.getElementById('btn-left'),
   right: document.getElementById('btn-right'),
@@ -86,6 +87,8 @@ function afterAction(act) {
   const playing = flow.screen === 'play' && !flow.paused;
   for (const b of Object.values(btnEls)) b.classList.toggle('hidden', !playing);
   pauseEl.classList.toggle('show', playing);
+  // パソコンのときだけ CSS で表示される
+  keyHintEl.classList.toggle('show', playing);
   if (!playing) input.clear();
   if (flow.paused) sound.suspend();
   else sound.resume();

@@ -306,3 +306,24 @@ html, body {
     transform: translateY(calc(-100% + 48vh));
   }
 }
+/* パソコン（マウスで操作する端末）でだけ、遊んでいる間にキーボードの操作を出す */
+#key-hint {
+  position: fixed;
+  z-index: 3;
+  left: 50%;
+  bottom: calc(10px + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  display: none;
+  padding: 4px 12px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  font: bold 14px system-ui, sans-serif;
+  white-space: nowrap;
+  pointer-events: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  #key-hint.show {
+    display: block;
+  }
+}
