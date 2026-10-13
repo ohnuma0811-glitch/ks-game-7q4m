@@ -1,12 +1,12 @@
-import { parseLevel, tileAt, setTile, isSolid, TILE, QUESTION, USED, LAVA, GATE, EMPTY } from './level.js?v=43f5bcf';
-import { moveAndCollide } from './physics.js?v=43f5bcf';
-import { createBoss, updateBoss, hitBoss, canStomp, HURT_TICKS } from './boss.js?v=43f5bcf';
-import { createPlatform, createCloud, updatePlatform, PLATFORM_BOTTOM, LAVA_DIP_BOTTOM } from './platforms.js?v=43f5bcf';
-import { Player, spawnPoint } from './player.js?v=43f5bcf';
-import { cameraX } from './camera.js?v=43f5bcf';
-import { createEnemy, updateEnemy } from './enemies.js?v=43f5bcf';
-import { createCoin, popCoin, popItem, updateItem, itemBox, collectible } from './items.js?v=43f5bcf';
-import { getDifficulty } from './difficulty.js?v=43f5bcf';
+import { parseLevel, tileAt, setTile, isSolid, TILE, QUESTION, USED, LAVA, GATE, EMPTY } from './level.js?v=121cbb2';
+import { moveAndCollide } from './physics.js?v=121cbb2';
+import { createBoss, updateBoss, hitBoss, canStomp, HURT_TICKS } from './boss.js?v=121cbb2';
+import { createPlatform, createCloud, updatePlatform, PLATFORM_BOTTOM, LAVA_DIP_BOTTOM } from './platforms.js?v=121cbb2';
+import { Player, spawnPoint } from './player.js?v=121cbb2';
+import { cameraX } from './camera.js?v=121cbb2';
+import { createEnemy, updateEnemy } from './enemies.js?v=121cbb2';
+import { createCoin, popCoin, popItem, updateItem, itemBox, collectible } from './items.js?v=121cbb2';
+import { getDifficulty } from './difficulty.js?v=121cbb2';
 
 export const LIVES = 3;
 export const START_TIME = 200;
@@ -18,6 +18,8 @@ export const DRINK_BONUS = 1000;
 export const TIME_BONUS = 10;
 // 敵を倒したとき（踏む・スター）
 export const ENEMY_SCORE = 200;
+// 敵の種類ごとの点（トゲトゲはスターでしか倒せない）
+export const ENEMY_POINTS = { walker: ENEMY_SCORE, jumper: 300, spike: 400 };
 // 着地する前に続けて踏むと、点が 2倍・3倍になる（3倍まで）
 export const MAX_COMBO = 3;
 // 足元からこのドット数より低い所で敵に触れたら、踏んだことにする（キャラの背は22）
@@ -326,8 +328,9 @@ export class Game {
       if (p.star > 0) {
         e.dead = true;
         e.vy = -3;
-        this.score += ENEMY_SCORE;
-        this.addPopup(ENEMY_SCORE, e.x + e.w / 2, e.y);
+        const pts = ENEMY_POINTS[e.kind] || ENEMY_SCORE;
+        this.score += pts;
+        this.addPopup(pts, e.x + e.w / 2, e.y);
         this.events.push('kill');
         continue;
       }
@@ -338,7 +341,7 @@ export class Game {
         e.squash = 30;
         stomped = true;
         this.combo = Math.min(this.combo + 1, MAX_COMBO);
-        const pts = ENEMY_SCORE * this.combo;
+        const pts = (ENEMY_POINTS[e.kind] || ENEMY_SCORE) * this.combo;
         this.score += pts;
         this.addPopup(pts, e.x + e.w / 2, e.y);
         continue;
