@@ -1,4 +1,4 @@
-import { MAX_NAME, DIFFICULTY_IDS, RESET_PASSWORD } from './flow.js?v=5cd39aa';
+import { MAX_NAME, DIFFICULTY_IDS, RESET_PASSWORD } from './flow.js?v=76f1aec';
 
 // ランキングの画面に出す順位（レベルごと）
 export const RANK_SHOWN = 5;
@@ -170,6 +170,7 @@ function endingCredits(flow) {
 
 function rankingNotice(flow) {
   if (flow.rankingLoading) return 'よみこみちゅう…';
+  if (flow.resetFailed) return 'つながらないので けせませんでした';
   if (flow.shared) return 'みんなの ランキング';
   return flow.rankingAvailable ? undefined : 'この端末では きろくできません';
 }
@@ -200,8 +201,8 @@ function rankingModel(flow) {
     return { label: DIFFICULTY_LABELS[level], rows, empty: rows.length === 0 ? 'まだ ありません' : undefined };
   });
   const buttons = [{ label: 'もどる', act: 'back' }];
-  // リセットは大人向け。3秒押し続けたときだけ。みんなのランキングは、ゲームからは消せない（消すときはスプレッドシートで）
-  if (flow.rankingAvailable && !flow.shared) buttons.push({ label: 'リセット（ながおし）', act: 'askReset', longPress: true });
+  // リセットは大人向け。3秒押し続けて、パスワードを入れたときだけ（みんなのランキングも）
+  if (flow.rankingAvailable || flow.shared) buttons.push({ label: 'リセット（ながおし）', act: 'askReset', longPress: true });
   return {
     id: 'ranking',
     heading: 'ランキング',

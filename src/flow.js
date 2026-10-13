@@ -1,5 +1,5 @@
-import { addName, removeName } from './names.js?v=5cd39aa';
-import { emptyRanking, insertScore, formatDate } from './ranking.js?v=5cd39aa';
+import { addName, removeName } from './names.js?v=76f1aec';
+import { emptyRanking, insertScore, formatDate } from './ranking.js?v=76f1aec';
 
 // 画面の流れ（タイトル → だれが遊ぶ／名前 → キャラ → むずかしさ → ステージ → 結果）。DOM に依存しない
 export const MAX_NAME = 8;
@@ -22,6 +22,8 @@ export class Flow {
     shared = false,
     makeId = () => '',
     onRecord = () => {},
+    // みんなのランキングを消す関数（パスワードを渡す）
+    onSharedReset = () => {},
     // ホーム画面から開いていない Android・iPhone のとき: { platform, prompt }。
     // prompt() はブラウザの追加の画面を出せたら true
     install = null,
@@ -41,6 +43,9 @@ export class Flow {
     this.shared = shared;
     this.makeId = makeId;
     this.onRecord = onRecord;
+    this.onSharedReset = onSharedReset;
+    // みんなのランキングを消せなかった（電波がないなど）
+    this.resetFailed = false;
     // みんなのランキングを受け取っている間
     this.rankingLoading = false;
     this.lastId = null;
@@ -149,6 +154,7 @@ export class Flow {
     if (this.screen === 'ranking') {
       this.highlight = null;
       this.confirmingReset = false;
+      this.resetFailed = false;
     }
     if (this.screen === 'name') this.screen = this.savedNames.length ? 'pick' : 'title';
     else if (this.screen === 'avatar' && this.pickedName) this.screen = 'pick';
@@ -257,8 +263,7 @@ export class Flow {
   }
 
   askReset() {
-    // みんなのランキングは、ゲームからは消せない（消すときはスプレッドシートで）
-    if (this.screen === 'ranking' && this.rankingAvailable && !this.shared) {
+    if (this.screen === 'ranking' && (this.rankingAvailable || this.shared)) {
       this.confirmingReset = true;
       this.resetCode = '';
       this.resetError = false;
@@ -283,7 +288,10 @@ export class Flow {
       this.resetError = true;
       return;
     }
+    // みんなのランキングは、サーバーの記録も消す
+    if (this.shared) this.onSharedReset(this.resetCode);
     this.resetCode = '';
+    this.resetFailed = false;
     this.ranking = emptyRanking();
     this.onRankingChange(this.ranking);
     this.highlight = null;

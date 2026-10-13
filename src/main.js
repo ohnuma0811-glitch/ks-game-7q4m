@@ -1,18 +1,18 @@
-import { computeViewport, isPortrait } from './screen.js?v=5cd39aa';
-import { startLoop } from './loop.js?v=5cd39aa';
-import { Input, attachInput, computeButtonLayout } from './input.js?v=5cd39aa';
-import { buildGraphics } from './gfx.js?v=5cd39aa';
-import { Game } from './game/game.js?v=5cd39aa';
-import { renderGame } from './render.js?v=5cd39aa';
-import { STAGES } from './data/stages.js?v=5cd39aa';
-import { Flow } from './flow.js?v=5cd39aa';
-import { createUI } from './ui.js?v=5cd39aa';
-import { loadNames, saveNames } from './names.js?v=5cd39aa';
-import { loadRanking, saveRanking, storageWorks } from './ranking.js?v=5cd39aa';
-import { Sound } from './audio.js?v=5cd39aa';
-import { musicFor } from './musicstate.js?v=5cd39aa';
-import { SharedRanking } from './shared.js?v=5cd39aa';
-import { RANKING_URL } from './config.js?v=5cd39aa';
+import { computeViewport, isPortrait } from './screen.js?v=76f1aec';
+import { startLoop } from './loop.js?v=76f1aec';
+import { Input, attachInput, computeButtonLayout } from './input.js?v=76f1aec';
+import { buildGraphics } from './gfx.js?v=76f1aec';
+import { Game } from './game/game.js?v=76f1aec';
+import { renderGame } from './render.js?v=76f1aec';
+import { STAGES } from './data/stages.js?v=76f1aec';
+import { Flow } from './flow.js?v=76f1aec';
+import { createUI } from './ui.js?v=76f1aec';
+import { loadNames, saveNames } from './names.js?v=76f1aec';
+import { loadRanking, saveRanking, storageWorks } from './ranking.js?v=76f1aec';
+import { Sound } from './audio.js?v=76f1aec';
+import { musicFor } from './musicstate.js?v=76f1aec';
+import { SharedRanking } from './shared.js?v=76f1aec';
+import { RANKING_URL } from './config.js?v=76f1aec';
 
 // 「STAGE 1」を見せる時間（更新数）
 const INTRO_TICKS = 90;
@@ -99,6 +99,15 @@ const flow = new Flow(STAGES.length, {
   shared: shared.enabled,
   makeId,
   onRecord: (level, entry) => shared.add(level, entry),
+  // みんなのランキングを消す。消せなかったら、そのことを出して、ランキングを元に戻す
+  onSharedReset: (code) => {
+    // 消し終わるまでは「よみこみちゅう…」
+    flow.rankingLoading = true;
+    shared.reset(code).then((ok) => {
+      if (!ok) flow.resetFailed = true;
+      refreshShared(false);
+    });
+  },
 });
 // メニューの後ろに見せるステージ1の景色
 const backdrop = new Game(STAGES[0].map);

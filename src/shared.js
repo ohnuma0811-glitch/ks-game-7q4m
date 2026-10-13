@@ -1,4 +1,4 @@
-import { emptyRanking, validEntry, RANK_SIZE } from './ranking.js?v=5cd39aa';
+import { emptyRanking, validEntry, RANK_SIZE } from './ranking.js?v=76f1aec';
 
 // みんなのランキング（遠くの家族の端末で遊んだ記録もまとめる）。DOM に依存しない
 // 記録の置き場所は Google スプレッドシート（apps-script/Code.gs）。URL は src/config.js に書く
@@ -114,6 +114,23 @@ export class SharedRanking {
       // 前に受け取った物のまま
     }
     return this.view();
+  }
+
+  // みんなのランキングを全部消す（パスワードはサーバーでも確かめる）。消せたら true。
+  // 消せたら、端末に受け取っていた物と、まだ送っていない記録も消す
+  async reset(password) {
+    if (!this.enabled) return false;
+    try {
+      const res = await this.fetch(this.url, { method: 'POST', body: JSON.stringify({ action: 'reset', password }) });
+      if (!res.ok || !(await res.json()).ok) return false;
+    } catch {
+      return false;
+    }
+    this.cache = emptyRanking();
+    this.pending = [];
+    write(this.storage, CACHE_KEY, this.cache);
+    write(this.storage, PENDING_KEY, this.pending);
+    return true;
   }
 
   // 共有を始める前にこの端末にあったランキングを、最初の1回だけ送る分に入れる
