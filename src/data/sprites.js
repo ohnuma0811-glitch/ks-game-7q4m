@@ -121,8 +121,25 @@ const SOKI_LEGS = {
   ],
 };
 
-function frames(top, legs) {
-  return Object.fromEntries(Object.entries(legs).map(([k, v]) => [k, top.concat(v)]));
+// 腕を振る: 体の左はし（2列目）と右はし（13列目）の肌（腕）を、左は dl・右は dr ドット上下にずらす。
+// 顔（シャツより上）は動かさない
+const ARM_COLS = [2, 13];
+function swingArms(top, shirt, dl, dr) {
+  const first = top.findIndex((r) => r.includes(shirt));
+  const rows = top.map((r) => [...r]);
+  ARM_COLS.forEach((x, i) => {
+    const d = i === 0 ? dl : dr;
+    const ys = top.map((r, y) => (y >= first && r[x] === 'S' ? y : -1)).filter((y) => y >= 0);
+    for (const y of ys) rows[y][x] = '.';
+    for (const y of ys) rows[y + d][x] = 'S';
+  });
+  return rows.map((r) => r.join(''));
+}
+
+// 歩きの絵では腕を前後に振る（walkA は左腕が上・右腕が下、walkB はその反対）。立ちとジャンプはそのまま
+function frames(top, legs, shirt) {
+  const tops = { walkA: swingArms(top, shirt, -1, 1), walkB: swingArms(top, shirt, 1, -1) };
+  return Object.fromEntries(Object.entries(legs).map(([k, v]) => [k, (tops[k] || top).concat(v)]));
 }
 
 // 服が脱げた絵（シャツとシャツのマークを肌の色にして、胸に乳首を2つ）
@@ -140,8 +157,8 @@ function bare(fr, shirt) {
   }));
 }
 
-const KYUGO_FRAMES = frames(KYUGO_TOP, KYUGO_LEGS);
-const SOKI_FRAMES = frames(SOKI_TOP, SOKI_LEGS);
+const KYUGO_FRAMES = frames(KYUGO_TOP, KYUGO_LEGS, 'K');
+const SOKI_FRAMES = frames(SOKI_TOP, SOKI_LEGS, 'L');
 
 export const AVATARS = {
   kyugo: { palette: { ...CHAR_PALETTE, K: '#c11f0a' }, frames: KYUGO_FRAMES, bareFrames: bare(KYUGO_FRAMES, 'K') },
