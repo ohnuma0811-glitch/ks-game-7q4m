@@ -1,8 +1,8 @@
 // 今の状態に合う BGM を決める（Web Audio に依存しない）
 // 戻り値: 曲の名前 / null（止める） / undefined（今の音のまま）
 const JINGLES = ['clear', 'gameover'];
-// タイトルの曲を流す画面（タイトル、名前・キャラ・レベルを選ぶ画面、ランキング）
-const MENUS = ['title', 'pick', 'name', 'avatar', 'difficulty', 'ranking'];
+// タイトルの曲を流す画面（ホーム画面に追加の確認、タイトル、名前・キャラ・レベルを選ぶ画面、ランキング）
+const MENUS = ['install', 'installHelp', 'title', 'pick', 'name', 'avatar', 'difficulty', 'ranking'];
 
 export function musicFor({ screen, gameState, star, stageIndex, stageMusic, current, boss = false }) {
   // エンディングの曲は、クリアのジングルが鳴り終わってから

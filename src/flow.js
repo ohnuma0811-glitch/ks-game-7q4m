@@ -1,5 +1,5 @@
-import { addName, removeName } from './names.js?v=403b53b';
-import { emptyRanking, insertScore, formatDate } from './ranking.js?v=403b53b';
+import { addName, removeName } from './names.js?v=248de58';
+import { emptyRanking, insertScore, formatDate } from './ranking.js?v=248de58';
 
 // 画面の流れ（タイトル → だれが遊ぶ／名前 → キャラ → むずかしさ → ステージ → 結果）。DOM に依存しない
 export const MAX_NAME = 8;
@@ -20,6 +20,9 @@ export class Flow {
     shared = false,
     makeId = () => '',
     onRecord = () => {},
+    // ホーム画面から開いていない Android・iPhone のとき: { platform, prompt, never }。
+    // prompt() はブラウザの追加の画面を出せたら true、never() は「もう きかない」を覚える
+    install = null,
     now = () => new Date(),
     startStage = 0,
   } = {}) {
@@ -45,7 +48,9 @@ export class Flow {
     this.rankingLevel = 'easy';
     this.highlight = null;
     this.confirmingReset = false;
-    this.screen = 'title';
+    this.install = install;
+    // ホーム画面に追加するかを、タイトルの前に聞く
+    this.screen = install ? 'install' : 'title';
     this.name = '';
     this.avatar = 'kyugo';
     this.difficulty = 'normal';
@@ -55,6 +60,26 @@ export class Flow {
     this.paused = false;
     // 「STAGE 1」の間に頼まれた一時停止（縦向きにしたときなど）
     this.pausePending = false;
+  }
+
+  installYes() {
+    if (this.screen !== 'install') return;
+    // ブラウザの追加の画面を出せないとき（iPhone など）は、追加のしかたを見せる
+    this.screen = this.install.prompt() ? 'title' : 'installHelp';
+  }
+
+  installLater() {
+    if (this.screen === 'install') this.screen = 'title';
+  }
+
+  installNever() {
+    if (this.screen !== 'install') return;
+    this.install.never();
+    this.screen = 'title';
+  }
+
+  installDone() {
+    if (this.screen === 'installHelp') this.screen = 'title';
   }
 
   start() {

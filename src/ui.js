@@ -1,4 +1,4 @@
-import { screenModel, dispatch } from './screens.js?v=403b53b';
+import { screenModel, dispatch } from './screens.js?v=248de58';
 
 // screenModel を HTML のメニューにする。ボタンを押すと flow を進めて onAction を呼ぶ
 // guard つきのメニューは、出てからこの時間はボタンを押せない（ゲーム中の連打で押されないように）
@@ -95,15 +95,23 @@ export function createUI({ root, flow, gfx, onAction }) {
     }
     if (m.notice) panel.append(el('p', 'notice', m.notice));
     if (m.empty) panel.append(el('p', 'empty', m.empty));
-    if (m.rows && m.rows.length) {
-      // 5件ずつ2列。順位・顔・名前・日付・スコア
-      const list = el('ol', 'rank-list');
-      for (const r of m.rows) {
-        const li = el('li', r.highlight ? 'rank-row highlight' : 'rank-row');
-        li.append(el('span', 'rank', String(r.rank)), sprite(r.avatar, 'right', 'face'), el('span', 'name', r.name), el('span', 'date', r.date), el('span', 'score', String(r.score)));
-        list.append(li);
+    if (m.columns) {
+      // Level 1〜3 を横に並べる。それぞれ順位・顔・名前・スコア、その下に小さく日付
+      const cols = el('div', 'rank-cols');
+      for (const c of m.columns) {
+        const col = el('div', 'rank-col');
+        col.append(el('h2', '', c.label));
+        if (c.empty) col.append(el('p', 'empty', c.empty));
+        const list = el('ol', 'rank-list');
+        for (const r of c.rows) {
+          const li = el('li', r.highlight ? 'rank-row highlight' : 'rank-row');
+          li.append(el('span', 'rank', String(r.rank)), sprite(r.avatar, 'right', 'face'), el('span', 'name', r.name), el('span', 'score', String(r.score)), el('span', 'date', r.date));
+          list.append(li);
+        }
+        col.append(list);
+        cols.append(col);
       }
-      panel.append(list);
+      panel.append(cols);
     }
     if (m.nameBox !== undefined) panel.append(el('div', 'name-box', m.nameBox));
     if (m.savedNames) {

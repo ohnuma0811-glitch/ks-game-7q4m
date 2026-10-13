@@ -1,4 +1,13 @@
-import { MAX_NAME, DIFFICULTY_IDS } from './flow.js?v=403b53b';
+import { MAX_NAME, DIFFICULTY_IDS } from './flow.js?v=248de58';
+
+// ランキングの画面に出す順位（レベルごと）
+export const RANK_SHOWN = 5;
+
+// ホーム画面への追加のしかた（ブラウザの追加の画面を出せない端末）
+const INSTALL_HELP = {
+  ios: '画面の 下（iPad は 上）の 共有ボタン（□に↑）→「ホーム画面に追加」',
+  android: '右上の「︙」→「ホーム画面に追加」（または「アプリをインストール」）',
+};
 
 // 画面ごとの見出しとボタン（DOM に依存しない。ui.js が HTML にする）
 export const GAME_TITLE = 'KyugoとSokiの大冒険';
@@ -9,6 +18,24 @@ const DIFFICULTY_LABELS = { easy: 'Level 1', normal: 'Level 2', hard: 'Level 3' 
 
 export function screenModel(flow) {
   switch (flow.screen) {
+    case 'install':
+      return {
+        id: 'install',
+        heading: 'ホーム画面に ついかしますか？',
+        text: 'アプリのように ぜんがめんで あそべます',
+        buttons: [
+          { label: 'ついかする', act: 'installYes', primary: true },
+          { label: 'あとで', act: 'installLater' },
+          { label: 'もう きかない', act: 'installNever' },
+        ],
+      };
+    case 'installHelp':
+      return {
+        id: 'installHelp',
+        heading: 'ホーム画面に ついかする',
+        text: INSTALL_HELP[flow.install && flow.install.platform] || INSTALL_HELP.android,
+        buttons: [{ label: 'わかった', act: 'installDone', primary: true }],
+      };
     case 'title':
       // 2人のゲームだとわかるよう、左に Kyugo・右に Soki を大きく出す
       return { id: 'title', heading: GAME_TITLE, heroes: ['kyugo', 'soki'], buttons: [{ label: 'スタート', act: 'start', primary: true }, { label: 'ランキング', act: 'openRanking' }] };
@@ -86,7 +113,8 @@ export function screenModel(flow) {
         guard: true,
         heading: r.type === 'clear' ? 'ALL CLEAR!' : 'GAME OVER',
         text: `SCORE ${r.score}  COIN ${r.coins}`,
-        rankText: r.rank > 0 ? `ランクイン！ ${r.rank}位` : undefined,
+        // ランキングの画面に出る5位までのとき
+        rankText: r.rank > 0 && r.rank <= RANK_SHOWN ? `ランクイン！ ${r.rank}位` : undefined,
         buttons: [
           { label: 'ランキング', act: 'openResultRanking' },
           { label: 'もう一度やる', act: 'retry' },
@@ -158,21 +186,21 @@ function rankingModel(flow) {
       ],
     };
   }
-  const level = flow.rankingLevel;
-  const hl = flow.highlight && flow.highlight.level === level ? flow.highlight.rank : 0;
-  const rows = flow.ranking[level].map((e, i) => ({
-    rank: i + 1, name: e.name, avatar: e.avatar, date: e.date, score: e.score, highlight: i + 1 === hl,
-  }));
+  // レベルを選ばず、1画面に3つのレベルを並べる（それぞれ上位5位まで）
+  const columns = DIFFICULTY_IDS.map((level) => {
+    const hl = flow.highlight && flow.highlight.level === level ? flow.highlight.rank : 0;
+    const rows = flow.ranking[level].slice(0, RANK_SHOWN).map((e, i) => ({
+      rank: i + 1, name: e.name, avatar: e.avatar, date: e.date, score: e.score, highlight: i + 1 === hl,
+    }));
+    return { label: DIFFICULTY_LABELS[level], rows, empty: rows.length === 0 ? 'まだ ありません' : undefined };
+  });
   const buttons = [{ label: 'もどる', act: 'back' }];
-  // リセットは大人向け。3秒押し続けたときだけ
-  // みんなのランキングは、ゲームからは消せない（消すときはスプレッドシートで）
+  // リセットは大人向け。3秒押し続けたときだけ。みんなのランキングは、ゲームからは消せない（消すときはスプレッドシートで）
   if (flow.rankingAvailable && !flow.shared) buttons.push({ label: 'リセット（ながおし）', act: 'askReset', longPress: true });
   return {
     id: 'ranking',
     heading: 'ランキング',
-    tabs: DIFFICULTY_IDS.map((d) => ({ label: DIFFICULTY_LABELS[d], act: 'showRanking', arg: d, selected: d === level })),
-    rows,
-    empty: rows.length === 0 ? 'まだ きろくが ありません' : undefined,
+    columns,
     notice: rankingNotice(flow),
     buttons,
   };
@@ -184,6 +212,7 @@ const ACTIONS = new Set([
   'openRanking', 'openResultRanking', 'showRanking', 'askReset', 'confirmReset', 'cancelReset',
   'endingDone',
   'chooseAvatar', 'chooseDifficulty', 'resume', 'quitToTitle', 'finish', 'retry',
+  'installYes', 'installLater', 'installNever', 'installDone',
 ]);
 
 export function dispatch(flow, act, arg) {

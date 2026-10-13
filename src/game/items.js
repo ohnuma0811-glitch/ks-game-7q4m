@@ -1,4 +1,4 @@
-import { TILE } from './level.js?v=403b53b';
+import { TILE } from './level.js?v=248de58';
 
 // ？ブロックから飛び出すコインの演出時間（更新数）
 export const POP_COIN_TICKS = 24;
