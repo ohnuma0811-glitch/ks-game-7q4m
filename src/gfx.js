@@ -1,7 +1,7 @@
-import { AVATARS, TILES, TILE_PALETTE, parseSprite } from './data/sprites.js?v=248de58';
-import { ENEMIES, ITEMS, BLOCKS, BOSS_SPRITES, FIREBALL } from './data/objects.js?v=248de58';
-import { BACKDROP_SPRITES } from './data/backdrop.js?v=248de58';
-import { THEMES } from './data/themes.js?v=248de58';
+import { AVATARS, TILES, TILE_PALETTE, parseSprite } from './data/sprites.js?v=78b1ed6';
+import { ENEMIES, ITEMS, BLOCKS, BOSS_SPRITES, FIREBALL } from './data/objects.js?v=78b1ed6';
+import { BACKDROP_SPRITES } from './data/backdrop.js?v=78b1ed6';
+import { THEMES } from './data/themes.js?v=78b1ed6';
 
 // ドット絵を小さな Canvas に描いておき、毎フレーム drawImage で使い回す
 function toCanvas(sprite, flip) {

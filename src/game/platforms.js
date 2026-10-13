@@ -1,4 +1,4 @@
-import { TILE } from './level.js?v=248de58';
+import { TILE } from './level.js?v=78b1ed6';
 
 // 上下に動く足場（空とお城のステージ）。横3タイル。上から乗れて、下からはすり抜ける
 export const PLATFORM_TOP = 104;

@@ -1,18 +1,18 @@
-import { computeViewport, isPortrait } from './screen.js?v=248de58';
-import { startLoop } from './loop.js?v=248de58';
-import { Input, attachInput, computeButtonLayout } from './input.js?v=248de58';
-import { buildGraphics } from './gfx.js?v=248de58';
-import { Game } from './game/game.js?v=248de58';
-import { renderGame } from './render.js?v=248de58';
-import { STAGES } from './data/stages.js?v=248de58';
-import { Flow } from './flow.js?v=248de58';
-import { createUI } from './ui.js?v=248de58';
-import { loadNames, saveNames } from './names.js?v=248de58';
-import { loadRanking, saveRanking, storageWorks } from './ranking.js?v=248de58';
-import { Sound } from './audio.js?v=248de58';
-import { musicFor } from './musicstate.js?v=248de58';
-import { SharedRanking } from './shared.js?v=248de58';
-import { RANKING_URL } from './config.js?v=248de58';
+import { computeViewport, isPortrait } from './screen.js?v=78b1ed6';
+import { startLoop } from './loop.js?v=78b1ed6';
+import { Input, attachInput, computeButtonLayout } from './input.js?v=78b1ed6';
+import { buildGraphics } from './gfx.js?v=78b1ed6';
+import { Game } from './game/game.js?v=78b1ed6';
+import { renderGame } from './render.js?v=78b1ed6';
+import { STAGES } from './data/stages.js?v=78b1ed6';
+import { Flow } from './flow.js?v=78b1ed6';
+import { createUI } from './ui.js?v=78b1ed6';
+import { loadNames, saveNames } from './names.js?v=78b1ed6';
+import { loadRanking, saveRanking, storageWorks } from './ranking.js?v=78b1ed6';
+import { Sound } from './audio.js?v=78b1ed6';
+import { musicFor } from './musicstate.js?v=78b1ed6';
+import { SharedRanking } from './shared.js?v=78b1ed6';
+import { RANKING_URL } from './config.js?v=78b1ed6';
 
 // 「STAGE 1」を見せる時間（更新数）
 const INTRO_TICKS = 90;
@@ -62,7 +62,6 @@ function makeId() {
 const shared = new SharedRanking({ url: RANKING_URL, fetch: (url, opt) => fetch(url, opt), storage, makeId });
 if (shared.enabled) shared.migrate(loadRanking(storage));
 // ホーム画面への追加: ホーム画面から開いていない Android・iPhone・iPad のときだけ、タイトルの前に聞く
-const NO_INSTALL_KEY = 'kyugo-soki.noInstall';
 let installPrompt = null;
 window.addEventListener('beforeinstallprompt', (e) => {
   // Chrome が勝手に出す案内の代わりに、ゲームの画面で聞く
@@ -76,13 +75,7 @@ function installOptions() {
   const standalone = matchMedia('(display-mode: standalone)').matches
     || matchMedia('(display-mode: fullscreen)').matches
     || navigator.standalone === true;
-  let never = false;
-  try {
-    never = storage && storage.getItem(NO_INSTALL_KEY) === '1';
-  } catch {
-    never = false;
-  }
-  if (!(ios || android) || standalone || never) return null;
+  if (!(ios || android) || standalone) return null;
   return {
     platform: ios ? 'ios' : 'android',
     // Android の Chrome は、ボタンを押したときにブラウザの追加の画面を出せる
@@ -91,13 +84,6 @@ function installOptions() {
       installPrompt.prompt();
       installPrompt = null;
       return true;
-    },
-    never() {
-      try {
-        storage.setItem(NO_INSTALL_KEY, '1');
-      } catch {
-        // 覚えられない端末では、次もまた聞く
-      }
     },
   };
 }

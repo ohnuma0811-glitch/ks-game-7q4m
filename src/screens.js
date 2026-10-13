@@ -1,4 +1,4 @@
-import { MAX_NAME, DIFFICULTY_IDS } from './flow.js?v=248de58';
+import { MAX_NAME, DIFFICULTY_IDS } from './flow.js?v=78b1ed6';
 
 // ランキングの画面に出す順位（レベルごと）
 export const RANK_SHOWN = 5;
@@ -26,7 +26,6 @@ export function screenModel(flow) {
         buttons: [
           { label: 'ついかする', act: 'installYes', primary: true },
           { label: 'あとで', act: 'installLater' },
-          { label: 'もう きかない', act: 'installNever' },
         ],
       };
     case 'installHelp':
@@ -212,7 +211,7 @@ const ACTIONS = new Set([
   'openRanking', 'openResultRanking', 'showRanking', 'askReset', 'confirmReset', 'cancelReset',
   'endingDone',
   'chooseAvatar', 'chooseDifficulty', 'resume', 'quitToTitle', 'finish', 'retry',
-  'installYes', 'installLater', 'installNever', 'installDone',
+  'installYes', 'installLater', 'installDone',
 ]);
 
 export function dispatch(flow, act, arg) {

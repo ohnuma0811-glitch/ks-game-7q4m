@@ -1,5 +1,5 @@
-import { addName, removeName } from './names.js?v=248de58';
-import { emptyRanking, insertScore, formatDate } from './ranking.js?v=248de58';
+import { addName, removeName } from './names.js?v=78b1ed6';
+import { emptyRanking, insertScore, formatDate } from './ranking.js?v=78b1ed6';
 
 // 画面の流れ（タイトル → だれが遊ぶ／名前 → キャラ → むずかしさ → ステージ → 結果）。DOM に依存しない
 export const MAX_NAME = 8;
@@ -20,8 +20,8 @@ export class Flow {
     shared = false,
     makeId = () => '',
     onRecord = () => {},
-    // ホーム画面から開いていない Android・iPhone のとき: { platform, prompt, never }。
-    // prompt() はブラウザの追加の画面を出せたら true、never() は「もう きかない」を覚える
+    // ホーム画面から開いていない Android・iPhone のとき: { platform, prompt }。
+    // prompt() はブラウザの追加の画面を出せたら true
     install = null,
     now = () => new Date(),
     startStage = 0,
@@ -70,12 +70,6 @@ export class Flow {
 
   installLater() {
     if (this.screen === 'install') this.screen = 'title';
-  }
-
-  installNever() {
-    if (this.screen !== 'install') return;
-    this.install.never();
-    this.screen = 'title';
   }
 
   installDone() {
