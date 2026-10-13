@@ -1,8 +1,8 @@
-import { TILE } from './game/level.js?v=abf9352';
-import { cameraY } from './game/camera.js?v=abf9352';
-import { BACKDROPS, BACKDROP_SPRITES, layerPositions } from './data/backdrop.js?v=abf9352';
-import { getTheme } from './data/themes.js?v=abf9352';
-import { BOSS_HP } from './game/boss.js?v=abf9352';
+import { TILE } from './game/level.js?v=03eb467';
+import { cameraY } from './game/camera.js?v=03eb467';
+import { BACKDROPS, BACKDROP_SPRITES, layerPositions } from './data/backdrop.js?v=03eb467';
+import { getTheme } from './data/themes.js?v=03eb467';
+import { BOSS_HP } from './game/boss.js?v=03eb467';
 
 const TILE_KEYS = [null, 'G', 'B', 'Q', 'U', 'C', 'L', 'X'];
 
@@ -42,6 +42,12 @@ export function renderGame(ctx, game, gfx, viewW, viewH, tick, { hud = true, pla
       const img = tiles[TILE_KEYS[level.tiles[ty * level.width + tx]]];
       if (img) ctx.drawImage(img, tx * TILE - camX, ty * TILE - camY);
     }
+  }
+
+  // 上下に動く足場（空は雲、それ以外はレンガの見た目）
+  const platImg = tiles[game.theme === 'sky' ? 'C' : 'B'];
+  for (const p of game.platforms || []) {
+    for (let i = 0; i < p.w / TILE; i++) ctx.drawImage(platImg, sx(p.x + i * TILE), sy(p.y));
   }
 
   // ゴールとチェックポイント

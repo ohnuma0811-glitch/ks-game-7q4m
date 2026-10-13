@@ -1,5 +1,11 @@
-import { TILE, isSolid } from './level.js?v=abf9352';
-import { moveAndCollide } from './physics.js?v=abf9352';
+import { TILE, isSolid } from './level.js?v=03eb467';
+import { moveAndCollide } from './physics.js?v=03eb467';
+import { platformUnder } from './platforms.js?v=03eb467';
+
+// x の位置の足元（footY）に、地面か動く足場があるか
+function groundAt(level, x, footY) {
+  return isSolid(level, Math.floor(x / TILE), Math.floor(footY / TILE)) || Boolean(platformUnder(level, x, footY));
+}
 
 // 敵の文字と種類
 const KIND = { w: 'walker', W: 'walker', x: 'walker', j: 'jumper', J: 'jumper', y: 'jumper', S: 'spike' };
@@ -59,8 +65,7 @@ export function updateEnemy(e, level, player) {
     // 足場の端で引き返す（自分から穴に落ちない）
     if (e.onGround) {
       const aheadX = e.dir > 0 ? e.x + e.w + 1 : e.x - 1;
-      const below = Math.floor((e.y + e.h + 1) / TILE);
-      if (!isSolid(level, Math.floor(aheadX / TILE), below)) {
+      if (!groundAt(level, aheadX, e.y + e.h + 1)) {
         e.dir = -e.dir;
         e.vx = e.dir * speed;
       }
@@ -75,8 +80,7 @@ export function updateEnemy(e, level, player) {
       e.vx = e.dir * HOP_VX * e.speed;
       // 着地する所に地面がなければ、その場で跳ねる（自分から穴に落ちない）
       const landX = e.x + e.w / 2 + e.vx * HOP_AIR_TICKS;
-      const below = Math.floor((e.y + e.h + 1) / TILE);
-      if (!isSolid(level, Math.floor(landX / TILE), below)) e.vx = 0;
+      if (!groundAt(level, landX, e.y + e.h + 1)) e.vx = 0;
     }
   }
 
@@ -84,6 +88,8 @@ export function updateEnemy(e, level, player) {
   const vxBefore = e.vx;
   const r = moveAndCollide(e, level);
   e.onGround = r.onGround;
+  // 乗っている動く足場（次の更新で一緒に動かす）
+  e.ride = r.platform;
   if (r.hitWall) e.dir = vxBefore > 0 ? -1 : 1;
   if (e.y > level.height * TILE + 32) e.removed = true;
 }

@@ -1,10 +1,10 @@
-import { TILE, isSolid } from './level.js?v=abf9352';
+import { TILE, isSolid } from './level.js?v=03eb467';
 
 // 端のぴったり上は隣のタイルに入らないよう、少しだけ内側で判定する
 const EPS = 0.001;
 
 export function moveAndCollide(body, level) {
-  const r = { onGround: false, hitCeiling: false, hitWall: false, ceil: null };
+  const r = { onGround: false, hitCeiling: false, hitWall: false, ceil: null, platform: null };
 
   // 横に動かして押し戻す
   body.x += body.vx;
@@ -25,6 +25,8 @@ export function moveAndCollide(body, level) {
   }
 
   // 縦に動かして押し戻す
+  const vy = body.vy;
+  const prevBottom = body.y + body.h;
   body.y += body.vy;
   if (body.vy !== 0) {
     const left = Math.floor(body.x / TILE);
@@ -52,6 +54,21 @@ export function moveAndCollide(body, level) {
         r.ceil = { tx: hitTx, ty };
       }
       body.vy = 0;
+    }
+  }
+  // 動く足場: 落ちてきて上面をまたいだら乗る（下からはすり抜ける）
+  if (vy > 0 && !r.onGround && level.platforms) {
+    for (const p of level.platforms) {
+      const top = p.y;
+      const prevTop = p.prevY ?? p.y;
+      if (body.x + body.w <= p.x || body.x >= p.x + p.w) continue;
+      if (prevBottom <= Math.max(prevTop, top) + 0.5 && body.y + body.h >= top) {
+        body.y = top - body.h;
+        body.vy = 0;
+        r.onGround = true;
+        r.platform = p;
+        break;
+      }
     }
   }
   return r;

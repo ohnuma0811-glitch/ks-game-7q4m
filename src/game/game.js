@@ -1,11 +1,12 @@
-import { parseLevel, tileAt, setTile, TILE, QUESTION, USED, LAVA, GATE, EMPTY } from './level.js?v=abf9352';
-import { moveAndCollide } from './physics.js?v=abf9352';
-import { createBoss, updateBoss, hitBoss, canStomp, HURT_TICKS } from './boss.js?v=abf9352';
-import { Player, spawnPoint } from './player.js?v=abf9352';
-import { cameraX } from './camera.js?v=abf9352';
-import { createEnemy, updateEnemy } from './enemies.js?v=abf9352';
-import { createCoin, popCoin, popItem, updateItem, itemBox, collectible } from './items.js?v=abf9352';
-import { getDifficulty } from './difficulty.js?v=abf9352';
+import { parseLevel, tileAt, setTile, TILE, QUESTION, USED, LAVA, GATE, EMPTY } from './level.js?v=03eb467';
+import { moveAndCollide } from './physics.js?v=03eb467';
+import { createBoss, updateBoss, hitBoss, canStomp, HURT_TICKS } from './boss.js?v=03eb467';
+import { createPlatform, updatePlatform } from './platforms.js?v=03eb467';
+import { Player, spawnPoint } from './player.js?v=03eb467';
+import { cameraX } from './camera.js?v=03eb467';
+import { createEnemy, updateEnemy } from './enemies.js?v=03eb467';
+import { createCoin, popCoin, popItem, updateItem, itemBox, collectible } from './items.js?v=03eb467';
+import { getDifficulty } from './difficulty.js?v=03eb467';
 
 export const LIVES = 3;
 export const START_TIME = 200;
@@ -75,6 +76,9 @@ export class Game {
     this.checkpoints = [];
     this.goalX = Infinity;
     this.boss = null;
+    // 上下に動く足場（当たり判定から見えるよう level にも持たせる）
+    this.platforms = [];
+    this.level.platforms = this.platforms;
     for (const e of this.level.entities) {
       if (e.ch === 'c') {
         if (!this.takenCoins.has(`${e.tx},${e.ty}`)) this.items.push(createCoin(e.tx, e.ty));
@@ -86,6 +90,17 @@ export class Game {
           enabled: this.diff.checkpoints.includes(e.ch),
           passed: this.passed.has(e.tx),
         });
+      } else if (e.ch === 'M' || e.ch === 'N') {
+        const p = createPlatform(e.tx, e.ty, this.platforms.length);
+        this.platforms.push(p);
+        // 2つ目の足場: Level 2 はクリボー、Level 3 はカエル
+        const rider = e.ch === 'N' ? { normal: 'W', hard: 'y' }[this.difficulty] : null;
+        if (rider) {
+          const enemy = createEnemy(rider, e.tx + 1, e.ty, this.diff);
+          enemy.y = p.y - enemy.h;
+          enemy.ride = p;
+          this.enemies.push(enemy);
+        }
       } else if (e.ch === 'K') {
         this.boss = createBoss(e.tx, e.ty, this.diff);
       } else if (e.ch === 'F' || e.ch === '|') {
@@ -134,6 +149,7 @@ export class Game {
     }
 
     const p = this.player;
+    this.updatePlatforms();
     p.update(input, this.level);
     if (p.jumped) this.events.push('jump');
     if (p.lastHit.ceil) this.hitBlock(p.lastHit.ceil.tx, p.lastHit.ceil.ty);
@@ -168,6 +184,15 @@ export class Game {
     }
     this.loadStage();
     this.respawn();
+  }
+
+  // 動く足場を動かし、乗っているプレイヤーと敵も一緒に動かす
+  updatePlatforms() {
+    for (const pl of this.platforms) {
+      updatePlatform(pl);
+      if (this.player.lastHit.platform === pl) this.player.y += pl.dy;
+      for (const e of this.enemies) if (e.ride === pl && !e.dead && !e.removed) e.y += pl.dy;
+    }
   }
 
   // プレイヤーの体が溶岩のマスに重なっているか
