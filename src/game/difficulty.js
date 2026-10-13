@@ -10,6 +10,8 @@ export const DIFFICULTIES = {
     bossWalk: 150,
     bossFire: 0,
     bossRandom: false,
+    // 穴と溶岩をふさぐ（Level 1）
+    noPits: true,
   },
   normal: {
     label: 'LEVEL 2',

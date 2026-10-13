@@ -1,18 +1,18 @@
-import { computeViewport, isPortrait } from './screen.js?v=780bb26';
-import { startLoop } from './loop.js?v=780bb26';
-import { Input, attachInput, computeButtonLayout } from './input.js?v=780bb26';
-import { buildGraphics } from './gfx.js?v=780bb26';
-import { Game } from './game/game.js?v=780bb26';
-import { renderGame } from './render.js?v=780bb26';
-import { STAGES } from './data/stages.js?v=780bb26';
-import { Flow } from './flow.js?v=780bb26';
-import { createUI } from './ui.js?v=780bb26';
-import { loadNames, saveNames } from './names.js?v=780bb26';
-import { loadRanking, saveRanking, storageWorks } from './ranking.js?v=780bb26';
-import { Sound } from './audio.js?v=780bb26';
-import { musicFor } from './musicstate.js?v=780bb26';
-import { SharedRanking } from './shared.js?v=780bb26';
-import { RANKING_URL } from './config.js?v=780bb26';
+import { computeViewport, isPortrait } from './screen.js?v=f580f5c';
+import { startLoop } from './loop.js?v=f580f5c';
+import { Input, attachInput, computeButtonLayout } from './input.js?v=f580f5c';
+import { buildGraphics } from './gfx.js?v=f580f5c';
+import { Game } from './game/game.js?v=f580f5c';
+import { renderGame } from './render.js?v=f580f5c';
+import { STAGES } from './data/stages.js?v=f580f5c';
+import { Flow } from './flow.js?v=f580f5c';
+import { createUI } from './ui.js?v=f580f5c';
+import { loadNames, saveNames } from './names.js?v=f580f5c';
+import { loadRanking, saveRanking, storageWorks } from './ranking.js?v=f580f5c';
+import { Sound } from './audio.js?v=f580f5c';
+import { musicFor } from './musicstate.js?v=f580f5c';
+import { SharedRanking } from './shared.js?v=f580f5c';
+import { RANKING_URL } from './config.js?v=f580f5c';
 
 // 「STAGE 1」を見せる時間（更新数）
 const INTRO_TICKS = 90;

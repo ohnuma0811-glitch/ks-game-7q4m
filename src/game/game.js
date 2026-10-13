@@ -1,12 +1,12 @@
-import { parseLevel, tileAt, setTile, isSolid, TILE, QUESTION, USED, LAVA, GATE, EMPTY } from './level.js?v=780bb26';
-import { moveAndCollide } from './physics.js?v=780bb26';
-import { createBoss, updateBoss, hitBoss, canStomp, HURT_TICKS } from './boss.js?v=780bb26';
-import { createPlatform, createCloud, updatePlatform, PLATFORM_BOTTOM, LAVA_DIP_BOTTOM } from './platforms.js?v=780bb26';
-import { Player, spawnPoint } from './player.js?v=780bb26';
-import { cameraX } from './camera.js?v=780bb26';
-import { createEnemy, updateEnemy } from './enemies.js?v=780bb26';
-import { createCoin, popCoin, popItem, updateItem, itemBox, collectible } from './items.js?v=780bb26';
-import { getDifficulty } from './difficulty.js?v=780bb26';
+import { parseLevel, tileAt, setTile, isSolid, TILE, QUESTION, USED, LAVA, GATE, EMPTY, GROUND } from './level.js?v=f580f5c';
+import { moveAndCollide } from './physics.js?v=f580f5c';
+import { createBoss, updateBoss, hitBoss, canStomp, HURT_TICKS } from './boss.js?v=f580f5c';
+import { createPlatform, createCloud, updatePlatform, PLATFORM_BOTTOM, LAVA_DIP_BOTTOM } from './platforms.js?v=f580f5c';
+import { Player, spawnPoint } from './player.js?v=f580f5c';
+import { cameraX } from './camera.js?v=f580f5c';
+import { createEnemy, updateEnemy } from './enemies.js?v=f580f5c';
+import { createCoin, popCoin, popItem, updateItem, itemBox, collectible } from './items.js?v=f580f5c';
+import { getDifficulty } from './difficulty.js?v=f580f5c';
 
 export const LIVES = 3;
 export const START_TIME = 200;
@@ -104,6 +104,8 @@ export class Game {
   loadStage() {
     this.level = parseLevel(this.lines);
     for (const i of this.usedBlocks) this.level.tiles[i] = USED;
+    // Level 1 は穴がない
+    if (this.diff.noPits) this.fillPits();
     this.enemies = [];
     this.items = [];
     this.checkpoints = [];
@@ -128,7 +130,7 @@ export class Game {
         });
       } else if (e.ch === 'M' || e.ch === 'N') {
         // お城では溶岩に少し沈む
-        const p = createPlatform(e.tx, e.ty, this.platforms.length, this.theme === 'castle' ? LAVA_DIP_BOTTOM : PLATFORM_BOTTOM);
+        const p = createPlatform(e.tx, e.ty, this.platforms.length, this.theme === 'castle' && !this.diff.noPits ? LAVA_DIP_BOTTOM : PLATFORM_BOTTOM);
         this.platforms.push(p);
         // 2つ目の足場: Level 2 はクリボー、Level 3 はカエル
         // （ステージ3 の空では、Level 3 のカエルは赤いカエル）
@@ -157,6 +159,39 @@ export class Game {
         const enemy = createEnemy(e.ch, e.tx, e.ty, this.diff);
         if (enemy) this.enemies.push(enemy);
       }
+    }
+  }
+
+  // Level 1: 穴と溶岩を、となりと同じ地面でふさぐ。動く足場の区間は一番下の段だけ（1段低い地面。落ちても平気）
+  fillPits() {
+    const l = this.level;
+    const bottom = l.height - 1;
+    const platCols = new Set();
+    for (const e of l.entities) {
+      if (e.ch === 'M' || e.ch === 'N') for (let k = 0; k < 3; k++) platCols.add(e.tx + k);
+      if (e.ch === 'V') platCols.add(e.tx);
+    }
+    const isHole = (x) => !isSolid(l, x, bottom) || tileAt(l, x, bottom) === LAVA;
+    let x = 0;
+    while (x < l.width) {
+      if (!isHole(x)) {
+        x++;
+        continue;
+      }
+      let end = x;
+      while (end < l.width && isHole(end)) end++;
+      const left = x > 0 ? tileAt(l, x - 1, bottom) : GROUND;
+      const tile = left === LAVA || left === EMPTY ? GROUND : left;
+      let underPlatform = false;
+      for (let k = x; k < end; k++) if (platCols.has(k)) underPlatform = true;
+      for (let k = x; k < end; k++) {
+        for (let ty = bottom - 1; ty <= bottom; ty++) {
+          if (tileAt(l, k, ty) === LAVA) setTile(l, k, ty, EMPTY);
+        }
+        setTile(l, k, bottom, tile);
+        if (!underPlatform) setTile(l, k, bottom - 1, tile);
+      }
+      x = end;
     }
   }
 
