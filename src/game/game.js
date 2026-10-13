@@ -1,12 +1,12 @@
-import { parseLevel, tileAt, setTile, isSolid, TILE, QUESTION, USED, LAVA, GATE, EMPTY } from './level.js?v=c186130';
-import { moveAndCollide } from './physics.js?v=c186130';
-import { createBoss, updateBoss, hitBoss, canStomp, HURT_TICKS } from './boss.js?v=c186130';
-import { createPlatform, createCloud, updatePlatform, PLATFORM_BOTTOM, LAVA_DIP_BOTTOM } from './platforms.js?v=c186130';
-import { Player, spawnPoint } from './player.js?v=c186130';
-import { cameraX } from './camera.js?v=c186130';
-import { createEnemy, updateEnemy } from './enemies.js?v=c186130';
-import { createCoin, popCoin, popItem, updateItem, itemBox, collectible } from './items.js?v=c186130';
-import { getDifficulty } from './difficulty.js?v=c186130';
+import { parseLevel, tileAt, setTile, isSolid, TILE, QUESTION, USED, LAVA, GATE, EMPTY } from './level.js?v=e8546c2';
+import { moveAndCollide } from './physics.js?v=e8546c2';
+import { createBoss, updateBoss, hitBoss, canStomp, HURT_TICKS } from './boss.js?v=e8546c2';
+import { createPlatform, createCloud, updatePlatform, PLATFORM_BOTTOM, LAVA_DIP_BOTTOM } from './platforms.js?v=e8546c2';
+import { Player, spawnPoint } from './player.js?v=e8546c2';
+import { cameraX } from './camera.js?v=e8546c2';
+import { createEnemy, updateEnemy } from './enemies.js?v=e8546c2';
+import { createCoin, popCoin, popItem, updateItem, itemBox, collectible } from './items.js?v=e8546c2';
+import { getDifficulty } from './difficulty.js?v=e8546c2';
 
 export const LIVES = 3;
 export const START_TIME = 200;
@@ -131,7 +131,8 @@ export class Game {
         const p = createPlatform(e.tx, e.ty, this.platforms.length, this.theme === 'castle' ? LAVA_DIP_BOTTOM : PLATFORM_BOTTOM);
         this.platforms.push(p);
         // 2つ目の足場: Level 2 はクリボー、Level 3 はカエル
-        const rider = e.ch === 'N' ? { normal: 'W', hard: 'y' }[this.difficulty] : null;
+        // （ステージ3 の空では、Level 3 のカエルは赤いカエル）
+        const rider = e.ch === 'N' ? { normal: 'W', hard: this.theme === 'sky' ? 'r' : 'y' }[this.difficulty] : null;
         if (rider) {
           const enemy = createEnemy(rider, e.tx + 1, e.ty, this.diff);
           enemy.y = p.y - enemy.h;

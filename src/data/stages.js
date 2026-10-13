@@ -46,9 +46,9 @@ export const STAGE_3 = [
   '                          ???                                   c c c c                                                                                     ?s?                                                  |       ',
   '                                         rw                                CCCCCC                          M    N    M                              CCCCC                                                        |       ',
   '                                   CCCCCCCC            CCCCCC                                                                     CCCCCC                              VVVVVV              VVVVV                  |       ',
-  '       P      w W              j                   Rz                 Wwr                wJzW       H                                           wr               Jjr                WS x                      J  |  z    ',
-  'CCCCCCCCCCCCCCCCCCCCC   CCCCCCCCC            CCCCCCCC          CCCCCCCCCC          CCCCCCCCCC  CCCCCCCCCC                 CCCCCC          CCCCCCCC         CCCCCCCCC          CCCCCCCCCC         CCCCCCCCCCCCCCCCCCCCCCCC',
-  'CCCCCCCCCCCCCCCCCCCCC   CCCCCCCCC            CCCCCCCC          CCCCCCCCCC          CCCCCCCCCC  CCCCCCCCCC                 CCCCCC          CCCCCCCC         CCCCCCCCC          CCCCCCCCCC         CCCCCCCCCCCCCCCCCCCCCCCC',
+  '       P      w W              j                   Rz                 Wwr                wJzW       H                                           wr               Jjr                WS x               zJ        |       ',
+  'CCCCCCCCCCCCCCCCCCCCC   CCCCCCCCC            CCCCCCCC          CCCCCCCCCC          CCCCCCCCCC  CCCCCCCCCC                 CCCCCC          CCCCCCCC         CCCCCCCCC          CCCCCCCCCC         CCCCCCCCC  CC  CCCCCCCCC',
+  'CCCCCCCCCCCCCCCCCCCCC   CCCCCCCCC            CCCCCCCC          CCCCCCCCCC          CCCCCCCCCC  CCCCCCCCCC                 CCCCCC          CCCCCCCC         CCCCCCCCC          CCCCCCCCCC         CCCCCCCCC  CC  CCCCCCCCC',
 ];
 
 export const STAGE_4 = [
