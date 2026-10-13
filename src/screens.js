@@ -1,8 +1,10 @@
-import { MAX_NAME, DIFFICULTY_IDS, RESET_PASSWORD } from './flow.js?v=28e5421';
-import { formatLeft } from './playtime.js?v=28e5421';
+import { MAX_NAME, DIFFICULTY_IDS, RESET_PASSWORD } from './flow.js?v=1e8581f';
+import { formatLeft } from './playtime.js?v=1e8581f';
 
 // ランキングの画面に出す順位（レベルごと）
 export const RANK_SHOWN = 5;
+// エンドロールが流れる時間（ミリ秒）
+export const CREDITS_MS = 24000;
 
 // ホーム画面への追加のしかた（ブラウザの追加の画面を出せない端末）
 const INSTALL_HELP = {
@@ -163,9 +165,11 @@ export function screenModel(flow) {
         text: 'You cleared all stages!',
         heroes: ['kyugo', 'soki'],
         credits: endingCredits(flow),
+        // つぎへ は、エンドロールが全部流れ終わってから押せる（流れ終わりの合図が来なくても、少し待てば押せる）
         guard: true,
-        // 連打でエンドロールを飛ばさないよう、つぎへ は3秒たってから
-        guardMs: 3000,
+        guardUntilCreditsEnd: true,
+        creditsMs: CREDITS_MS,
+        guardMs: CREDITS_MS + 2000,
         buttons: [{ label: 'つぎへ', act: 'endingDone', primary: true }],
       };
     default:

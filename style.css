@@ -303,6 +303,7 @@ html, body {
   overflow: hidden;
 }
 #menu .credits-roll {
+  /* 流れる時間は src/screens.js の CREDITS_MS（ui.js が上書きする） */
   animation: credits-roll 24s linear forwards;
 }
 #menu .credits-roll p {

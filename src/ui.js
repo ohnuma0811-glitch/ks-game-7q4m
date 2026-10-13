@@ -1,4 +1,4 @@
-import { screenModel, dispatch } from './screens.js?v=28e5421';
+import { screenModel, dispatch } from './screens.js?v=1e8581f';
 
 // screenModel を HTML のメニューにする。ボタンを押すと flow を進めて onAction を呼ぶ
 // guard つきのメニューは、出てからこの時間はボタンを押せない（ゲーム中の連打で押されないように）
@@ -84,6 +84,7 @@ export function createUI({ root, flow, gfx, onAction }) {
       // エンドロール: 下から上へ流れて、最後の「おとうさんより」で止まる
       const box = el('div', 'credits');
       const roll = el('div', 'credits-roll');
+      if (m.creditsMs) roll.style.animationDuration = `${m.creditsMs}ms`;
       for (const line of m.credits) roll.append(el('p', line ? '' : 'gap', line || ' '));
       box.append(roll);
       panel.append(box);
@@ -154,9 +155,14 @@ export function createUI({ root, flow, gfx, onAction }) {
     if (m.guard) {
       const buttons = [...root.querySelectorAll('button:not(:disabled)')];
       for (const b of buttons) b.disabled = true;
-      guardTimer = setTimeout(() => {
+      const release = () => {
+        clearTimeout(guardTimer);
         for (const b of buttons) b.disabled = false;
-      }, m.guardMs || GUARD_MS);
+      };
+      guardTimer = setTimeout(release, m.guardMs || GUARD_MS);
+      // エンドロールは、流れ終わったら押せるようにする
+      const roll = root.querySelector('.credits-roll');
+      if (m.guardUntilCreditsEnd && roll) roll.addEventListener('animationend', release, { once: true });
     }
   }
 
