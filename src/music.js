@@ -471,6 +471,8 @@ export const SFX = {
   star: { wave: 'square', steps: [{ freq: 784, dur: 0.05, gain: 0.15 }, { freq: 988, dur: 0.05, gain: 0.15 }, { freq: 1175, dur: 0.05, gain: 0.15 }, { freq: 1568, dur: 0.15, gain: 0.15 }] },
   miss: { wave: 'square', steps: [{ freq: 660, to: 330, dur: 0.25, gain: 0.18 }, { freq: 330, to: 110, dur: 0.45, gain: 0.18 }] },
   button: { wave: 'square', steps: [{ freq: 880, dur: 0.04, gain: 0.12 }] },
+  // 服が脱げた（「ポロン」と下がる）
+  shirt: { wave: 'square', steps: [{ freq: 988, to: 494, dur: 0.12, gain: 0.18 }, { freq: 659, to: 247, dur: 0.22, gain: 0.16 }] },
   // ミスしたときの、いじわるな笑い声（「ヒャーッ」と上がって「ハッハッハッ」と下がる。オリジナル）
   laugh: {
     wave: 'square',

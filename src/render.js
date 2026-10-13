@@ -1,9 +1,9 @@
-import { TILE } from './game/level.js?v=121cbb2';
-import { cameraY } from './game/camera.js?v=121cbb2';
-import { BACKDROPS, BACKDROP_SPRITES, layerPositions } from './data/backdrop.js?v=121cbb2';
-import { getTheme } from './data/themes.js?v=121cbb2';
-import { BOSS_HP } from './game/boss.js?v=121cbb2';
-import { starCountdown } from './game/game.js?v=121cbb2';
+import { TILE } from './game/level.js?v=1332750';
+import { cameraY } from './game/camera.js?v=1332750';
+import { BACKDROPS, BACKDROP_SPRITES, layerPositions } from './data/backdrop.js?v=1332750';
+import { getTheme } from './data/themes.js?v=1332750';
+import { BOSS_HP } from './game/boss.js?v=1332750';
+import { starCountdown } from './game/game.js?v=1332750';
 
 const TILE_KEYS = [null, 'G', 'B', 'Q', 'U', 'C', 'L', 'X'];
 
@@ -96,12 +96,13 @@ export function renderGame(ctx, game, gfx, viewW, viewH, tick, { hud = true, pla
     ctx.drawImage(img, sx(f.x), sy(f.y + (Math.floor(tick / 4) % 2)));
   }
 
-  // プレイヤー（スター中は点滅。スターの残り3秒は速く点滅）
+  // プレイヤー（スター中は点滅。スターの残り3秒は速く点滅。服が脱げた直後の当たらない間も点滅）
   // （ボスを踏んだあとの無敵は点滅させない）
   let blink = 0;
   if (player.star > 0) blink = player.star < 180 ? 2 : 4;
+  else if (player.hurt > 0) blink = 4;
   if (showPlayer && !(blink && Math.floor(tick / blink) % 2)) {
-    const frame = gfx.avatars[game.avatar][player.spriteName()];
+    const frame = (player.bare ? gfx.bareAvatars : gfx.avatars)[game.avatar][player.spriteName()];
     ctx.drawImage(player.facing < 0 ? frame.left : frame.right, sx(player.x - 2), sy(player.y - 2));
   }
 

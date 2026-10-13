@@ -1,5 +1,5 @@
-import { TILE } from './level.js?v=121cbb2';
-import { moveAndCollide } from './physics.js?v=121cbb2';
+import { TILE } from './level.js?v=1332750';
+import { moveAndCollide } from './physics.js?v=1332750';
 
 // 動きの数値（ドット/更新、更新は 1/60 秒）
 export const ACCEL = 0.06;
@@ -44,6 +44,9 @@ export class Player {
     // スターと無敵（ミス救済後）の残り更新数
     this.star = 0;
     this.invuln = 0;
+    // 服が脱げたか。脱げた直後の当たらない間（点滅する）
+    this.bare = false;
+    this.hurt = 0;
     this.lastHit = { onGround: false, hitCeiling: false, hitWall: false, ceil: null };
     // この更新で跳んだか（効果音用）
     this.jumped = false;
@@ -108,6 +111,7 @@ export class Player {
     if (this.y > level.height * TILE + 32) this.fell = true;
     if (this.star > 0) this.star--;
     if (this.invuln > 0) this.invuln--;
+    if (this.hurt > 0) this.hurt--;
   }
 
   spriteName() {

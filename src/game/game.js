@@ -1,12 +1,12 @@
-import { parseLevel, tileAt, setTile, isSolid, TILE, QUESTION, USED, LAVA, GATE, EMPTY } from './level.js?v=121cbb2';
-import { moveAndCollide } from './physics.js?v=121cbb2';
-import { createBoss, updateBoss, hitBoss, canStomp, HURT_TICKS } from './boss.js?v=121cbb2';
-import { createPlatform, createCloud, updatePlatform, PLATFORM_BOTTOM, LAVA_DIP_BOTTOM } from './platforms.js?v=121cbb2';
-import { Player, spawnPoint } from './player.js?v=121cbb2';
-import { cameraX } from './camera.js?v=121cbb2';
-import { createEnemy, updateEnemy } from './enemies.js?v=121cbb2';
-import { createCoin, popCoin, popItem, updateItem, itemBox, collectible } from './items.js?v=121cbb2';
-import { getDifficulty } from './difficulty.js?v=121cbb2';
+import { parseLevel, tileAt, setTile, isSolid, TILE, QUESTION, USED, LAVA, GATE, EMPTY } from './level.js?v=1332750';
+import { moveAndCollide } from './physics.js?v=1332750';
+import { createBoss, updateBoss, hitBoss, canStomp, HURT_TICKS } from './boss.js?v=1332750';
+import { createPlatform, createCloud, updatePlatform, PLATFORM_BOTTOM, LAVA_DIP_BOTTOM } from './platforms.js?v=1332750';
+import { Player, spawnPoint } from './player.js?v=1332750';
+import { cameraX } from './camera.js?v=1332750';
+import { createEnemy, updateEnemy } from './enemies.js?v=1332750';
+import { createCoin, popCoin, popItem, updateItem, itemBox, collectible } from './items.js?v=1332750';
+import { getDifficulty } from './difficulty.js?v=1332750';
 
 export const LIVES = 3;
 export const START_TIME = 200;
@@ -22,6 +22,10 @@ export const ENEMY_SCORE = 200;
 export const ENEMY_POINTS = { walker: ENEMY_SCORE, jumper: 300, spike: 400 };
 // 着地する前に続けて踏むと、点が 2倍・3倍になる（3倍まで）
 export const MAX_COMBO = 3;
+// 服を着ているときに敵に当たると、服が脱げて続けられる（点はマイナス、0より下にはならない）
+export const SHIRT_PENALTY = 1000;
+// 服が脱げたあと、敵に当たらない時間（2秒）
+export const HURT_INVULN = 120;
 // 足元からこのドット数より低い所で敵に触れたら、踏んだことにする（キャラの背は22）
 export const LOW_STOMP = 8;
 // ステージをクリアしたときの、残りライフ1つあたりの点数
@@ -158,6 +162,21 @@ export class Game {
     this.timeTicks = 0;
     this.state = 'playing';
     this.deathTimer = 0;
+  }
+
+  // 敵・ボス・火の玉に当たった。服を着ていれば脱げるだけ、裸ならミス（穴・溶岩・時間切れは miss() ですぐミス）
+  hurt() {
+    const p = this.player;
+    if (p.bare) {
+      this.miss();
+      return;
+    }
+    p.bare = true;
+    p.invuln = HURT_INVULN;
+    p.hurt = HURT_INVULN;
+    this.score = Math.max(0, this.score - SHIRT_PENALTY);
+    this.addPopup(-SHIRT_PENALTY, p.x + p.w / 2, p.y);
+    this.events.push('shirt');
   }
 
   miss() {
@@ -347,8 +366,8 @@ export class Game {
         continue;
       }
       if (p.invuln > 0) continue;
-      this.miss();
-      return;
+      this.hurt();
+      if (this.state !== 'playing') return;
     }
     if (stomped) {
       p.vy = input.jump ? STOMP_BOUNCE_HOLD : STOMP_BOUNCE;
@@ -396,7 +415,7 @@ export class Game {
       return;
     }
     if (p.invuln > 0) return;
-    this.miss();
+    this.hurt();
   }
 
   // 火の玉はまっすぐ進み、壁や扉に当たると消える。触れるとミス（スター中・無敵中は平気）
@@ -408,8 +427,9 @@ export class Game {
       const ty = Math.floor((f.y + f.h / 2) / TILE);
       if (isSolid(this.level, tx, ty)) f.gone = true;
       if (!f.gone && overlap(p, f) && p.star <= 0 && p.invuln <= 0) {
-        this.miss();
-        return;
+        f.gone = true;
+        this.hurt();
+        if (this.state !== 'playing') return;
       }
     }
     if (this.fireballs.some((f) => f.gone)) this.fireballs = this.fireballs.filter((f) => !f.gone);

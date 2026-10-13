@@ -124,9 +124,17 @@ function frames(top, legs) {
   return Object.fromEntries(Object.entries(legs).map(([k, v]) => [k, top.concat(v)]));
 }
 
+// 服が脱げた絵（シャツとシャツのマークを肌の色にする）
+function bare(fr, shirt) {
+  return Object.fromEntries(Object.entries(fr).map(([k, rows]) => [k, rows.map((r) => r.replaceAll(shirt, 'S').replaceAll('W', 'S'))]));
+}
+
+const KYUGO_FRAMES = frames(KYUGO_TOP, KYUGO_LEGS);
+const SOKI_FRAMES = frames(SOKI_TOP, SOKI_LEGS);
+
 export const AVATARS = {
-  kyugo: { palette: { ...CHAR_PALETTE, K: '#c11f0a' }, frames: frames(KYUGO_TOP, KYUGO_LEGS) },
-  soki: { palette: { ...CHAR_PALETTE, L: '#1c3c88' }, frames: frames(SOKI_TOP, SOKI_LEGS) },
+  kyugo: { palette: { ...CHAR_PALETTE, K: '#c11f0a' }, frames: KYUGO_FRAMES, bareFrames: bare(KYUGO_FRAMES, 'K') },
+  soki: { palette: { ...CHAR_PALETTE, L: '#1c3c88' }, frames: SOKI_FRAMES, bareFrames: bare(SOKI_FRAMES, 'L') },
 };
 
 export const TILE_PALETTE = { o: '#fc9838', b: '#c84c0c', d: '#000000' };

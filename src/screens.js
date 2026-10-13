@@ -1,4 +1,4 @@
-import { MAX_NAME, DIFFICULTY_IDS, RESET_PASSWORD } from './flow.js?v=121cbb2';
+import { MAX_NAME, DIFFICULTY_IDS, RESET_PASSWORD } from './flow.js?v=1332750';
 
 // ランキングの画面に出す順位（レベルごと）
 export const RANK_SHOWN = 5;

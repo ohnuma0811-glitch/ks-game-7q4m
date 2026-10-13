@@ -1,7 +1,7 @@
-import { AVATARS, TILES, TILE_PALETTE, parseSprite } from './data/sprites.js?v=121cbb2';
-import { ENEMIES, ITEMS, BLOCKS, BOSS_SPRITES, FIREBALL } from './data/objects.js?v=121cbb2';
-import { BACKDROP_SPRITES } from './data/backdrop.js?v=121cbb2';
-import { THEMES } from './data/themes.js?v=121cbb2';
+import { AVATARS, TILES, TILE_PALETTE, parseSprite } from './data/sprites.js?v=1332750';
+import { ENEMIES, ITEMS, BLOCKS, BOSS_SPRITES, FIREBALL } from './data/objects.js?v=1332750';
+import { BACKDROP_SPRITES } from './data/backdrop.js?v=1332750';
+import { THEMES } from './data/themes.js?v=1332750';
 
 // ドット絵を小さな Canvas に描いておき、毎フレーム drawImage で使い回す
 function toCanvas(sprite, flip) {
@@ -23,10 +23,14 @@ const both = (s) => ({ right: toCanvas(s, false), left: toCanvas(s, true) });
 
 export function buildGraphics() {
   const avatars = {};
+  // 服が脱げたときの絵
+  const bareAvatars = {};
   for (const [name, a] of Object.entries(AVATARS)) {
     avatars[name] = {};
+    bareAvatars[name] = {};
     for (const [frame, rows] of Object.entries(a.frames)) {
       avatars[name][frame] = both(parseSprite(rows, a.palette));
+      bareAvatars[name][frame] = both(parseSprite(a.bareFrames[frame], a.palette));
     }
   }
   // 地面とレンガはステージごとの色、？ブロックなどは共通
@@ -59,5 +63,5 @@ export function buildGraphics() {
     backdrop[key] = toCanvas(parseSprite(s.rows, s.palette), false);
   }
   const fireball = both(parseSprite(FIREBALL.rows, FIREBALL.palette));
-  return { avatars, tiles, enemies, sprites, backdrop, boss, fireball };
+  return { avatars, bareAvatars, tiles, enemies, sprites, backdrop, boss, fireball };
 }
