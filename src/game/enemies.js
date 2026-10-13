@@ -1,6 +1,6 @@
-import { TILE, isSolid } from './level.js?v=9ac93ed';
-import { moveAndCollide } from './physics.js?v=9ac93ed';
-import { platformUnder } from './platforms.js?v=9ac93ed';
+import { TILE, isSolid } from './level.js?v=010200a';
+import { moveAndCollide } from './physics.js?v=010200a';
+import { platformUnder } from './platforms.js?v=010200a';
 
 // x の位置の足元（footY）に、地面か動く足場があるか
 function groundAt(level, x, footY) {
@@ -8,7 +8,7 @@ function groundAt(level, x, footY) {
 }
 
 // 敵の文字と種類
-const KIND = { w: 'walker', W: 'walker', x: 'walker', j: 'jumper', J: 'jumper', y: 'jumper', S: 'spike' };
+const KIND = { w: 'walker', W: 'walker', x: 'walker', j: 'jumper', J: 'jumper', y: 'jumper', S: 'spike', z: 'spike' };
 
 const GRAVITY = 0.3;
 const MAX_FALL = 4;

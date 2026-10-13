@@ -22,7 +22,7 @@ export const DIFFICULTIES = {
     label: 'LEVEL 3',
     enemySpeed: 1.6,
     checkpoints: [],
-    enemyChars: ['w', 'W', 'x', 'j', 'J', 'y', 'S'],
+    enemyChars: ['w', 'W', 'x', 'j', 'J', 'y', 'S', 'z'],
     bossWalk: 70,
     bossFire: 1,
   },
