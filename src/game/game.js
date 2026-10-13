@@ -1,12 +1,12 @@
-import { parseLevel, tileAt, setTile, TILE, QUESTION, USED, LAVA, GATE, EMPTY } from './level.js?v=03eb467';
-import { moveAndCollide } from './physics.js?v=03eb467';
-import { createBoss, updateBoss, hitBoss, canStomp, HURT_TICKS } from './boss.js?v=03eb467';
-import { createPlatform, updatePlatform } from './platforms.js?v=03eb467';
-import { Player, spawnPoint } from './player.js?v=03eb467';
-import { cameraX } from './camera.js?v=03eb467';
-import { createEnemy, updateEnemy } from './enemies.js?v=03eb467';
-import { createCoin, popCoin, popItem, updateItem, itemBox, collectible } from './items.js?v=03eb467';
-import { getDifficulty } from './difficulty.js?v=03eb467';
+import { parseLevel, tileAt, setTile, TILE, QUESTION, USED, LAVA, GATE, EMPTY } from './level.js?v=c82e2a4';
+import { moveAndCollide } from './physics.js?v=c82e2a4';
+import { createBoss, updateBoss, hitBoss, canStomp, HURT_TICKS } from './boss.js?v=c82e2a4';
+import { createPlatform, updatePlatform } from './platforms.js?v=c82e2a4';
+import { Player, spawnPoint } from './player.js?v=c82e2a4';
+import { cameraX } from './camera.js?v=c82e2a4';
+import { createEnemy, updateEnemy } from './enemies.js?v=c82e2a4';
+import { createCoin, popCoin, popItem, updateItem, itemBox, collectible } from './items.js?v=c82e2a4';
+import { getDifficulty } from './difficulty.js?v=c82e2a4';
 
 export const LIVES = 3;
 export const START_TIME = 200;
@@ -34,6 +34,15 @@ export const POPUP_TICKS = 40;
 // ゴールで旗竿をすべり降りる速さ（ドット/更新）
 const SLIDE_SPEED = 2;
 const POPUP_RISE = 0.5;
+
+// 旗竿のどの高さにさわったか（0=一番下、1=一番上）で点が決まる
+export function goalPoints(ratio) {
+  if (ratio >= 0.8) return 5000;
+  if (ratio >= 0.6) return 2000;
+  if (ratio >= 0.4) return 800;
+  if (ratio >= 0.2) return 400;
+  return 100;
+}
 
 export function overlap(a, b) {
   return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
@@ -394,8 +403,15 @@ export class Game {
   clear() {
     this.state = 'clear';
     this.events.push('clear');
-    // 竿にくっついて、すべり降りる準備
     const p = this.player;
+    // さわった高さの点（敵を倒したときと同じように、その場所に数字を出す）
+    const poleTop = (this.flagRow || 0) * TILE;
+    const poleBottom = ((this.poleBottom || 0) + 1) * TILE;
+    const ratio = Math.min(1, Math.max(0, (poleBottom - (p.y + p.h)) / Math.max(1, poleBottom - poleTop)));
+    this.goalBonus = goalPoints(ratio);
+    this.score += this.goalBonus;
+    this.addPopup(this.goalBonus, this.goalX, p.y);
+    // 竿にくっついて、すべり降りる準備
     p.x = this.goalX - p.w;
     p.vx = 0;
     p.vy = 0;
