@@ -1,12 +1,12 @@
-import { parseLevel, tileAt, setTile, isSolid, TILE, QUESTION, USED, LAVA, GATE, EMPTY } from './level.js?v=2f88e93';
-import { moveAndCollide } from './physics.js?v=2f88e93';
-import { createBoss, updateBoss, hitBoss, canStomp, HURT_TICKS } from './boss.js?v=2f88e93';
-import { createPlatform, updatePlatform, PLATFORM_BOTTOM, LAVA_DIP_BOTTOM } from './platforms.js?v=2f88e93';
-import { Player, spawnPoint } from './player.js?v=2f88e93';
-import { cameraX } from './camera.js?v=2f88e93';
-import { createEnemy, updateEnemy } from './enemies.js?v=2f88e93';
-import { createCoin, popCoin, popItem, updateItem, itemBox, collectible } from './items.js?v=2f88e93';
-import { getDifficulty } from './difficulty.js?v=2f88e93';
+import { parseLevel, tileAt, setTile, isSolid, TILE, QUESTION, USED, LAVA, GATE, EMPTY } from './level.js?v=8325b43';
+import { moveAndCollide } from './physics.js?v=8325b43';
+import { createBoss, updateBoss, hitBoss, canStomp, HURT_TICKS } from './boss.js?v=8325b43';
+import { createPlatform, updatePlatform, PLATFORM_BOTTOM, LAVA_DIP_BOTTOM } from './platforms.js?v=8325b43';
+import { Player, spawnPoint } from './player.js?v=8325b43';
+import { cameraX } from './camera.js?v=8325b43';
+import { createEnemy, updateEnemy } from './enemies.js?v=8325b43';
+import { createCoin, popCoin, popItem, updateItem, itemBox, collectible } from './items.js?v=8325b43';
+import { getDifficulty } from './difficulty.js?v=8325b43';
 
 export const LIVES = 3;
 export const START_TIME = 200;
@@ -18,6 +18,8 @@ export const DRINK_BONUS = 1000;
 export const TIME_BONUS = 10;
 // 敵を倒したとき（踏む・スター）
 export const ENEMY_SCORE = 200;
+// 着地する前に続けて踏むと、点が 2倍・3倍になる（3倍まで）
+export const MAX_COMBO = 3;
 // ステージをクリアしたときの、残りライフ1つあたりの点数
 export const LIFE_BONUS = 1000;
 // ボスを1回踏む / 倒す
@@ -96,6 +98,7 @@ export class Game {
     this.goalX = Infinity;
     this.boss = null;
     this.fireballs = [];
+    this.combo = 0;
     // 上下に動く足場（当たり判定から見えるよう level にも持たせる）
     this.platforms = [];
     this.level.platforms = this.platforms;
@@ -173,6 +176,7 @@ export class Game {
     this.updatePlatforms();
     p.update(input, this.level);
     if (p.jumped) this.events.push('jump');
+    if (p.onGround) this.combo = 0;
     // スターがもうすぐ切れる合図（残り3・2・1秒）
     if (p.star === 180 || p.star === 120 || p.star === 60) this.events.push('starwarn');
     if (p.lastHit.ceil) this.hitBlock(p.lastHit.ceil.tx, p.lastHit.ceil.ty);
@@ -320,8 +324,10 @@ export class Game {
       if (e.stompable && falling && p.prevY + p.h <= e.y + 6) {
         e.squash = 30;
         stomped = true;
-        this.score += ENEMY_SCORE;
-        this.addPopup(ENEMY_SCORE, e.x + e.w / 2, e.y);
+        this.combo = Math.min(this.combo + 1, MAX_COMBO);
+        const pts = ENEMY_SCORE * this.combo;
+        this.score += pts;
+        this.addPopup(pts, e.x + e.w / 2, e.y);
         continue;
       }
       if (p.invuln > 0) continue;
@@ -330,7 +336,7 @@ export class Game {
     }
     if (stomped) {
       p.vy = input.jump ? STOMP_BOUNCE_HOLD : STOMP_BOUNCE;
-      this.events.push('stomp');
+      this.events.push(['stomp', 'stomp2', 'stomp3'][this.combo - 1]);
     }
   }
 

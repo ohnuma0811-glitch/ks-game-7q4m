@@ -235,6 +235,9 @@ export const SFX = {
   bump: { wave: 'triangle', steps: [{ freq: 160, to: 90, dur: 0.09, gain: 0.4 }] },
   item: { wave: 'square', steps: [{ freq: 392, dur: 0.06, gain: 0.15 }, { freq: 523, dur: 0.06, gain: 0.15 }, { freq: 659, dur: 0.06, gain: 0.15 }, { freq: 784, dur: 0.1, gain: 0.15 }] },
   stomp: { wave: 'square', steps: [{ freq: 520, to: 140, dur: 0.1, gain: 0.2 }] },
+  // 続けて踏んだときは高い音（2回目・3回目）
+  stomp2: { wave: 'square', steps: [{ freq: 780, to: 210, dur: 0.1, gain: 0.2 }] },
+  stomp3: { wave: 'square', steps: [{ freq: 1170, to: 315, dur: 0.1, gain: 0.2 }] },
   kill: { wave: 'square', steps: [{ freq: 700, to: 200, dur: 0.14, gain: 0.18 }] },
   drink: { wave: 'square', steps: [{ freq: 523, dur: 0.07, gain: 0.16 }, { freq: 659, dur: 0.07, gain: 0.16 }, { freq: 784, dur: 0.07, gain: 0.16 }, { freq: 1047, dur: 0.18, gain: 0.16 }] },
   star: { wave: 'square', steps: [{ freq: 784, dur: 0.05, gain: 0.15 }, { freq: 988, dur: 0.05, gain: 0.15 }, { freq: 1175, dur: 0.05, gain: 0.15 }, { freq: 1568, dur: 0.15, gain: 0.15 }] },
