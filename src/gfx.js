@@ -1,7 +1,7 @@
-import { AVATARS, TILES, TILE_PALETTE, parseSprite } from './data/sprites.js?v=f65b659';
-import { ENEMIES, ITEMS, BLOCKS, BOSS_SPRITES } from './data/objects.js?v=f65b659';
-import { BACKDROP_SPRITES } from './data/backdrop.js?v=f65b659';
-import { THEMES } from './data/themes.js?v=f65b659';
+import { AVATARS, TILES, TILE_PALETTE, parseSprite } from './data/sprites.js?v=7431a49';
+import { ENEMIES, ITEMS, BLOCKS, BOSS_SPRITES, FIREBALL } from './data/objects.js?v=7431a49';
+import { BACKDROP_SPRITES } from './data/backdrop.js?v=7431a49';
+import { THEMES } from './data/themes.js?v=7431a49';
 
 // ドット絵を小さな Canvas に描いておき、毎フレーム drawImage で使い回す
 function toCanvas(sprite, flip) {
@@ -58,5 +58,6 @@ export function buildGraphics() {
   for (const [key, s] of Object.entries(BACKDROP_SPRITES)) {
     backdrop[key] = toCanvas(parseSprite(s.rows, s.palette), false);
   }
-  return { avatars, tiles, enemies, sprites, backdrop, boss };
+  const fireball = both(parseSprite(FIREBALL.rows, FIREBALL.palette));
+  return { avatars, tiles, enemies, sprites, backdrop, boss, fireball };
 }

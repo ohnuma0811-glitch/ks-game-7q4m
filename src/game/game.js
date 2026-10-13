@@ -1,12 +1,12 @@
-import { parseLevel, tileAt, setTile, TILE, QUESTION, USED, LAVA, GATE, EMPTY } from './level.js?v=f65b659';
-import { moveAndCollide } from './physics.js?v=f65b659';
-import { createBoss, updateBoss, hitBoss, canStomp, HURT_TICKS } from './boss.js?v=f65b659';
-import { createPlatform, updatePlatform, PLATFORM_BOTTOM, LAVA_DIP_BOTTOM } from './platforms.js?v=f65b659';
-import { Player, spawnPoint } from './player.js?v=f65b659';
-import { cameraX } from './camera.js?v=f65b659';
-import { createEnemy, updateEnemy } from './enemies.js?v=f65b659';
-import { createCoin, popCoin, popItem, updateItem, itemBox, collectible } from './items.js?v=f65b659';
-import { getDifficulty } from './difficulty.js?v=f65b659';
+import { parseLevel, tileAt, setTile, isSolid, TILE, QUESTION, USED, LAVA, GATE, EMPTY } from './level.js?v=7431a49';
+import { moveAndCollide } from './physics.js?v=7431a49';
+import { createBoss, updateBoss, hitBoss, canStomp, HURT_TICKS } from './boss.js?v=7431a49';
+import { createPlatform, updatePlatform, PLATFORM_BOTTOM, LAVA_DIP_BOTTOM } from './platforms.js?v=7431a49';
+import { Player, spawnPoint } from './player.js?v=7431a49';
+import { cameraX } from './camera.js?v=7431a49';
+import { createEnemy, updateEnemy } from './enemies.js?v=7431a49';
+import { createCoin, popCoin, popItem, updateItem, itemBox, collectible } from './items.js?v=7431a49';
+import { getDifficulty } from './difficulty.js?v=7431a49';
 
 export const LIVES = 3;
 export const START_TIME = 200;
@@ -25,6 +25,10 @@ export const BOSS_HIT_SCORE = 1000;
 export const BOSS_DOWN_SCORE = 5000;
 // ボスを踏んだあとの無敵。ボスがひるんでいる間より長く（壁ぎわで重なったままミスにならないように）
 const BOSS_STOMP_INVULN = HURT_TICKS + 20;
+// ボスの火の玉（Level 3）の速さと大きさ
+const FIRE_SPEED = 2.2;
+const FIRE_W = 12;
+const FIRE_H = 8;
 export const STOMP_BOUNCE = -3.2;
 export const STOMP_BOUNCE_HOLD = -4.6;
 // クリア・ゲームオーバーの結果を見せる時間（この間はやり直しを受け付けない）
@@ -91,6 +95,7 @@ export class Game {
     this.checkpoints = [];
     this.goalX = Infinity;
     this.boss = null;
+    this.fireballs = [];
     // 上下に動く足場（当たり判定から見えるよう level にも持たせる）
     this.platforms = [];
     this.level.platforms = this.platforms;
@@ -339,7 +344,16 @@ export class Game {
       b.active = true;
       this.events.push('bossstart');
     }
-    if (updateBoss(b, this.level, p) === 'shell') this.events.push('bossshell');
+    const ev = updateBoss(b, this.level, p);
+    if (ev === 'shell') this.events.push('bossshell');
+    if (ev === 'fire') {
+      // 口の前から、向いている方へまっすぐ
+      const x = b.dir < 0 ? b.x - FIRE_W + 2 : b.x + b.w - 2;
+      this.fireballs.push({ x, y: b.y + 6, w: FIRE_W, h: FIRE_H, vx: b.dir * FIRE_SPEED });
+      this.events.push('bossfire');
+    }
+    this.updateFireballs();
+    if (this.state !== 'playing') return;
     if (b.defeated || !overlap(p, b)) return;
     // ひるんでいる間とスター中は、どちらも傷つかない
     if (b.state === 'hurt' || p.star > 0) return;
@@ -355,11 +369,28 @@ export class Game {
         this.addPopup(BOSS_DOWN_SCORE, b.x + b.w / 2, b.y - 10);
         this.events.push('bossdown');
         this.openGates();
+        this.fireballs = [];
       }
       return;
     }
     if (p.invuln > 0) return;
     this.miss();
+  }
+
+  // 火の玉はまっすぐ進み、壁や扉に当たると消える。触れるとミス（スター中・無敵中は平気）
+  updateFireballs() {
+    const p = this.player;
+    for (const f of this.fireballs) {
+      f.x += f.vx;
+      const tx = Math.floor((f.x + f.w / 2) / TILE);
+      const ty = Math.floor((f.y + f.h / 2) / TILE);
+      if (isSolid(this.level, tx, ty)) f.gone = true;
+      if (!f.gone && overlap(p, f) && p.star <= 0 && p.invuln <= 0) {
+        this.miss();
+        return;
+      }
+    }
+    if (this.fireballs.some((f) => f.gone)) this.fireballs = this.fireballs.filter((f) => !f.gone);
   }
 
   // ボスを倒したら、扉（X）を消す

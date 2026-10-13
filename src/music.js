@@ -245,6 +245,8 @@ export const SFX = {
   // ボスを踏んだ・ボスが甲羅に入った・ボスが倒れた
   bosshit: { wave: 'square', steps: [{ freq: 320, to: 120, dur: 0.12, gain: 0.22 }, { freq: 220, to: 70, dur: 0.14, gain: 0.22 }] },
   bossshell: { wave: 'triangle', steps: [{ freq: 240, to: 110, dur: 0.16, gain: 0.4 }] },
+  // ボスが火を吹く（ゴーッ）
+  bossfire: { wave: 'noise', steps: [{ freq: 0, dur: 0.12, gain: 0.35 }, { freq: 0, dur: 0.3, gain: 0.2 }] },
   bossdown: { wave: 'square', steps: [{ freq: 220, to: 55, dur: 0.45, gain: 0.2 }, { freq: 523, dur: 0.1, gain: 0.16 }, { freq: 659, dur: 0.1, gain: 0.16 }, { freq: 784, dur: 0.1, gain: 0.16 }, { freq: 1047, dur: 0.3, gain: 0.16 }] },
 };
 

@@ -311,16 +311,16 @@ export const BLOCKS = {
   },
 };
 
-// ステージ4のボス（トゲの甲羅の亀。左向き。32×32）。歩くときは2本足で立ち（上は頭なので踏める）、甲羅に入ると甲羅だけ
+// ステージ4のボス（トゲの甲羅の亀。耳つき。左向き。32×32）。歩くときは2本足で立ち（上は頭なので踏める）、甲羅に入ると甲羅だけ
 const BOSS_PAL = { s: '#8a4a12', S: '#4a2006', y: '#f0d060', Y: '#b08a20', w: '#ffffff', e: '#ffffff', g: '#3a9a3a', G: '#1e5a1e', k: '#000000' };
 
 export const BOSS_SPRITES = {
   walkA: {
     palette: BOSS_PAL,
     rows: [
-      '..........GGGG..................',
-      '........GGggggGG................',
-      '.......GggggggggG...............',
+      '......G...GGGG...G..............',
+      '.....GgGGGggggGGGgG.............',
+      '.....GggggggggggggG.............',
       '.......kkkggggggG...............',
       '......GgeegggggggG..............',
       '......GgkegggggggG..............',
@@ -355,9 +355,9 @@ export const BOSS_SPRITES = {
   walkB: {
     palette: BOSS_PAL,
     rows: [
-      '..........GGGG..................',
-      '........GGggggGG................',
-      '.......GggggggggG...............',
+      '......G...GGGG...G..............',
+      '.....GgGGGggggGGGgG.............',
+      '.....GggggggggggggG.............',
       '.......kkkggggggG...............',
       '......GgeegggggggG..............',
       '......GgkegggggggG..............',
@@ -427,4 +427,19 @@ export const BOSS_SPRITES = {
       '......yyyyyyyyyyyyyyyyyyyyyyyy..',
     ],
   },
+};
+
+// ボスの火の玉（Level 3）。12×8
+export const FIREBALL = {
+  palette: { r: '#d02000', o: '#ff8000', y: '#ffe040' },
+  rows: [
+    '...rrrr.....',
+    '.rroooorr...',
+    'roooyyyyoor.',
+    'rooyyyyyyyor',
+    'rooyyyyyyyor',
+    'roooyyyyoor.',
+    '.rroooorr...',
+    '...rrrr.....',
+  ],
 };

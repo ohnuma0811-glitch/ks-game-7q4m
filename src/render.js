@@ -1,9 +1,9 @@
-import { TILE } from './game/level.js?v=f65b659';
-import { cameraY } from './game/camera.js?v=f65b659';
-import { BACKDROPS, BACKDROP_SPRITES, layerPositions } from './data/backdrop.js?v=f65b659';
-import { getTheme } from './data/themes.js?v=f65b659';
-import { BOSS_HP } from './game/boss.js?v=f65b659';
-import { starCountdown } from './game/game.js?v=f65b659';
+import { TILE } from './game/level.js?v=7431a49';
+import { cameraY } from './game/camera.js?v=7431a49';
+import { BACKDROPS, BACKDROP_SPRITES, layerPositions } from './data/backdrop.js?v=7431a49';
+import { getTheme } from './data/themes.js?v=7431a49';
+import { BOSS_HP } from './game/boss.js?v=7431a49';
+import { starCountdown } from './game/game.js?v=7431a49';
 
 const TILE_KEYS = [null, 'G', 'B', 'Q', 'U', 'C', 'L', 'X'];
 
@@ -88,6 +88,12 @@ export function renderGame(ctx, game, gfx, viewW, viewH, tick, { hud = true, pla
     const shake = b.warning && Math.floor(tick / 2) % 2 ? 1 : 0;
     const oy = b.state === 'shell' ? 13 : 2;
     ctx.drawImage(b.dir < 0 ? f.right : f.left, sx(b.x - 2 + shake), sy(b.y - oy));
+  }
+
+  // ボスの火の玉（進む向きに合わせて絵を反転。ちらちらさせる）
+  for (const f of game.fireballs || []) {
+    const img = f.vx < 0 ? gfx.fireball.right : gfx.fireball.left;
+    ctx.drawImage(img, sx(f.x), sy(f.y + (Math.floor(tick / 4) % 2)));
   }
 
   // プレイヤー（スター中は点滅。スターの残り3秒は速く点滅）
