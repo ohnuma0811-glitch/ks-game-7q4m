@@ -1,5 +1,5 @@
-import { TILE } from './level.js?v=f9d92c9';
-import { moveAndCollide } from './physics.js?v=f9d92c9';
+import { TILE } from './level.js?v=7b794e6';
+import { moveAndCollide } from './physics.js?v=7b794e6';
 
 // ステージ4のボス（トゲの甲羅の大きな亀）
 // 歩く（プレイヤーの方へ）→ 甲羅に入る（その場で止まる）をくり返す。踏まれるとひるんで離れ、また歩き出す。

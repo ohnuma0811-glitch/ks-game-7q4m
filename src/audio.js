@@ -1,4 +1,4 @@
-import { SONGS, SFX, parseTrack } from './music.js?v=f9d92c9';
+import { SONGS, SFX, parseTrack } from './music.js?v=7b794e6';
 
 // Web Audio で BGM と効果音を鳴らす（ブラウザ専用）
 // BGM は少し先まで音を予約しておく（先読みスケジューラ）。重い端末でも途切れにくい
