@@ -1,12 +1,12 @@
-import { parseLevel, tileAt, setTile, TILE, QUESTION, USED, LAVA, GATE, EMPTY } from './level.js?v=12fe0c3';
-import { moveAndCollide } from './physics.js?v=12fe0c3';
-import { createBoss, updateBoss, hitBoss, canStomp, HURT_TICKS } from './boss.js?v=12fe0c3';
-import { createPlatform, updatePlatform } from './platforms.js?v=12fe0c3';
-import { Player, spawnPoint } from './player.js?v=12fe0c3';
-import { cameraX } from './camera.js?v=12fe0c3';
-import { createEnemy, updateEnemy } from './enemies.js?v=12fe0c3';
-import { createCoin, popCoin, popItem, updateItem, itemBox, collectible } from './items.js?v=12fe0c3';
-import { getDifficulty } from './difficulty.js?v=12fe0c3';
+import { parseLevel, tileAt, setTile, TILE, QUESTION, USED, LAVA, GATE, EMPTY } from './level.js?v=79fd970';
+import { moveAndCollide } from './physics.js?v=79fd970';
+import { createBoss, updateBoss, hitBoss, canStomp, HURT_TICKS } from './boss.js?v=79fd970';
+import { createPlatform, updatePlatform, PLATFORM_BOTTOM, LAVA_DIP_BOTTOM } from './platforms.js?v=79fd970';
+import { Player, spawnPoint } from './player.js?v=79fd970';
+import { cameraX } from './camera.js?v=79fd970';
+import { createEnemy, updateEnemy } from './enemies.js?v=79fd970';
+import { createCoin, popCoin, popItem, updateItem, itemBox, collectible } from './items.js?v=79fd970';
+import { getDifficulty } from './difficulty.js?v=79fd970';
 
 export const LIVES = 3;
 export const START_TIME = 200;
@@ -42,6 +42,12 @@ export function goalPoints(ratio) {
   if (ratio >= 0.4) return 800;
   if (ratio >= 0.2) return 400;
   return 100;
+}
+
+// スターが切れる3秒前からのカウントダウン（3・2・1）。それより前とスターなしは null
+export function starCountdown(star) {
+  if (star <= 0 || star > 180) return null;
+  return Math.ceil(star / 60);
 }
 
 export function overlap(a, b) {
@@ -100,7 +106,8 @@ export class Game {
           passed: this.passed.has(e.tx),
         });
       } else if (e.ch === 'M' || e.ch === 'N') {
-        const p = createPlatform(e.tx, e.ty, this.platforms.length);
+        // お城では溶岩に少し沈む
+        const p = createPlatform(e.tx, e.ty, this.platforms.length, this.theme === 'castle' ? LAVA_DIP_BOTTOM : PLATFORM_BOTTOM);
         this.platforms.push(p);
         // 2つ目の足場: Level 2 はクリボー、Level 3 はカエル
         const rider = e.ch === 'N' ? { normal: 'W', hard: 'y' }[this.difficulty] : null;
@@ -161,6 +168,8 @@ export class Game {
     this.updatePlatforms();
     p.update(input, this.level);
     if (p.jumped) this.events.push('jump');
+    // スターがもうすぐ切れる合図（残り3・2・1秒）
+    if (p.star === 180 || p.star === 120 || p.star === 60) this.events.push('starwarn');
     if (p.lastHit.ceil) this.hitBlock(p.lastHit.ceil.tx, p.lastHit.ceil.ty);
     if (p.fell || this.touchingLava()) {
       this.miss();

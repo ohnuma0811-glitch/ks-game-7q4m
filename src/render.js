@@ -1,8 +1,9 @@
-import { TILE } from './game/level.js?v=12fe0c3';
-import { cameraY } from './game/camera.js?v=12fe0c3';
-import { BACKDROPS, BACKDROP_SPRITES, layerPositions } from './data/backdrop.js?v=12fe0c3';
-import { getTheme } from './data/themes.js?v=12fe0c3';
-import { BOSS_HP } from './game/boss.js?v=12fe0c3';
+import { TILE } from './game/level.js?v=79fd970';
+import { cameraY } from './game/camera.js?v=79fd970';
+import { BACKDROPS, BACKDROP_SPRITES, layerPositions } from './data/backdrop.js?v=79fd970';
+import { getTheme } from './data/themes.js?v=79fd970';
+import { BOSS_HP } from './game/boss.js?v=79fd970';
+import { starCountdown } from './game/game.js?v=79fd970';
 
 const TILE_KEYS = [null, 'G', 'B', 'Q', 'U', 'C', 'L', 'X'];
 
@@ -34,6 +35,16 @@ export function renderGame(ctx, game, gfx, viewW, viewH, tick, { hud = true, pla
     }
   }
 
+  // 上下に動く足場（空は雲、それ以外はレンガの見た目）と、乗っている敵。
+  // タイルより先に描いて、お城で溶岩に沈んだ所が溶岩に隠れるようにする
+  const tiles0 = gfx.tiles[game.theme] || gfx.tiles.grass;
+  const platImg = tiles0[game.theme === 'sky' ? 'C' : 'B'];
+  for (const p of game.platforms || []) {
+    for (let i = 0; i < p.w / TILE; i++) ctx.drawImage(platImg, sx(p.x + i * TILE), sy(p.y));
+  }
+
+  for (const e of game.enemies) if (e.ride && !e.removed && e.active) drawEnemy(ctx, e, gfx, tick, sx, sy);
+
   // 画面に入っている列だけ描く
   const tx0 = Math.max(0, Math.floor(camX / TILE));
   const tx1 = Math.min(level.width - 1, Math.floor((camX + viewW - 1) / TILE));
@@ -42,12 +53,6 @@ export function renderGame(ctx, game, gfx, viewW, viewH, tick, { hud = true, pla
       const img = tiles[TILE_KEYS[level.tiles[ty * level.width + tx]]];
       if (img) ctx.drawImage(img, tx * TILE - camX, ty * TILE - camY);
     }
-  }
-
-  // 上下に動く足場（空は雲、それ以外はレンガの見た目）
-  const platImg = tiles[game.theme === 'sky' ? 'C' : 'B'];
-  for (const p of game.platforms || []) {
-    for (let i = 0; i < p.w / TILE; i++) ctx.drawImage(platImg, sx(p.x + i * TILE), sy(p.y));
   }
 
   // ゴールとチェックポイント
@@ -70,11 +75,8 @@ export function renderGame(ctx, game, gfx, viewW, viewH, tick, { hud = true, pla
 
   // 敵（歩く敵は足踏み、ほかは向いている方を見る）
   for (const e of game.enemies) {
-    if (e.removed || !e.active) continue;
-    const flat = e.squash > 0 && e.kind !== 'spike';
-    const f = gfx.enemies[flat ? `${e.kind}Flat` : e.kind];
-    const img = e.kind === 'walker' ? (Math.floor(tick / 12) % 2 ? f.left : f.right) : (e.dir > 0 ? f.right : f.left);
-    ctx.drawImage(img, sx(e.x - 1), sy(e.y - 1));
+    if (e.removed || !e.active || e.ride) continue;
+    drawEnemy(ctx, e, gfx, tick, sx, sy);
   }
 
   // ボス（ひるんでいる間は点滅）
@@ -97,6 +99,14 @@ export function renderGame(ctx, game, gfx, viewW, viewH, tick, { hud = true, pla
     ctx.drawImage(player.facing < 0 ? frame.left : frame.right, sx(player.x - 2), sy(player.y - 2));
   }
 
+  // スターがもうすぐ切れる: 頭の上に 3・2・1
+  const cd = starCountdown(player.star);
+  if (cd) {
+    ctx.font = '8px monospace';
+    ctx.textBaseline = 'bottom';
+    text(ctx, String(cd), sx(player.x + player.w / 2), sy(player.y - 3), 'center');
+  }
+
   // 取った点数（白い小さな数字）
   ctx.font = '8px monospace';
   ctx.textBaseline = 'bottom';
@@ -107,6 +117,13 @@ export function renderGame(ctx, game, gfx, viewW, viewH, tick, { hud = true, pla
     if (game.state === 'clear') drawBanner(ctx, viewW, viewH, 'STAGE CLEAR!');
     if (game.state === 'gameover') drawBanner(ctx, viewW, viewH, 'GAME OVER');
   }
+}
+
+function drawEnemy(ctx, e, gfx, tick, sx, sy) {
+  const flat = e.squash > 0 && e.kind !== 'spike';
+  const f = gfx.enemies[flat ? `${e.kind}Flat` : e.kind];
+  const img = e.kind === 'walker' ? (Math.floor(tick / 12) % 2 ? f.left : f.right) : (e.dir > 0 ? f.right : f.left);
+  ctx.drawImage(img, sx(e.x - 1), sy(e.y - 1));
 }
 
 function text(ctx, s, x, y, align = 'left') {

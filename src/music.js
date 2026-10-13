@@ -240,6 +240,8 @@ export const SFX = {
   star: { wave: 'square', steps: [{ freq: 784, dur: 0.05, gain: 0.15 }, { freq: 988, dur: 0.05, gain: 0.15 }, { freq: 1175, dur: 0.05, gain: 0.15 }, { freq: 1568, dur: 0.15, gain: 0.15 }] },
   miss: { wave: 'square', steps: [{ freq: 660, to: 330, dur: 0.25, gain: 0.18 }, { freq: 330, to: 110, dur: 0.45, gain: 0.18 }] },
   button: { wave: 'square', steps: [{ freq: 880, dur: 0.04, gain: 0.12 }] },
+  // スターがもうすぐ切れる（3・2・1）
+  starwarn: { wave: 'square', steps: [{ freq: 1319, dur: 0.07, gain: 0.16 }] },
   // ボスを踏んだ・ボスが甲羅に入った・ボスが倒れた
   bosshit: { wave: 'square', steps: [{ freq: 320, to: 120, dur: 0.12, gain: 0.22 }, { freq: 220, to: 70, dur: 0.14, gain: 0.22 }] },
   bossshell: { wave: 'triangle', steps: [{ freq: 240, to: 110, dur: 0.16, gain: 0.4 }] },
