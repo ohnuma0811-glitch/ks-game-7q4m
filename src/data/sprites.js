@@ -21,7 +21,7 @@ const KYUGO_TOP = [
   '..HHSSSSSESES...',
   '...HSSSSSESES...',
   '...SSSSSSSSSS...',
-  '....SSSSMTTM....',
+  '....SSSSMTTMS...',
   '.....SSSSSS.....',
   '....KKKKKKKK....',
   '...KKKKKKKKKK...',
