@@ -1,16 +1,16 @@
-import { computeViewport, isPortrait } from './screen.js?v=e6a2c48';
-import { startLoop } from './loop.js?v=e6a2c48';
-import { Input, attachInput, computeButtonLayout } from './input.js?v=e6a2c48';
-import { buildGraphics } from './gfx.js?v=e6a2c48';
-import { Game } from './game/game.js?v=e6a2c48';
-import { renderGame } from './render.js?v=e6a2c48';
-import { STAGES } from './data/stages.js?v=e6a2c48';
-import { Flow } from './flow.js?v=e6a2c48';
-import { createUI } from './ui.js?v=e6a2c48';
-import { loadNames, saveNames } from './names.js?v=e6a2c48';
-import { loadRanking, saveRanking, storageWorks } from './ranking.js?v=e6a2c48';
-import { Sound } from './audio.js?v=e6a2c48';
-import { musicFor } from './musicstate.js?v=e6a2c48';
+import { computeViewport, isPortrait } from './screen.js?v=09f3fcb';
+import { startLoop } from './loop.js?v=09f3fcb';
+import { Input, attachInput, computeButtonLayout } from './input.js?v=09f3fcb';
+import { buildGraphics } from './gfx.js?v=09f3fcb';
+import { Game } from './game/game.js?v=09f3fcb';
+import { renderGame } from './render.js?v=09f3fcb';
+import { STAGES } from './data/stages.js?v=09f3fcb';
+import { Flow } from './flow.js?v=09f3fcb';
+import { createUI } from './ui.js?v=09f3fcb';
+import { loadNames, saveNames } from './names.js?v=09f3fcb';
+import { loadRanking, saveRanking, storageWorks } from './ranking.js?v=09f3fcb';
+import { Sound } from './audio.js?v=09f3fcb';
+import { musicFor } from './musicstate.js?v=09f3fcb';
 
 // 「STAGE 1」を見せる時間（更新数）
 const INTRO_TICKS = 90;
@@ -186,7 +186,6 @@ function update() {
   } else if (flow.screen === 'play' && !flow.paused) {
     game.update(input, view.width);
     playEvents();
-    updateMusic();
     // クリア・ゲームオーバーの表示を見せ終わったら次へ
     if (game.canRestart()) {
       if (game.state === 'clear') flow.stageCleared(game);
@@ -194,6 +193,8 @@ function update() {
     }
   }
   if (flow.screen !== lastScreen || flow.paused !== lastPaused) afterAction();
+  // 曲は毎回確かめる（エンディングの曲は、クリアのジングルが鳴り終わったあとで始める）
+  updateMusic();
 }
 
 let fps = 0;
