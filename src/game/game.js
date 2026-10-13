@@ -1,12 +1,12 @@
-import { parseLevel, tileAt, setTile, TILE, QUESTION, USED, LAVA, GATE, EMPTY } from './level.js?v=01e4f55';
-import { moveAndCollide } from './physics.js?v=01e4f55';
-import { createBoss, updateBoss, hitBoss, canStomp, HURT_TICKS } from './boss.js?v=01e4f55';
-import { createPlatform, updatePlatform } from './platforms.js?v=01e4f55';
-import { Player, spawnPoint } from './player.js?v=01e4f55';
-import { cameraX } from './camera.js?v=01e4f55';
-import { createEnemy, updateEnemy } from './enemies.js?v=01e4f55';
-import { createCoin, popCoin, popItem, updateItem, itemBox, collectible } from './items.js?v=01e4f55';
-import { getDifficulty } from './difficulty.js?v=01e4f55';
+import { parseLevel, tileAt, setTile, TILE, QUESTION, USED, LAVA, GATE, EMPTY } from './level.js?v=12fe0c3';
+import { moveAndCollide } from './physics.js?v=12fe0c3';
+import { createBoss, updateBoss, hitBoss, canStomp, HURT_TICKS } from './boss.js?v=12fe0c3';
+import { createPlatform, updatePlatform } from './platforms.js?v=12fe0c3';
+import { Player, spawnPoint } from './player.js?v=12fe0c3';
+import { cameraX } from './camera.js?v=12fe0c3';
+import { createEnemy, updateEnemy } from './enemies.js?v=12fe0c3';
+import { createCoin, popCoin, popItem, updateItem, itemBox, collectible } from './items.js?v=12fe0c3';
+import { getDifficulty } from './difficulty.js?v=12fe0c3';
 
 export const LIVES = 3;
 export const START_TIME = 200;

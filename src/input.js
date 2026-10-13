@@ -1,7 +1,8 @@
 // タッチとキーボードを left / right / jump にまとめる
 const KEYS_LEFT = ['ArrowLeft', 'KeyA'];
 const KEYS_RIGHT = ['ArrowRight', 'KeyD'];
-const KEYS_JUMP = ['Space', 'ArrowUp', 'KeyZ'];
+// キーボードによっては矢印と Space を同時に押せないことがあるので、↑・Z・X でもジャンプできる
+const KEYS_JUMP = ['Space', 'ArrowUp', 'KeyZ', 'KeyX'];
 const HANDLED = new Set([...KEYS_LEFT, ...KEYS_RIGHT, ...KEYS_JUMP]);
 
 export function computeButtonLayout(winW, winH, safe = { left: 0, right: 0, bottom: 0 }) {
@@ -57,8 +58,10 @@ export class Input {
     this.touch = resolveTouches(this.points, layout);
   }
 
-  keyDown(code) {
-    if (KEYS_JUMP.includes(code) && !this.keys.has(code)) this.jumpLatch = true;
+  // repeat は押しっぱなしのくり返し。新しく押したときだけジャンプにする
+  // （離した知らせが届かずにキーが押されたままになっていても、押し直せばジャンプできる）
+  keyDown(code, repeat = false) {
+    if (KEYS_JUMP.includes(code) && !repeat) this.jumpLatch = true;
     this.keys.add(code);
   }
 
@@ -95,7 +98,7 @@ export function attachInput(input, target, getLayout) {
   window.addEventListener('keydown', (e) => {
     if (HANDLED.has(e.code)) {
       e.preventDefault();
-      input.keyDown(e.code);
+      input.keyDown(e.code, e.repeat);
     }
   });
   window.addEventListener('keyup', (e) => input.keyUp(e.code));
