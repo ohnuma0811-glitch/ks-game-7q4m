@@ -1,16 +1,18 @@
-import { computeViewport, isPortrait } from './screen.js?v=010200a';
-import { startLoop } from './loop.js?v=010200a';
-import { Input, attachInput, computeButtonLayout } from './input.js?v=010200a';
-import { buildGraphics } from './gfx.js?v=010200a';
-import { Game } from './game/game.js?v=010200a';
-import { renderGame } from './render.js?v=010200a';
-import { STAGES } from './data/stages.js?v=010200a';
-import { Flow } from './flow.js?v=010200a';
-import { createUI } from './ui.js?v=010200a';
-import { loadNames, saveNames } from './names.js?v=010200a';
-import { loadRanking, saveRanking, storageWorks } from './ranking.js?v=010200a';
-import { Sound } from './audio.js?v=010200a';
-import { musicFor } from './musicstate.js?v=010200a';
+import { computeViewport, isPortrait } from './screen.js?v=403b53b';
+import { startLoop } from './loop.js?v=403b53b';
+import { Input, attachInput, computeButtonLayout } from './input.js?v=403b53b';
+import { buildGraphics } from './gfx.js?v=403b53b';
+import { Game } from './game/game.js?v=403b53b';
+import { renderGame } from './render.js?v=403b53b';
+import { STAGES } from './data/stages.js?v=403b53b';
+import { Flow } from './flow.js?v=403b53b';
+import { createUI } from './ui.js?v=403b53b';
+import { loadNames, saveNames } from './names.js?v=403b53b';
+import { loadRanking, saveRanking, storageWorks } from './ranking.js?v=403b53b';
+import { Sound } from './audio.js?v=403b53b';
+import { musicFor } from './musicstate.js?v=403b53b';
+import { SharedRanking } from './shared.js?v=403b53b';
+import { RANKING_URL } from './config.js?v=403b53b';
 
 // 「STAGE 1」を見せる時間（更新数）
 const INTRO_TICKS = 90;
@@ -51,14 +53,25 @@ const params = new URLSearchParams(location.search);
 const startStage = Number(params.get('stage')) - 1;
 // 確認用: ?fps で、1秒に何回描けているかを右上に出す
 const showFps = params.has('fps');
+// 記録の id（みんなのランキングで、同じ記録を2回数えないため）
+function makeId() {
+  if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
+}
+// みんなのランキング（src/config.js に URL があるとき）。遠くの家族の端末で遊んだ記録もまとめる
+const shared = new SharedRanking({ url: RANKING_URL, fetch: (url, opt) => fetch(url, opt), storage, makeId });
+if (shared.enabled) shared.migrate(loadRanking(storage));
 const flow = new Flow(STAGES.length, {
   startStage,
   savedNames: loadNames(storage),
   onSavedNamesChange: (list) => saveNames(storage, list),
   // ランキングも端末に記録する（保存できない端末では記録しない）
-  ranking: loadRanking(storage),
+  ranking: shared.enabled ? shared.view() : loadRanking(storage),
   onRankingChange: (r) => saveRanking(storage, r),
   rankingAvailable: storageWorks(storage),
+  shared: shared.enabled,
+  makeId,
+  onRecord: (level, entry) => shared.add(level, entry),
 });
 // メニューの後ろに見せるステージ1の景色
 const backdrop = new Game(STAGES[0].map);
@@ -80,6 +93,8 @@ function afterAction(act) {
     sound.playSfx('button');
   }
   if (flow.screen !== lastScreen) {
+    // タイトルとランキングの画面に来たら、みんなのランキングを受け取り直す
+    if (flow.screen === 'title' || flow.screen === 'ranking') refreshShared(flow.screen === 'ranking');
     if (flow.screen === 'intro') {
       introTicks = 0;
       const next = STAGES[flow.stageIndex];
@@ -99,6 +114,17 @@ function afterAction(act) {
   else sound.resume();
   updateMusic();
   ui.render();
+}
+
+// みんなのランキングを受け取り直して、画面に出す。loading なら受け取っている間「よみこみちゅう…」
+function refreshShared(loading) {
+  if (!shared.enabled) return;
+  if (loading) flow.rankingLoading = true;
+  shared.refresh().then((r) => {
+    flow.setRanking(r);
+    flow.rankingLoading = false;
+    ui.render();
+  });
 }
 
 // 今の状態に合う BGM にする（メニューでは止める。ミス・クリア・結果の間はジングルのまま）
@@ -269,6 +295,8 @@ for (const type of ['pointerdown', 'touchend', 'keydown']) {
 }
 
 attachInput(input, touchLayer, () => layout);
+// 電波が戻ったら、送れていなかった記録を送る
+window.addEventListener('online', () => shared.flush());
 window.addEventListener('resize', resize);
 window.addEventListener('orientationchange', resize);
 document.addEventListener('gesturestart', (e) => e.preventDefault());
@@ -280,6 +308,7 @@ if ('serviceWorker' in navigator && location.protocol === 'https:') {
 
 resize();
 afterAction();
+refreshShared(false);
 startLoop({
   update,
   render() { countFps(); render(); },

@@ -24,7 +24,7 @@ export function insertScore(list, entry) {
   return { list: [...list.slice(0, i), entry, ...list.slice(i)].slice(0, RANK_SIZE), rank: i + 1 };
 }
 
-function validEntry(e) {
+export function validEntry(e) {
   return Boolean(e)
     && typeof e.name === 'string' && /^[A-Z]{1,8}$/.test(e.name)
     && AVATARS.includes(e.avatar)

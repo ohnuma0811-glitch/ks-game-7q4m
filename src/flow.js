@@ -1,5 +1,5 @@
-import { addName, removeName } from './names.js?v=010200a';
-import { emptyRanking, insertScore, formatDate } from './ranking.js?v=010200a';
+import { addName, removeName } from './names.js?v=403b53b';
+import { emptyRanking, insertScore, formatDate } from './ranking.js?v=403b53b';
 
 // 画面の流れ（タイトル → だれが遊ぶ／名前 → キャラ → むずかしさ → ステージ → 結果）。DOM に依存しない
 export const MAX_NAME = 8;
@@ -16,6 +16,10 @@ export class Flow {
     ranking = emptyRanking(),
     onRankingChange = () => {},
     rankingAvailable = true,
+    // みんなのランキング（共有）のとき: 記録に付ける id を作る関数と、記録を送る関数
+    shared = false,
+    makeId = () => '',
+    onRecord = () => {},
     now = () => new Date(),
     startStage = 0,
   } = {}) {
@@ -29,6 +33,12 @@ export class Flow {
     this.ranking = ranking;
     this.onRankingChange = onRankingChange;
     this.rankingAvailable = rankingAvailable;
+    this.shared = shared;
+    this.makeId = makeId;
+    this.onRecord = onRecord;
+    // みんなのランキングを受け取っている間
+    this.rankingLoading = false;
+    this.lastId = null;
     this.now = now;
     // 確認用に途中のステージから始める（?stage=N）。その時はランキングに入れない
     this.startStage = Number.isInteger(startStage) && startStage > 0 && startStage < stageCount ? startStage : 0;
@@ -179,12 +189,16 @@ export class Flow {
   // 遊んだ難易度のランキングに入れて、順位（入らなければ 0）を返す
   record(score) {
     if (!this.rankingAvailable || this.startStage > 0) return 0;
-    const entry = { name: this.name, avatar: this.avatar, score, date: formatDate(this.now()) };
+    let entry = { name: this.name, avatar: this.avatar, score, date: formatDate(this.now()) };
+    // 共有のときは id を付けて、10位に入らなくても送る（順位はみんなの記録で決まる）
+    if (this.shared) entry = { id: this.makeId(), ...entry };
+    this.lastId = entry.id || null;
     const { list, rank } = insertScore(this.ranking[this.difficulty], entry);
     if (rank > 0) {
       this.ranking = { ...this.ranking, [this.difficulty]: list };
       this.onRankingChange(this.ranking);
     }
+    if (this.shared) this.onRecord(this.difficulty, entry);
     return rank;
   }
 
@@ -199,8 +213,19 @@ export class Flow {
     if (this.screen !== 'result') return;
     this.rankingLevel = this.difficulty;
     this.highlight = this.result.rank > 0 ? { level: this.difficulty, rank: this.result.rank } : null;
+    if (this.highlight && this.shared) this.highlight.id = this.lastId;
     this.result = null;
     this.screen = 'ranking';
+  }
+
+  // 受け取り直したみんなのランキングに入れかえる。自分の記録が目立つ順位も合わせる
+  setRanking(ranking) {
+    this.ranking = ranking;
+    const h = this.highlight;
+    if (h && h.id) {
+      const i = ranking[h.level].findIndex((e) => e.id === h.id);
+      this.highlight = i >= 0 ? { ...h, rank: i + 1 } : null;
+    }
   }
 
   showRanking(level) {
@@ -208,7 +233,8 @@ export class Flow {
   }
 
   askReset() {
-    if (this.screen === 'ranking' && this.rankingAvailable) this.confirmingReset = true;
+    // みんなのランキングは、ゲームからは消せない（消すときはスプレッドシートで）
+    if (this.screen === 'ranking' && this.rankingAvailable && !this.shared) this.confirmingReset = true;
   }
 
   confirmReset() {

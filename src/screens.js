@@ -1,4 +1,4 @@
-import { MAX_NAME, DIFFICULTY_IDS } from './flow.js?v=010200a';
+import { MAX_NAME, DIFFICULTY_IDS } from './flow.js?v=403b53b';
 
 // 画面ごとの見出しとボタン（DOM に依存しない。ui.js が HTML にする）
 export const GAME_TITLE = 'KyugoとSokiの大冒険';
@@ -141,6 +141,12 @@ function endingCredits(flow) {
   ];
 }
 
+function rankingNotice(flow) {
+  if (flow.rankingLoading) return 'よみこみちゅう…';
+  if (flow.shared) return 'みんなの ランキング';
+  return flow.rankingAvailable ? undefined : 'この端末では きろくできません';
+}
+
 function rankingModel(flow) {
   if (flow.confirmingReset) {
     return {
@@ -159,14 +165,15 @@ function rankingModel(flow) {
   }));
   const buttons = [{ label: 'もどる', act: 'back' }];
   // リセットは大人向け。3秒押し続けたときだけ
-  if (flow.rankingAvailable) buttons.push({ label: 'リセット（ながおし）', act: 'askReset', longPress: true });
+  // みんなのランキングは、ゲームからは消せない（消すときはスプレッドシートで）
+  if (flow.rankingAvailable && !flow.shared) buttons.push({ label: 'リセット（ながおし）', act: 'askReset', longPress: true });
   return {
     id: 'ranking',
     heading: 'ランキング',
     tabs: DIFFICULTY_IDS.map((d) => ({ label: DIFFICULTY_LABELS[d], act: 'showRanking', arg: d, selected: d === level })),
     rows,
     empty: rows.length === 0 ? 'まだ きろくが ありません' : undefined,
-    notice: flow.rankingAvailable ? undefined : 'この端末では きろくできません',
+    notice: rankingNotice(flow),
     buttons,
   };
 }
