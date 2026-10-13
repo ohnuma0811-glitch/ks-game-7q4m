@@ -1,6 +1,8 @@
 // 敵・アイテム・ブロック・ゴールのドット絵（16×16、'.' は透明）
 const WALKER_PAL = { a: '#9c5a2a', k: '#000000', w: '#ffffff', f: '#f2c9a0' };
 const JUMPER_PAL = { g: '#2e9e3e', l: '#9be38a', k: '#000000', w: '#ffffff', r: '#c0392b' };
+// 赤いカエル（Level 3）。溜めている間は口が黄色く光る
+const RED_JUMPER_PAL = { g: '#d0281c', l: '#ffaa8c', k: '#000000', w: '#ffffff', r: '#5a0d0d', y: '#ffe040' };
 const SPIKE_PAL = { p: '#7b2fbe', q: '#c39bd3', k: '#000000', w: '#ffffff', s: '#e8e8e8' };
 const COIN_PAL = { y: '#f8d030', o: '#c88800', w: '#ffffff' };
 const DRINK_PAL = { w: '#ffffff', l: '#1f4fbf', r: '#e02020', s: '#bbbbbb' };
@@ -107,6 +109,11 @@ export const ENEMIES = {
     ],
   },
 };
+
+// 赤いカエル: 緑のカエルと同じ形で色だけ赤。溜めの絵は口（r）を光らせる
+ENEMIES.redJumper = { palette: RED_JUMPER_PAL, rows: ENEMIES.jumper.rows };
+ENEMIES.redJumperFlat = { palette: RED_JUMPER_PAL, rows: ENEMIES.jumperFlat.rows };
+ENEMIES.redJumperCharge = { palette: RED_JUMPER_PAL, rows: ENEMIES.jumper.rows.map((r) => r.replaceAll('r', 'y')) };
 
 export const ITEMS = {
   coin: {

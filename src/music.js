@@ -499,6 +499,9 @@ export const SFX = {
   bossshell: { wave: 'triangle', steps: [{ freq: 240, to: 110, dur: 0.16, gain: 0.4 }] },
   // ボスが火を吹く（ゴーッ）
   bossfire: { wave: 'noise', steps: [{ freq: 0, dur: 0.12, gain: 0.35 }, { freq: 0, dur: 0.3, gain: 0.2 }] },
+  // 赤いカエルが溜める（約1秒、だんだん高くなる）と、火を吹く
+  charge: { wave: 'square', steps: [{ freq: 220, to: 880, dur: 0.95, gain: 0.08 }] },
+  frogfire: { wave: 'noise', steps: [{ freq: 0, dur: 0.1, gain: 0.3 }, { freq: 0, dur: 0.25, gain: 0.18 }] },
   bossdown: { wave: 'square', steps: [{ freq: 220, to: 55, dur: 0.45, gain: 0.2 }, { freq: 523, dur: 0.1, gain: 0.16 }, { freq: 659, dur: 0.1, gain: 0.16 }, { freq: 784, dur: 0.1, gain: 0.16 }, { freq: 1047, dur: 0.3, gain: 0.16 }] },
 };
 

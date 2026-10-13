@@ -9,22 +9,28 @@ export const DIFFICULTIES = {
     // ボスが甲羅に入るまでに歩く時間（更新数）と、火の玉を吹くか
     bossWalk: 150,
     bossFire: 0,
+    bossRandom: false,
   },
   normal: {
     label: 'LEVEL 2',
     enemySpeed: 1,
     checkpoints: ['H'],
-    enemyChars: ['w', 'W', 'j', 'J', 'S'],
+    enemyChars: ['w', 'W', 'j', 'J', 'R', 'S'],
     bossWalk: 100,
     bossFire: 2,
+    bossRandom: false,
   },
   hard: {
     label: 'LEVEL 3',
     enemySpeed: 1.6,
     checkpoints: [],
-    enemyChars: ['w', 'W', 'x', 'j', 'J', 'y', 'S', 'z'],
+    enemyChars: ['w', 'W', 'x', 'j', 'J', 'y', 'R', 'r', 'S', 'z'],
+    // R のカエルを赤いカエル（火を吹く）にする
+    redFrog: true,
     bossWalk: 70,
     bossFire: 1,
+    // 甲羅に入るまでの時間と、甲羅に入っている時間を毎回ランダムに
+    bossRandom: true,
   },
 };
 

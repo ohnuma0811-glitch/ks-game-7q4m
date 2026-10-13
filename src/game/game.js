@@ -1,12 +1,12 @@
-import { parseLevel, tileAt, setTile, isSolid, TILE, QUESTION, USED, LAVA, GATE, EMPTY } from './level.js?v=69fd9b8';
-import { moveAndCollide } from './physics.js?v=69fd9b8';
-import { createBoss, updateBoss, hitBoss, canStomp, HURT_TICKS } from './boss.js?v=69fd9b8';
-import { createPlatform, createCloud, updatePlatform, PLATFORM_BOTTOM, LAVA_DIP_BOTTOM } from './platforms.js?v=69fd9b8';
-import { Player, spawnPoint } from './player.js?v=69fd9b8';
-import { cameraX } from './camera.js?v=69fd9b8';
-import { createEnemy, updateEnemy } from './enemies.js?v=69fd9b8';
-import { createCoin, popCoin, popItem, updateItem, itemBox, collectible } from './items.js?v=69fd9b8';
-import { getDifficulty } from './difficulty.js?v=69fd9b8';
+import { parseLevel, tileAt, setTile, isSolid, TILE, QUESTION, USED, LAVA, GATE, EMPTY } from './level.js?v=42d497e';
+import { moveAndCollide } from './physics.js?v=42d497e';
+import { createBoss, updateBoss, hitBoss, canStomp, HURT_TICKS } from './boss.js?v=42d497e';
+import { createPlatform, createCloud, updatePlatform, PLATFORM_BOTTOM, LAVA_DIP_BOTTOM } from './platforms.js?v=42d497e';
+import { Player, spawnPoint } from './player.js?v=42d497e';
+import { cameraX } from './camera.js?v=42d497e';
+import { createEnemy, updateEnemy } from './enemies.js?v=42d497e';
+import { createCoin, popCoin, popItem, updateItem, itemBox, collectible } from './items.js?v=42d497e';
+import { getDifficulty } from './difficulty.js?v=42d497e';
 
 export const LIVES = 3;
 export const START_TIME = 200;
@@ -37,6 +37,8 @@ export const BOSS_DOWN_SCORE = 5000;
 const BOSS_STOMP_INVULN = HURT_TICKS + 20;
 // ボスの火の玉（Level 3）の速さと大きさ
 const FIRE_SPEED = 2.2;
+// 赤いカエルの火の速さ
+const FROG_FIRE_SPEED = 1.8;
 const FIRE_W = 12;
 const FIRE_H = 8;
 export const STOMP_BOUNCE = -3.2;
@@ -69,8 +71,10 @@ export function overlap(a, b) {
 }
 
 export class Game {
-  constructor(levelLines, { avatar = 'kyugo', difficulty = 'normal', name = '', lives = LIVES, score = 0, coins = 0, theme = 'grass', time = START_TIME } = {}) {
+  constructor(levelLines, { avatar = 'kyugo', difficulty = 'normal', name = '', lives = LIVES, score = 0, coins = 0, theme = 'grass', time = START_TIME, rng = Math.random } = {}) {
     this.lines = levelLines;
+    // 赤いカエルが火を吹く間かくなど（テストでは決まった値にできる）
+    this.rng = rng;
     this.avatar = avatar;
     this.name = name;
     // ステージの見た目（src/data/themes.js）
@@ -221,6 +225,9 @@ export class Game {
     if (this.state !== 'playing') return;
     this.updateBoss(viewW);
     if (this.state !== 'playing') return;
+    // ボスと赤いカエルの火の玉
+    this.updateFireballs();
+    if (this.state !== 'playing') return;
     this.updateCheckpoints();
     this.updateTimer();
     if (this.state === 'playing' && p.x + p.w >= this.goalX) this.clear();
@@ -345,7 +352,15 @@ export class Game {
         if (e.x < this.camX + viewW + TILE) e.active = true;
         else continue;
       }
-      updateEnemy(e, this.level, p);
+      updateEnemy(e, this.level, p, this.rng);
+      if (e.chargeStart) {
+        e.chargeStart = false;
+        this.events.push('charge');
+      }
+      if (e.fire) {
+        e.fire = false;
+        this.frogFire(e);
+      }
       if (e.removed || e.dead || e.squash > 0 || !overlap(p, e)) continue;
       if (p.star > 0) {
         e.dead = true;
@@ -388,7 +403,7 @@ export class Game {
       b.active = true;
       this.events.push('bossstart');
     }
-    const ev = updateBoss(b, this.level, p);
+    const ev = updateBoss(b, this.level, p, this.rng);
     if (ev === 'shell') this.events.push('bossshell');
     if (ev === 'fire') {
       // 口の前から、向いている方へまっすぐ
@@ -396,8 +411,6 @@ export class Game {
       this.fireballs.push({ x, y: b.y + 6, w: FIRE_W, h: FIRE_H, vx: b.dir * FIRE_SPEED });
       this.events.push('bossfire');
     }
-    this.updateFireballs();
-    if (this.state !== 'playing') return;
     if (b.defeated || !overlap(p, b)) return;
     // ひるんでいる間とスター中は、どちらも傷つかない
     if (b.state === 'hurt' || p.star > 0) return;
@@ -422,13 +435,27 @@ export class Game {
   }
 
   // 火の玉はまっすぐ進み、壁や扉に当たると消える。触れるとミス（スター中・無敵中は平気）
+  // 赤いカエルの火: 真上と、左右ななめ上に3発
+  frogFire(e) {
+    const x = e.x + e.w / 2 - FIRE_W / 2;
+    const y = e.y - FIRE_H + 4;
+    const d = FROG_FIRE_SPEED * Math.SQRT1_2;
+    for (const [vx, vy] of [[0, -FROG_FIRE_SPEED], [-d, -d], [d, -d]]) {
+      this.fireballs.push({ x, y, w: FIRE_W, h: FIRE_H, vx, vy });
+    }
+    this.events.push('frogfire');
+  }
+
   updateFireballs() {
     const p = this.player;
     for (const f of this.fireballs) {
       f.x += f.vx;
+      f.y += f.vy || 0;
       const tx = Math.floor((f.x + f.w / 2) / TILE);
       const ty = Math.floor((f.y + f.h / 2) / TILE);
       if (isSolid(this.level, tx, ty)) f.gone = true;
+      // 画面の上やステージの外へ出たら消える
+      if (f.y + f.h < 0 || f.x + f.w < 0 || f.x > this.level.width * TILE) f.gone = true;
       if (!f.gone && overlap(p, f) && p.star <= 0 && p.invuln <= 0) {
         f.gone = true;
         this.hurt();

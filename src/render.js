@@ -1,9 +1,9 @@
-import { TILE } from './game/level.js?v=69fd9b8';
-import { cameraY } from './game/camera.js?v=69fd9b8';
-import { BACKDROPS, BACKDROP_SPRITES, layerPositions } from './data/backdrop.js?v=69fd9b8';
-import { getTheme } from './data/themes.js?v=69fd9b8';
-import { BOSS_HP } from './game/boss.js?v=69fd9b8';
-import { starCountdown } from './game/game.js?v=69fd9b8';
+import { TILE } from './game/level.js?v=42d497e';
+import { cameraY } from './game/camera.js?v=42d497e';
+import { BACKDROPS, BACKDROP_SPRITES, layerPositions } from './data/backdrop.js?v=42d497e';
+import { getTheme } from './data/themes.js?v=42d497e';
+import { BOSS_HP } from './game/boss.js?v=42d497e';
+import { starCountdown } from './game/game.js?v=42d497e';
 
 const TILE_KEYS = [null, 'G', 'B', 'Q', 'U', 'C', 'L', 'X'];
 
@@ -90,10 +90,21 @@ export function renderGame(ctx, game, gfx, viewW, viewH, tick, { hud = true, pla
     ctx.drawImage(b.dir < 0 ? f.right : f.left, sx(b.x - 2 + shake), sy(b.y - oy));
   }
 
-  // ボスの火の玉（進む向きに合わせて絵を反転。ちらちらさせる）
+  // ボスと赤いカエルの火の玉（進む向きに合わせて絵を反転・回転。ちらちらさせる）
   for (const f of game.fireballs || []) {
-    const img = f.vx < 0 ? gfx.fireball.right : gfx.fireball.left;
-    ctx.drawImage(img, sx(f.x), sy(f.y + (Math.floor(tick / 4) % 2)));
+    const flick = Math.floor(tick / 4) % 2;
+    if (!f.vy) {
+      const img = f.vx < 0 ? gfx.fireball.right : gfx.fireball.left;
+      ctx.drawImage(img, sx(f.x), sy(f.y + flick));
+    } else {
+      // 上やななめに飛ぶ火は、進む向きに回して描く（絵は右へ進む向き）
+      const img = gfx.fireball.left;
+      ctx.save();
+      ctx.translate(sx(f.x + f.w / 2), sy(f.y + f.h / 2 + flick));
+      ctx.rotate(Math.atan2(f.vy, f.vx));
+      ctx.drawImage(img, -img.width / 2, -img.height / 2);
+      ctx.restore();
+    }
   }
 
   // プレイヤー（スター中は点滅。スターの残り3秒は速く点滅。服が脱げた直後の当たらない間も点滅）
@@ -128,9 +139,13 @@ export function renderGame(ctx, game, gfx, viewW, viewH, tick, { hud = true, pla
 
 function drawEnemy(ctx, e, gfx, tick, sx, sy) {
   const flat = e.squash > 0 && e.kind !== 'spike';
-  const f = gfx.enemies[flat ? `${e.kind}Flat` : e.kind];
+  const base = e.red ? 'redJumper' : e.kind;
+  // 赤いカエルが溜めている間は、口が光ってぶるぶるふるえる（火を吹く合図）
+  const charging = e.red && e.charge > 0 && !flat;
+  const f = gfx.enemies[flat ? `${base}Flat` : charging ? 'redJumperCharge' : base];
   const img = e.kind === 'walker' ? (Math.floor(tick / 12) % 2 ? f.left : f.right) : (e.dir > 0 ? f.right : f.left);
-  ctx.drawImage(img, sx(e.x - 1), sy(e.y - 1));
+  const shake = charging && Math.floor(tick / 2) % 2 ? 1 : 0;
+  ctx.drawImage(img, sx(e.x - 1 + shake), sy(e.y - 1));
 }
 
 function text(ctx, s, x, y, align = 'left') {

@@ -1,5 +1,5 @@
-import { addName, removeName } from './names.js?v=69fd9b8';
-import { emptyRanking, insertScore, formatDate } from './ranking.js?v=69fd9b8';
+import { addName, removeName } from './names.js?v=42d497e';
+import { emptyRanking, insertScore, formatDate } from './ranking.js?v=42d497e';
 
 // 画面の流れ（タイトル → だれが遊ぶ／名前 → キャラ → むずかしさ → ステージ → 結果）。DOM に依存しない
 export const MAX_NAME = 8;

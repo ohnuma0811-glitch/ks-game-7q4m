@@ -1,6 +1,6 @@
-import { TILE, isSolid } from './level.js?v=69fd9b8';
-import { moveAndCollide } from './physics.js?v=69fd9b8';
-import { platformUnder } from './platforms.js?v=69fd9b8';
+import { TILE, isSolid } from './level.js?v=42d497e';
+import { moveAndCollide } from './physics.js?v=42d497e';
+import { platformUnder } from './platforms.js?v=42d497e';
 
 // x の位置の足元（footY）に、地面か動く足場があるか
 function groundAt(level, x, footY) {
@@ -8,7 +8,8 @@ function groundAt(level, x, footY) {
 }
 
 // 敵の文字と種類
-const KIND = { w: 'walker', W: 'walker', x: 'walker', j: 'jumper', J: 'jumper', y: 'jumper', S: 'spike', z: 'spike' };
+// R・r は赤いカエル（Level 3）。R は Level 2 では緑のカエル、r は Level 3 だけ
+const KIND = { w: 'walker', W: 'walker', x: 'walker', j: 'jumper', J: 'jumper', y: 'jumper', R: 'jumper', r: 'jumper', S: 'spike', z: 'spike' };
 
 const GRAVITY = 0.3;
 const MAX_FALL = 4;
@@ -17,6 +18,10 @@ export const SPIKE_SPEED = 0.4;
 export const HOP_V = -3.6;
 export const HOP_VX = 0.9;
 export const HOP_INTERVAL = 50;
+// 赤いカエル: 火を吹く前に溜める時間（約1秒）と、次に溜めはじめるまでの時間（ランダム。3〜6秒）
+export const CHARGE_TICKS = 60;
+export const FROG_FIRE_MIN = 180;
+export const FROG_FIRE_MAX = 360;
 // 跳んでから着地するまでの更新数（-HOP_V / GRAVITY の2倍）
 const HOP_AIR_TICKS = Math.ceil((2 * -HOP_V) / GRAVITY);
 
@@ -25,6 +30,12 @@ export function createEnemy(ch, tx, ty, diff) {
   const kind = KIND[ch];
   return {
     kind,
+    // 赤いカエル（溜めてから、上と左右ななめ上に火を吹く）
+    red: ch === 'r' || (ch === 'R' && Boolean(diff.redFrog)),
+    charge: 0,
+    fireTimer: null,
+    fire: false,
+    chargeStart: false,
     x: tx * TILE + 1,
     y: (ty + 1) * TILE - 14,
     w: 14,
@@ -43,7 +54,34 @@ export function createEnemy(ch, tx, ty, diff) {
   };
 }
 
-export function updateEnemy(e, level, player) {
+function nextFire(rng) {
+  return Math.min(FROG_FIRE_MAX, FROG_FIRE_MIN + Math.floor(rng() * (FROG_FIRE_MAX - FROG_FIRE_MIN + 1)));
+}
+
+// 赤いカエル: 時間が来たら着地している所で止まって溜め、溜め終わったら fire（火はゲームが出す）。
+// 溜めている間は true を返す（跳ねない）
+function updateRedFrog(e, rng) {
+  if (e.fireTimer === null) e.fireTimer = nextFire(rng);
+  if (e.charge > 0) {
+    e.charge--;
+    e.vx = 0;
+    if (e.charge === 0) {
+      e.fire = true;
+      e.fireTimer = nextFire(rng);
+    }
+    return true;
+  }
+  if (e.fireTimer > 0) e.fireTimer--;
+  if (e.fireTimer <= 0 && e.onGround) {
+    e.charge = CHARGE_TICKS;
+    e.chargeStart = true;
+    e.vx = 0;
+    return true;
+  }
+  return false;
+}
+
+export function updateEnemy(e, level, player, rng = Math.random) {
   if (e.removed) return;
   // 踏まれてつぶれている間
   if (e.squash > 0) {
@@ -70,6 +108,8 @@ export function updateEnemy(e, level, player) {
         e.vx = e.dir * speed;
       }
     }
+  } else if (e.kind === 'jumper' && e.red && updateRedFrog(e, rng)) {
+    // 溜めている間はその場で止まる
   } else if (e.kind === 'jumper' && e.onGround) {
     e.vx = 0;
     e.timer++;
