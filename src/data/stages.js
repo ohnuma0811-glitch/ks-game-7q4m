@@ -10,7 +10,7 @@ export const STAGE_1 = [
   '                                                                                                                                                                                                |       ',
   '                                                                                                                                                                                                |       ',
   '                                                               c cc                                                                                                            w                |       ',
-  '              ?   B?B?B                                       BB?BBB   d                                  BBsB                                          B?BB                   GGGGG  G         |       ',
+  '              ?   B?B?B                                       BB?BBBd                                     BBsB                                          B?BB                   GGGGG  G         |       ',
   '                                                    GG                      cccc                                                      GG                                      GGGGGG  GG        |       ',
   '                                          GG        GG                                        GG                          GG          GG                                     GGGGGGG  GGG       |       ',
   '       P                 w    cccW        GG  rw   zGG   W                       rRW j   Jjz  GG    H           rw        GG W  S     GG       cccjzW        x              GGGGGGGG  GGGG  Jr  |       ',

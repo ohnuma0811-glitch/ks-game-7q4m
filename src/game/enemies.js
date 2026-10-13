@@ -1,6 +1,6 @@
-import { TILE, isSolid } from './level.js?v=373b802';
-import { moveAndCollide } from './physics.js?v=373b802';
-import { platformUnder } from './platforms.js?v=373b802';
+import { TILE, isSolid } from './level.js?v=780bb26';
+import { moveAndCollide } from './physics.js?v=780bb26';
+import { platformUnder } from './platforms.js?v=780bb26';
 
 // x の位置の足元（footY）に、地面か動く足場があるか
 function groundAt(level, x, footY) {
