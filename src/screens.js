@@ -1,5 +1,5 @@
-import { MAX_NAME, DIFFICULTY_IDS, RESET_PASSWORD } from './flow.js?v=1e8581f';
-import { formatLeft } from './playtime.js?v=1e8581f';
+import { MAX_NAME, DIFFICULTY_IDS, RESET_PASSWORD } from './flow.js?v=d8ce42e';
+import { formatLeft } from './playtime.js?v=d8ce42e';
 
 // ランキングの画面に出す順位（レベルごと）
 export const RANK_SHOWN = 5;
