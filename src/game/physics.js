@@ -1,4 +1,4 @@
-import { TILE, isSolid } from './level.js?v=d8ce42e';
+import { TILE, isSolid } from './level.js?v=5ef8f1e';
 
 // 端のぴったり上は隣のタイルに入らないよう、少しだけ内側で判定する
 const EPS = 0.001;

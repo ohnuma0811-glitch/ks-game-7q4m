@@ -1,5 +1,5 @@
-import { MAX_NAME, DIFFICULTY_IDS, RESET_PASSWORD } from './flow.js?v=d8ce42e';
-import { formatLeft } from './playtime.js?v=d8ce42e';
+import { MAX_NAME, DIFFICULTY_IDS, RESET_PASSWORD } from './flow.js?v=5ef8f1e';
+import { formatLeft } from './playtime.js?v=5ef8f1e';
 
 // ランキングの画面に出す順位（レベルごと）
 export const RANK_SHOWN = 5;
@@ -178,6 +178,13 @@ export function screenModel(flow) {
 }
 
 // エンドロール（下から上へ流れる）
+// エンドロールの最後のメッセージ（レベルごと）
+const ENDING_MESSAGES = {
+  easy: ['上手に操作できてすごいね！', 'たのしかったかな？'],
+  normal: ['クリアおめでとう！', 'たくさん遊んでくれてうれしいよ！'],
+  hard: ['何回やってるの?', '遊んでばかりいないで', 'べんきょうしなさい！'],
+};
+
 function endingCredits(flow) {
   return [
     'You cleared all stages!',
@@ -198,10 +205,9 @@ function endingCredits(flow) {
     flow.name,
     `SCORE ${flow.result.score}`,
     '',
-    'ゲームばかりしてないで、',
-    'べんきょうしなさい！',
+    ...ENDING_MESSAGES[flow.difficulty],
     '',
-    'お父さんより',
+    'おとうさんより',
   ];
 }
 
